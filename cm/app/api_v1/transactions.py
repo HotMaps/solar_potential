@@ -7,7 +7,7 @@ from calculation_module import calculation
 import os
 from flask import send_from_directory
 import uuid
-UPLOAD_DIRECTORY = '/media/lesly/Data/project/cm_uploaded_files'
+UPLOAD_DIRECTORY = '/var/hotmaps/cm_uploaded_files'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)

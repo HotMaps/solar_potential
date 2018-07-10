@@ -4,6 +4,7 @@ URL_MAIN_WEBSERVICE = URL_MWS_DEV
 
 PORT = '5001'
 URL_CM = '0.0.0.0'
+DOCKER_URL = '172.17.0.5:5001'
 CM_NAME = 'calculation_module_1'
 CM_ID = 1
 
@@ -36,7 +37,7 @@ SIGNATURE = {
     "layers_needed": [
         "heat_density_tot"
     ],
-    "cm_url": '127.0.0.1',
+    "cm_url": DOCKER_URL,
     "cm_description": "this computation module allows to ....",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE

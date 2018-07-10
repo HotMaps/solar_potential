@@ -13,10 +13,19 @@ from .calculation_module import calculation
 from . import api
 from .. import CM_NAME, SIGNATURE, URL_MAIN_WEBSERVICE
 
-UPLOAD_DIRECTORY = '/media/lesly/Data/project/cm_uploaded_files'
 
-if not os.path.exists(UPLOAD_DIRECTORY):
-    os.makedirs(UPLOAD_DIRECTORY)
+UPLOAD_DIRECTORY = '/var/hotmaps/cm_uploaded_files'
+
+while True:
+    mydir = UPLOAD_DIRECTORY
+    try:
+        os.makedirs(mydir)
+        break
+    except OSError, e:
+        if e.errno != os.errno.EEXIST:
+            raise
+            # time.sleep might help here
+        pass
 
 
 @api.route('/files/<string:filename>', methods=['GET'])

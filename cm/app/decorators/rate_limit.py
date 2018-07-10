@@ -7,6 +7,7 @@ _limiter = None
 
 class MemRateLimit(object):
     """Rate limiter that uses a Python dictionary as storage."""
+
     def __init__(self):
         self.counters = {}
 

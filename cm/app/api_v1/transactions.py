@@ -1,6 +1,6 @@
-from flask import request, abort, jsonify ,url_for, g,flash
+from flask import request, abort, jsonify, url_for, g, flash
 from . import api
-from .. import SIGNATURE,CM_NAME, URL_MAIN_WEBSERVICE
+from .. import SIGNATURE, CM_NAME, URL_MAIN_WEBSERVICE
 import json
 import requests
 from calculation_module import calculation
@@ -12,13 +12,14 @@ UPLOAD_DIRECTORY = '/media/lesly/Data/project/cm_uploaded_files'
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
 
+
 @api.route('/files/<string:filename>', methods=['GET'])
 def get(filename):
     return send_from_directory(UPLOAD_DIRECTORY, filename, as_attachment=True)
 
+
 @api.route('/register/', methods=['POST'])
 def register():
-
     """ register the Calculation module (CM)to the main web services (MWS)-
     the CM will send its SIGNATURE to the main web service, CM SIGNATURE contains elements to identity the CM and
     how to handle it and the list of input it needs on the user interface. CM SIGNATURE can be find on app/constants.py file, this file must be change manually
@@ -37,7 +38,7 @@ def register():
 
     print 'CM will register '
 
-    base_url =  request.base_url.replace("computation-module/register/","")
+    base_url = request.base_url.replace("computation-module/register/", "")
     print 'CM base_url register '
     signature_final = SIGNATURE
     signature_final["cm_url"] = base_url
@@ -47,9 +48,10 @@ def register():
     registerCM(payload)
     return json.dumps({'response': payload})
 
+
 def registerCM(data):
-    headers = {'Content-Type':  'application/json'}
-    res = requests.post(URL_MAIN_WEBSERVICE+'api/cm/register/', data = data, headers=headers)
+    headers = {'Content-Type': 'application/json'}
+    res = requests.post(URL_MAIN_WEBSERVICE + 'api/cm/register/', data=data, headers=headers)
     reponse = res.text
     status_code = res.status_code
     print 'res.json() ', res.json()
@@ -57,7 +59,8 @@ def registerCM(data):
     print 'reponse ', reponse
     return requests
 
-def savefile(filename,url):
+
+def savefile(filename, url):
     print url
     r = requests.get(url, stream=True)
     print r.status_code
@@ -68,9 +71,9 @@ def savefile(filename,url):
                 f.write(chunk)
     return path
 
+
 @api.route('/compute/', methods=['POST'])
 def compute():
-
     """ compute the Calculation module (CM)from the main web services (MWS)-
     the main web service is sending
         ---
@@ -107,15 +110,15 @@ def compute():
     url_file = data["url_file"]
     filename = data["filename"]
     # part to modify from the CM rpovider
-        #parameters needed from the CM
+    # parameters needed from the CM
     reduction_factor = data["reduction_factor"]
-    print 'reduction_factor ',reduction_factor
-    file_path = savefile(filename,url_file)
+    print 'reduction_factor ', reduction_factor
+    file_path = savefile(filename, url_file)
     filename = str(uuid.uuid4()) + '.tif'
-    path_final = UPLOAD_DIRECTORY+'/'+filename
+    path_final = UPLOAD_DIRECTORY + '/' + filename
     #file_path = '/media/lesly/Data/Repositories/Computation_module/cm/app/api_v1/Raster_clip_extend.tif'
     indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
-    base_url =  request.base_url.replace("compute","files")
+    base_url = request.base_url.replace("compute", "files")
     # 1.2.1  url for downloading raster
     url_download_raster = base_url + filename
     print 'indicator {}'.format(indicator)
@@ -123,7 +126,7 @@ def compute():
         'indicators': [{
             'indicator_name': 'heat_density',
             'indicator_value': str(indicator),
-            'indicator_unit': 'KW',}
+            'indicator_unit': 'KW', }
 
         ],
         'tiff_url': url_download_raster,
@@ -132,17 +135,13 @@ def compute():
     }
     response = json.dumps(response)
     return response
-def call_calculation_module(file_name, factor=2,directory=UPLOAD_DIRECTORY):
+
+
+def call_calculation_module(file_name, factor=2, directory=UPLOAD_DIRECTORY):
     return calculation(file_name, factor=2, directory=UPLOAD_DIRECTORY)
 
 
-
 # Delete CM from main API
-@api.route('/unregister/'+ CM_NAME , methods = ['DELETE'])
+@api.route('/unregister/' + CM_NAME, methods=['DELETE'])
 def unregister_cm(cm_name):
     print 'request for deleting CM'
-
-
-
-
-

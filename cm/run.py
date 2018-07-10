@@ -8,7 +8,6 @@ import threading
 import time
 
 
-
 application = create_app(os.environ.get('FLASK_CONFIG', 'development'))
 
 
@@ -18,13 +17,19 @@ def start_runner():
         while not_started:
             print('In start loop')
             try:
-                headers = {'Content-Type':  'application/json'}
-                r = requests.post('http://'+URL_CM+':'+ PORT+'/computation-module/register/', headers=headers)
+                headers = {'Content-Type': 'application/json'}
+                r = requests.post(
+                    'http://' +
+                    URL_CM +
+                    ':' +
+                    PORT +
+                    '/computation-module/register/',
+                    headers=headers)
                 if r.status_code == 200:
                     print('Server started, quiting start_loop')
                     not_started = False
                 print(r.status_code)
-            except:
+            except BaseException:
                 print('Server not yet started')
             time.sleep(2)
 
@@ -36,5 +41,3 @@ def start_runner():
 if __name__ == '__main__':
     start_runner()
     application.run(host=URL_CM, port=PORT)
-
-

@@ -2,17 +2,15 @@
 from osgeo import gdal
 
 
-
-
 def calculation(file_name, factor, directory):
     ds = gdal.Open(file_name)
     ds_band = ds.GetRasterBand(1)
 
-    #----------------------------------------------------
+    # ----------------------------------------------------
     pixel_values = ds.ReadAsArray()
-    #----------Reduction factor----------------
+    # ----------Reduction factor----------------
 
-    pixel_values_modified = pixel_values/factor
+    pixel_values_modified = pixel_values / factor
     indicator = pixel_values_modified.sum()
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()

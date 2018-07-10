@@ -6,6 +6,6 @@ db_path = os.path.join(basedir, '../data.sqlite')
 DEBUG = False
 SECRET_KEY = 'top-secret!'
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-                          'sqlite:///' + db_path
+    'sqlite:///' + db_path
 
 URL_MAIN_WEBSERVICE = 'http://127.0.0.1:5000/'

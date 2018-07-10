@@ -9,8 +9,16 @@ from flask import send_from_directory
 import uuid
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_uploaded_files'
 
-if not os.path.exists(UPLOAD_DIRECTORY):
-    os.makedirs(UPLOAD_DIRECTORY)
+while True:
+    mydir = UPLOAD_DIRECTORY
+    try:
+        os.makedirs(mydir)
+        break
+    except OSError, e:
+        if e.errno != os.errno.EEXIST:
+            raise
+            # time.sleep might help here
+        pass
 
 @api.route('/files/<string:filename>', methods=['GET'])
 def get(filename):

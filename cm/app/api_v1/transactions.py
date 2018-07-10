@@ -53,10 +53,12 @@ def register():
 
     print('CM will register ')
 
-    base_url = request.base_url.replace("computation-module/register/", "")
+    # base_url = request.base_url.replace("computation-module/register/", "")
     print('CM base_url register ')
     signature_final = SIGNATURE
-    signature_final["cm_url"] = base_url
+    ##push
+
+    #signature_final["cm_url"] = base_url
 
     payload = json.dumps(signature_final)
     print(payload)

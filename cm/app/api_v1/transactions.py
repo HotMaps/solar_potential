@@ -1,12 +1,16 @@
-from flask import request, abort, jsonify, url_for, g, flash
-from . import api
-from .. import SIGNATURE, CM_NAME, URL_MAIN_WEBSERVICE
 import json
-import requests
-from calculation_module import calculation
 import os
-from flask import send_from_directory
 import uuid
+
+import requests
+from flask import (abort, flash, g, jsonify, request, send_from_directory,
+                   url_for)
+
+from calculation_module import calculation
+
+from . import api
+from .. import CM_NAME, SIGNATURE, URL_MAIN_WEBSERVICE
+
 UPLOAD_DIRECTORY = '/media/lesly/Data/project/cm_uploaded_files'
 
 if not os.path.exists(UPLOAD_DIRECTORY):

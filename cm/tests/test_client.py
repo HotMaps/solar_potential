@@ -1,5 +1,6 @@
-from base64 import b64encode
 import json
+from base64 import b64encode
+
 try:
     from urllib.parse import urlparse, urlsplit, urlunsplit
 except ImportError:

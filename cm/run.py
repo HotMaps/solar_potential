@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 import os
-from app import create_app
-from app.constant import PORT
-from app.constant import URL_CM
-import requests
 import threading
 import time
 
+import requests
+
+from app import create_app
+from app.constant import PORT, URL_CM
 
 application = create_app(os.environ.get('FLASK_CONFIG', 'development'))
 

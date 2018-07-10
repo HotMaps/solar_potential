@@ -1,6 +1,7 @@
 from flask.globals import _app_ctx_stack, _request_ctx_stack
-from werkzeug.urls import url_parse
 from werkzeug.exceptions import NotFound
+from werkzeug.urls import url_parse
+
 from .exceptions import ValidationError
 
 

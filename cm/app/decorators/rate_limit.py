@@ -1,6 +1,7 @@
 import functools
 from time import time
-from flask import current_app, request, g, jsonify
+
+from flask import current_app, g, jsonify, request
 
 _limiter = None
 

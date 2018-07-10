@@ -1,5 +1,7 @@
 import unittest
+
 from werkzeug.exceptions import NotFound
+
 from app import create_app
 
 from .test_client import TestClient

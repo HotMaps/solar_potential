@@ -6,6 +6,10 @@
 FROM ubuntu:16.04
 
 
+ENV CELERY_BROKER_URL amqp://admin:mypass@rabbit:5672/
+ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+ENV C_FORCE_ROOT true
+
 
 MAINTAINER lesly Houndole <lesly.houndole@crem.ch>
 
@@ -56,7 +60,7 @@ COPY . /cm
 WORKDIR /cm
 
 RUN ls
-RUN pip install gunicorn
+
 # Install required python modules
 
 RUN pip install -r requirements.txt
@@ -68,7 +72,9 @@ RUN pip install -r requirements.txt
 EXPOSE 5001
 
 # Start server
-CMD ["gunicorn", "--config", "gunicorn-config.py", "--log-config", "app/logging.conf", "run:application"]
+#CMD ["gunicorn", "--config", "gunicorn-config.py", "--log-level", "debug", "run:application"]
+#CMD gunicorn -b 0.0.0.0:5001 --access-logfile - "run:application"
+CMD ./run_cm_services.sh
 
 
 

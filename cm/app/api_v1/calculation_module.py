@@ -12,7 +12,7 @@ def calculation(file_name, factor, directory):
     pixel_values = ds.ReadAsArray()
     #----------Reduction factor----------------
 
-    pixel_values_modified = pixel_values/factor
+    pixel_values_modified = pixel_values/ float(factor)
     indicator = pixel_values_modified.sum()
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()

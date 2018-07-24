@@ -2,6 +2,16 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, '../data-dev.sqlite')
+##config.py
+FLASK_PIKA_PARAMS = {
+    'host':'localhost',      #amqp.server.com
+}
+
+# optional pooling params
+FLASK_PIKA_POOL_PARAMS = {
+    'pool_size': 8,
+    'pool_recycle': 600
+}
 
 DEBUG = True
 IGNORE_AUTH = True

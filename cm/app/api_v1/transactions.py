@@ -7,18 +7,19 @@ from calculation_module import calculation
 import os
 from flask import send_from_directory
 import uuid
-UPLOAD_DIRECTORY = '/var/hotmaps/cm_uploaded_files'
+from app import constant
+from app.constant import PORT,RPC_Q
+from app.api_v1 import errors
+import socket
 
-while True:
-    mydir = UPLOAD_DIRECTORY
-    try:
-        os.makedirs(mydir)
-        break
-    except OSError, e:
-        if e.errno != os.errno.EEXIST:
-            raise
-            # time.sleep might help here
-        pass
+
+
+
+
+UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+    os.chmod(UPLOAD_DIRECTORY, 0777)
 
 @api.route('/files/<string:filename>', methods=['GET'])
 def get(filename):
@@ -44,33 +45,36 @@ def register():
              """
 
     print 'CM will register '
-
-    #base_url =  request.base_url.replace("computation-module/register/","")
-    print 'CM base_url register '
+    # about to send the external IP
+    ip = socket.gethostbyname(socket.gethostname())
+    base_url = 'http://'+ str(ip) +':'+ str(PORT) +'/'
+    #base_url = 'http://httpbin.org/post'
     signature_final = SIGNATURE
-    ##push
-
-    #signature_final["cm_url"] = base_url
-
+    signature_final["cm_url"] = base_url
     payload = json.dumps(signature_final)
-    print payload
-    registerCM(payload)
-    return json.dumps({'response': payload})
+
+    return registerCM(payload)
 
 def registerCM(data):
+    print 'registerCM'
     headers = {'Content-Type':  'application/json'}
-    res = requests.post(URL_MAIN_WEBSERVICE+'api/cm/register/', data = data, headers=headers)
+    res = requests.post(URL_MAIN_WEBSERVICE+'api/cm/register/', data = data, headers = headers)
+
+
     reponse = res.text
     status_code = res.status_code
     print 'res.json() ', res.json()
     print 'status_code ', status_code
     print 'reponse ', reponse
-    return requests
+    return reponse
+
+
 
 def savefile(filename,url):
     print url
     r = requests.get(url, stream=True)
-    print r.status_code
+    path = None
+    print 'image saved',r.status_code
     if r.status_code == 200:
         path = os.path.join(UPLOAD_DIRECTORY, filename)
         with open(path, 'wb') as f:
@@ -130,12 +134,13 @@ def compute():
     url_download_raster = base_url + filename
     print 'indicator {}'.format(indicator)
     response = {
-        'indicators': [{
-            'indicator_name': 'heat_density',
-            'indicator_value': str(indicator),
-            'indicator_unit': 'KW',}
+        'values': [{
+            'name': 'heat demand from Calculation Module',
+            'value': str(indicator),
+            'unit': 'MWh',}
 
         ],
+
         'tiff_url': url_download_raster,
         'filename': filename
 
@@ -153,6 +158,47 @@ def unregister_cm(cm_name):
     print 'request for deleting CM'
 
 
+## Messaging
+
+
+
+def calulate(body):
+    print 'CM will Compute '
+    #import ipdb; ipdb.set_trace()
+    data  = json.loads(body)
+    print 'data',data
+    url_file = data["url_file"]
+    filename = data["filename"]
+    # part to modify from the CM rpovider
+    #parameters needed from the CM
+    reduction_factor = data["reduction_factor"]
+    print 'filename ',filename
+    print 'url_file ',url_file
+    file_path = savefile(filename,url_file)
+    newfilename = str(uuid.uuid4()) + '.tif'
+    path_final = UPLOAD_DIRECTORY+'/'+newfilename
+    #file_path = '/media/lesly/Data/Repositories/Computation_module/cm/app/api_v1/Raster_clip_extend.tif'
+    indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
+    print 'path_final ',path_final
+    ip = socket.gethostbyname(socket.gethostname())
+    base_url = 'http://'+ str(ip) +':'+str(constant.PORT)+'/computation-module/files/'
+    # 1.2.1  url for downloading raster
+    print 'base_url ',base_url
+    url_download_raster = base_url + newfilename
+    print 'indicator {}'.format(indicator)
+    response = {
+        'indicators': [{
+            'indicator_name': 'heat_density',
+            'indicator_value': str(indicator),
+            'indicator_unit': 'KW',}
+
+        ],
+        'tiff_url': url_download_raster,
+        'filename': filename
+
+    }
+    response = json.dumps(response)
+    return response
 
 
 

@@ -1,0 +1,20 @@
+version: "3"
+services:
+  cm:
+    build:
+      context: ./cm
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+     - "5001:5001"
+    external_links:
+         - rabbit
+    networks:
+         - hotmaps-toolbox-service_cm-net
+networks:
+ hotmaps-toolbox-service_cm-net:
+   external: true
+
+
+
+

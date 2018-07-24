@@ -10,6 +10,13 @@ def bad_request(e):
     response.status_code = 400
     return response
 
+@api.errorhandler(404)
+def request_not_passing():
+    response = {'status': 444,'status_code': 404, 'error': 'look like the request is not passing',
+                        'message': 'look like the request is not passing'}
+    return response
+
+
 
 @api.app_errorhandler(404)  # this has to be an app-wide handler
 def not_found(e):

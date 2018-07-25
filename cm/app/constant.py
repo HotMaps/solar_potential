@@ -3,7 +3,7 @@ CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
 #CELERY_BROKER_URL = 'amqp://localhost/'
 
 
-
+CELERY_BROKER_URL = 'amqp://admin:mypass@localhost:5672/'
 
 
 CM_NAME = 'calculation_module_test'

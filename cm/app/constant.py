@@ -8,7 +8,7 @@ CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
 
 CM_NAME = 'calculation_module_test'
 
-RPC_Q = 'rpc_queue_CM'
+RPC_Q = 'rpc_queue_CM' # Do no change this value
 CM_ID = 1
 PORT = 5000 + CM_ID
 

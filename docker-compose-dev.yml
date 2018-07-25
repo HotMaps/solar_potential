@@ -10,9 +10,9 @@ services:
     external_links:
          - rabbit
     networks:
-         - hotmaps-toolbox-service_cm-net
+         - hotmapstoolboxservice_cm-net
 networks:
- hotmaps-toolbox-service_cm-net:
+ hotmapstoolboxservice_cm-net:
    external: true
 
 

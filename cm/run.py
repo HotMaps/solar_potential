@@ -3,7 +3,6 @@ import logging
 import os
 from app import create_app, log
 from app.constant import PORT
-from app.constant import URL_CM_DOCKER
 import requests
 import threading
 import time
@@ -49,7 +48,7 @@ log.info(application)
 if __name__ == '__main__':
     #start_runner()
 
-    application.run(host='0.0.0.0', port=5001)
+    application.run(host='0.0.0.0', port=PORT)
     #thread = threading.Thread(target=os.system('python consumer.py &'))
 
     #thread.start()

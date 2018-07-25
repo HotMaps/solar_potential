@@ -1,6 +1,6 @@
 from flask import request, abort, jsonify ,url_for, g,flash
 from . import api
-from .. import SIGNATURE,CM_NAME, URL_MAIN_WEBSERVICE
+from .. import SIGNATURE,CM_NAME
 import json
 import requests
 from calculation_module import calculation
@@ -23,58 +23,51 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 
 @api.route('/files/<string:filename>', methods=['GET'])
 def get(filename):
+    # get file stored in the api directory
     return send_from_directory(UPLOAD_DIRECTORY, filename, as_attachment=True)
 
 @api.route('/register/', methods=['POST'])
 def register():
 
-    """ register the Calculation module (CM)to the main web services (MWS)-
-    the CM will send its SIGNATURE to the main web service, CM SIGNATURE contains elements to identity the CM and
-    how to handle it and the list of input it needs on the user interface. CM SIGNATURE can be find on app/constants.py file, this file must be change manually
-    Also constants.py must contains a CM_ID that is a unique number that as to be defined by the CREM (Centre de Recherches Energetiques et Municipales de Martigny)
+    #""" register the Calculation module (CM)to the main web services (MWS)-
+    #the CM will send its SIGNATURE to the main web service, CM SIGNATURE contains elements to identity the CM and
+    #how to handle it and the list of input it needs on the user interface. CM SIGNATURE can be find on app/constants.py file, this file must be change manually
+    #Also constants.py must contains a CM_ID that is a unique number that as to be defined by the CREM (Centre de Recherches Energetiques et Municipales de Martigny)
 
-       ---
-       definitions:
-         Color:
-           type: string
-       responses:
-         200:
-           description: MWS is aware of the CM
-           examples:
-            results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
-             """
+    #  ---
+    #  definitions:
+    #     Color:
+    #     type: string
+    #  #responses:
+    #  200:
+    #   description: MWS is aware of the CM
+    #  examples:
+    #   results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
+    #    """
 
-    print 'CM will register '
     # about to send the external IP
     ip = socket.gethostbyname(socket.gethostname())
     base_url = 'http://'+ str(ip) +':'+ str(PORT) +'/'
-    #base_url = 'http://httpbin.org/post'
     signature_final = SIGNATURE
     signature_final["cm_url"] = base_url
     payload = json.dumps(signature_final)
-
     return registerCM(payload)
 
+# TODO: WP4 Developer create q register queue
 def registerCM(data):
-    print 'registerCM'
     headers = {'Content-Type':  'application/json'}
-    res = requests.post(URL_MAIN_WEBSERVICE+'api/cm/register/', data = data, headers = headers)
+    res = requests.post( ""+'api/cm/register/', data = data, headers = headers)
 
 
     reponse = res.text
     status_code = res.status_code
-    print 'res.json() ', res.json()
-    print 'status_code ', status_code
-    print 'reponse ', reponse
     return reponse
 
 
 
 def savefile(filename,url):
-    print url
     r = requests.get(url, stream=True)
     path = None
-    print 'image saved',r.status_code
     if r.status_code == 200:
         path = os.path.join(UPLOAD_DIRECTORY, filename)
         with open(path, 'wb') as f:
@@ -115,24 +108,23 @@ def compute():
             results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
              """
 
-    print 'CM will Compute '
+    # the line of code bellow allow o debug a request
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
+
     url_file = data["url_file"]
     filename = data["filename"]
     # part to modify from the CM rpovider
         #parameters needed from the CM
+    #TODO: CM provider name of the input for the calculation module from the front end
     reduction_factor = data["reduction_factor"]
-    print 'reduction_factor ',reduction_factor
     file_path = savefile(filename,url_file)
     filename = str(uuid.uuid4()) + '.tif'
     path_final = UPLOAD_DIRECTORY+'/'+filename
-    #file_path = '/media/lesly/Data/Repositories/Computation_module/cm/app/api_v1/Raster_clip_extend.tif'
     indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
     base_url =  request.base_url.replace("compute","files")
-    # 1.2.1  url for downloading raster
     url_download_raster = base_url + filename
-    print 'indicator {}'.format(indicator)
+# 1.2.1  generate the indicators
     response = {
         'values': [{
             'name': 'heat demand from Calculation Module',
@@ -147,58 +139,7 @@ def compute():
     }
     response = json.dumps(response)
     return response
-def call_calculation_module(file_name, factor=2,directory=UPLOAD_DIRECTORY):
-    return calculation(file_name, factor=2, directory=UPLOAD_DIRECTORY)
 
-
-
-# Delete CM from main API
-@api.route('/unregister/'+ CM_NAME , methods = ['DELETE'])
-def unregister_cm(cm_name):
-    print 'request for deleting CM'
-
-
-## Messaging
-
-
-
-def calulate(body):
-    print 'CM will Compute '
-    #import ipdb; ipdb.set_trace()
-    data  = json.loads(body)
-    print 'data',data
-    url_file = data["url_file"]
-    filename = data["filename"]
-    # part to modify from the CM rpovider
-    #parameters needed from the CM
-    reduction_factor = data["reduction_factor"]
-    print 'filename ',filename
-    print 'url_file ',url_file
-    file_path = savefile(filename,url_file)
-    newfilename = str(uuid.uuid4()) + '.tif'
-    path_final = UPLOAD_DIRECTORY+'/'+newfilename
-    #file_path = '/media/lesly/Data/Repositories/Computation_module/cm/app/api_v1/Raster_clip_extend.tif'
-    indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
-    print 'path_final ',path_final
-    ip = socket.gethostbyname(socket.gethostname())
-    base_url = 'http://'+ str(ip) +':'+str(constant.PORT)+'/computation-module/files/'
-    # 1.2.1  url for downloading raster
-    print 'base_url ',base_url
-    url_download_raster = base_url + newfilename
-    print 'indicator {}'.format(indicator)
-    response = {
-        'indicators': [{
-            'indicator_name': 'heat_density',
-            'indicator_value': str(indicator),
-            'indicator_unit': 'KW',}
-
-        ],
-        'tiff_url': url_download_raster,
-        'filename': filename
-
-    }
-    response = json.dumps(response)
-    return response
 
 
 

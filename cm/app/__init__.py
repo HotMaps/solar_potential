@@ -1,7 +1,7 @@
 
 import os
 from flask import Flask, jsonify, g
-from .constant import SIGNATURE,CM_NAME,URL_MAIN_WEBSERVICE
+from .constant import SIGNATURE,CM_NAME
 from .decorators import json, no_cache, rate_limit
 from flasgger import Swagger
 import logging.config
@@ -9,8 +9,7 @@ import constant
 
 
 
-
-# methods
+# get log from the application
 log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '', 'logging.conf')
 logging.config.fileConfig(log_file_path)
 log = logging.getLogger(__name__)

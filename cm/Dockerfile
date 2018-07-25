@@ -74,6 +74,7 @@ EXPOSE 5001
 # Start server
 #CMD ["gunicorn", "--config", "gunicorn-config.py", "--log-level", "debug", "run:application"]
 #CMD gunicorn -b 0.0.0.0:5001 --access-logfile - "run:application"
+WORKDIR chmod a+x run_cm_services.sh
 CMD ./run_cm_services.sh
 
 

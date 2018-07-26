@@ -66,8 +66,10 @@ def registerCM(data):
 
 
 def savefile(filename,url):
+    print url
     r = requests.get(url, stream=True)
     path = None
+    print 'image saved',r.status_code
     if r.status_code == 200:
         path = os.path.join(UPLOAD_DIRECTORY, filename)
         with open(path, 'wb') as f:
@@ -108,7 +110,7 @@ def compute():
             results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
              """
 
-    # the line of code bellow allow o debug a request
+    print 'CM will Compute '
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
 
@@ -116,15 +118,15 @@ def compute():
     filename = data["filename"]
     # part to modify from the CM rpovider
         #parameters needed from the CM
-    #TODO: CM provider name of the input for the calculation module from the front end
     reduction_factor = data["reduction_factor"]
+    print 'reduction_factor ',reduction_factor
     file_path = savefile(filename,url_file)
     filename = str(uuid.uuid4()) + '.tif'
     path_final = UPLOAD_DIRECTORY+'/'+filename
     indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
     base_url =  request.base_url.replace("compute","files")
     url_download_raster = base_url + filename
-# 1.2.1  generate the indicators
+    print 'indicator {}'.format(indicator)
     response = {
         'values': [{
             'name': 'heat demand from Calculation Module',

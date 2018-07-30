@@ -41,3 +41,5 @@ nosetests.xml
 # Virtual environment
 venv
 .idea/workspace.xml
+../.idea/workspace.xml
+../README.md

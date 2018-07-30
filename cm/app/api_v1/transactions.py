@@ -129,7 +129,7 @@ def compute():
     print 'indicator {}'.format(indicator)
     response = {
         'values': [{
-            'name': 'heat demand from Calculation Module',
+            'name': 'Heat demand from Calculation Module',
             'value': str(indicator),
             'unit': 'MWh',}
 

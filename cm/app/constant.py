@@ -1,6 +1,6 @@
 
-CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
-#CELERY_BROKER_URL = 'amqp://localhost/'
+#CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
+CELERY_BROKER_URL = 'amqp://localhost/'
 
 
 #CELERY_BROKER_URL = 'amqp://admin:mypass@localhost:5672/'
@@ -41,7 +41,7 @@ SIGNATURE = {
     "layers_needed": [
         "heat_density_tot"
     ],
-    "cm_url": "",
+    "cm_url": "Do not add something",
     "cm_description": "this computation module allows to divide the HDM",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE

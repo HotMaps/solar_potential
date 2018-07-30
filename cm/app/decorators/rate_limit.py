@@ -1,12 +1,14 @@
 import functools
 from time import time
-from flask import current_app, request, g, jsonify
+
+from flask import current_app, g, jsonify, request
 
 _limiter = None
 
 
 class MemRateLimit(object):
     """Rate limiter that uses a Python dictionary as storage."""
+
     def __init__(self):
         self.counters = {}
 

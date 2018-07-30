@@ -19,6 +19,3 @@ ERROR_404_HELP = False
 RESTPLUS_JSON = {
     'separators': (',', ':')
 }
-
-
-

@@ -6,7 +6,6 @@ api = Blueprint('api', __name__)
 
 
 @api.before_request
-
 def before_request():
     """All routes in this blueprint require authentication."""
     pass
@@ -19,4 +18,4 @@ def after_request(rv):
     return rv
 
 
-from . import  transactions, errors
+from . import transactions, errors

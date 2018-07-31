@@ -12,6 +12,8 @@ RPC_Q = 'rpc_queue_CM' # Do no change this value
 CM_ID = 1
 PORT = 5000 + CM_ID
 
+'/var/hotmaps/cm_files_uploaded'
+
 INPUTS_CALCULATION_MODULE=  [
     { 'input_name': 'Reduction factor',
       'input_type': 'input',

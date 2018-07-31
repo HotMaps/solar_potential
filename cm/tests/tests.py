@@ -5,6 +5,7 @@ import os.path
 from shutil import copyfile
 from .test_client import TestClient
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
+
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
     os.chmod(UPLOAD_DIRECTORY, 0777)
@@ -14,7 +15,7 @@ class TestAPI(unittest.TestCase):
 
 
     def setUp(self):
-        self.app = create_app('testing')
+        self.app = create_app(os.environ.get('FLASK_CONFIG', 'development'))
         self.ctx = self.app.app_context()
         self.ctx.push()
 

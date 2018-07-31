@@ -1,11 +1,13 @@
 
 from osgeo import gdal
 
+""" Entry point of the calculation module function"""
 
 
 
-def calculation(file_name, factor, directory):
-    ds = gdal.Open(file_name)
+def calculation(input_raster_selection, factor, output_raster):
+    #TODO the folowing code must be changed by the code of the calculation module
+    ds = gdal.Open(input_raster_selection)
     ds_band = ds.GetRasterBand(1)
 
     #----------------------------------------------------
@@ -16,7 +18,7 @@ def calculation(file_name, factor, directory):
     indicator = pixel_values_modified.sum()
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()
-    out_ds = gtiff_driver.Create(directory, ds_band.XSize, ds_band.YSize, 1, ds_band.DataType)
+    out_ds = gtiff_driver.Create(output_raster, ds_band.XSize, ds_band.YSize, 1, ds_band.DataType)
     out_ds.SetProjection(ds.GetProjection())
     out_ds.SetGeoTransform(ds.GetGeoTransform())
 

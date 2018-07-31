@@ -120,10 +120,12 @@ def compute():
         #parameters needed from the CM
     reduction_factor = data["reduction_factor"]
     print 'reduction_factor ',reduction_factor
-    file_path = savefile(filename,url_file)
+    input_raster_selection = savefile(filename,url_file) # input raster selection
     filename = str(uuid.uuid4()) + '.tif'
-    path_final = UPLOAD_DIRECTORY+'/'+filename
-    indicator = calculation(file_path, factor=reduction_factor, directory=path_final)
+    output_raster_selection = UPLOAD_DIRECTORY+'/'+filename  # output raster
+
+    # call the calculation module function
+    indicator = calculation(input_raster_selection, factor=reduction_factor, output_raster=output_raster_selection)
     base_url =  request.base_url.replace("compute","files")
     url_download_raster = base_url + filename
     print 'indicator {}'.format(indicator)

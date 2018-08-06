@@ -1,9 +1,10 @@
+
 from flask import request, abort, jsonify ,url_for, g,flash
 from . import api
 from .. import SIGNATURE,CM_NAME
 import json
 import requests
-from calculation_module import calculation
+
 import os
 from flask import send_from_directory
 import uuid
@@ -11,7 +12,7 @@ from app import constant
 from app.constant import PORT,RPC_Q
 from app.api_v1 import errors
 import socket
-
+from . import calculation_module
 
 
 
@@ -19,7 +20,7 @@ import socket
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
-    os.chmod(UPLOAD_DIRECTORY, 0777)
+    os.chmod(UPLOAD_DIRECTORY, 0o777)
 
 @api.route('/files/<string:filename>', methods=['GET'])
 def get(filename):
@@ -66,10 +67,10 @@ def registerCM(data):
 
 
 def savefile(filename,url):
-    print url
+    print (url)
     r = requests.get(url, stream=True)
     path = None
-    print 'image saved',r.status_code
+    print ('image saved',r.status_code)
     if r.status_code == 200:
         path = os.path.join(UPLOAD_DIRECTORY, filename)
         with open(path, 'wb') as f:
@@ -110,7 +111,7 @@ def compute():
             results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
              """
 
-    print 'CM will Compute '
+    print ('CM will Compute ')
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
 
@@ -119,16 +120,17 @@ def compute():
     # part to modify from the CM rpovider
         #parameters needed from the CM
     reduction_factor = data["reduction_factor"]
-    print 'reduction_factor ',reduction_factor
+    print ('reduction_factor ',reduction_factor)
     input_raster_selection = savefile(filename,url_file) # input raster selection
     filename = str(uuid.uuid4()) + '.tif'
     output_raster_selection = UPLOAD_DIRECTORY+'/'+filename  # output raster
 
     # call the calculation module function
-    indicator = calculation(input_raster_selection, factor=reduction_factor, output_raster=output_raster_selection)
+    indicator = calculation_module.calculation(input_raster_selection, factor=reduction_factor, output_raster=output_raster_selection)
     base_url =  request.base_url.replace("compute","files")
     url_download_raster = base_url + filename
-    print 'indicator {}'.format(indicator)
+    print("indicator has {} ".format(indicator))
+
     response = {
         'values': [{
             'name': 'Heat demand from Calculation Module',

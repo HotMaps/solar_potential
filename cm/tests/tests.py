@@ -8,7 +8,7 @@ UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
-    os.chmod(UPLOAD_DIRECTORY, 0777)
+    os.chmod(UPLOAD_DIRECTORY, 0o777)
 
 
 class TestAPI(unittest.TestCase):

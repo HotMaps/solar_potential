@@ -30,13 +30,13 @@ class TestAPI(unittest.TestCase):
 
 
     def test_compute(self):
-        raster_file_path = 'tests/data/heat_demand_from_HAPI.tif'
+        raster_file_path = 'tests/data/raster_for_test.tif'
 
-        save_path = UPLOAD_DIRECTORY+"/heat_demand_from_HAPI.tif"
+        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
         copyfile(raster_file_path, save_path)
         # register the calculation module a
-        payload = {"filename": "heat_demand_from_HAPI.tif",
-                   "url_file": "http://127.0.0.1:5001/computation-module/files/heat_demand_from_HAPI.tif",
+        payload = {"filename": "raster_for_test.tif",
+                   "url_file": "http://127.0.0.1:5001/computation-module/files/raster_for_test.tif",
                    "reduction_factor": 2}
 
 

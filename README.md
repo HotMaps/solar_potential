@@ -299,7 +299,7 @@ cm/
 - For automatic testing type on the terminal,
 before running test you must run for downloading file in the directory 
     ```bash
-    cd cm
+    cd cm/
     python run.py #give access to the service needeed for testing
     python test.py #tests if the compute fucntion is working and validate the integration of the CM 
     

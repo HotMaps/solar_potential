@@ -8,7 +8,7 @@ UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
-    os.chmod(UPLOAD_DIRECTORY, 0777)
+    os.chmod(UPLOAD_DIRECTORY, 0o777)
 
 
 class TestAPI(unittest.TestCase):
@@ -30,14 +30,14 @@ class TestAPI(unittest.TestCase):
 
 
     def test_compute(self):
-        raster_file_path = 'tests/data/heat_demand_from_HAPI.tif'
+        raster_file_path = 'tests/data/raster_for_test.tif'
 
-        save_path = UPLOAD_DIRECTORY+"/heat_demand_from_HAPI.tif"
+        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
         copyfile(raster_file_path, save_path)
         # register the calculation module a
-        payload = {"filename": "heat_demand_from_HAPI.tif",
-                   "url_file": "http://127.0.0.1:5001/computation-module/files/heat_demand_from_HAPI.tif",
-                   "reduction_factor": 3}
+        payload = {"filename": "raster_for_test.tif",
+                   "url_file": "http://127.0.0.1:5001/computation-module/files/raster_for_test.tif",
+                   "reduction_factor": 2}
 
 
         rv, json = self.client.post('computation-module/compute/', data=payload)

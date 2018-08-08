@@ -39,17 +39,14 @@ RUN apt-get update \
     python-gdal \
     make \
     python-pip \
-    python2.7 \
-    python2.7-dev \
     ssh \
     && apt-get autoremove \
     && apt-get clean
 
 
-RUN pip install -U "setuptools==38.5.1"
 
-RUN pip install -U "pip==10.0.1"
-RUN pip install setuptools --upgrade
+
+
 
 
 

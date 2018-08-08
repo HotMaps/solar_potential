@@ -3,8 +3,10 @@ from osgeo import gdal
 
 """ Entry point of the calculation module function"""
 
-
-
+#TODO: CM provider must "change this code"
+#TODO: CM provider must "not change input_raster_selection,output_raster  1 raster input => 1 raster output"
+#TODO: CM provider can "add all the parameters he needs to run his CM
+#TODO: CM provider can "return as many indicators as he wants"
 def calculation(input_raster_selection, factor, output_raster):
     #TODO the folowing code must be changed by the code of the calculation module
     ds = gdal.Open(input_raster_selection)

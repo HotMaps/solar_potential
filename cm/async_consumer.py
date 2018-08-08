@@ -1,6 +1,7 @@
 import logging
 import pika
 from app import constant
+from run import application
 import socket
 import requests
 LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
@@ -27,7 +28,7 @@ class Consumer(object):
     ROUTING_KEY = 'reply-to'
 
     def __init__(self, amqp_url):
-        print 'type_ amq ', type(amqp_url)
+        print ('type_ amq ', type(amqp_url))
         """Create a new instance of the consumer class, passing in the AMQP
         URL used to connect to RabbitMQ.
 
@@ -49,7 +50,7 @@ class Consumer(object):
 
         """
         LOGGER.info('Connecting to %s', self._url)
-        print 'Connecting to %s', type(self._url)
+        print ('Connecting to %s', type(self._url))
         return pika.SelectConnection(pika.URLParameters(self._url),
                                      self.on_connection_open,
                                      stop_ioloop_on_close=False)
@@ -245,23 +246,25 @@ class Consumer(object):
         :param str|unicode body: The message body
 
         """
-        LOGGER.info('Received message # %s from %s: %s',
-                    method.delivery_tag, props.app_id, body)
-        self.acknowledge_message(method.delivery_tag)
+        print ('status of application',application)
+        if application is not None:
+            LOGGER.info('Received message # %s from %s: %s',
+                        method.delivery_tag, props.app_id, body)
+            self.acknowledge_message(method.delivery_tag)
 
-        headers = {'Content-Type':  'application/json'}
-        ip = socket.gethostbyname(socket.gethostname())
+            headers = {'Content-Type':  'application/json'}
+            ip = socket.gethostbyname(socket.gethostname())
 
-        base_url = 'http://'+ str(ip) +':'+str(constant.PORT)+'/computation-module/compute/'
-
-        res = requests.post(base_url, data = body, headers = headers)
-        response = res.text
-        print 'onRequest response', response
-        ch.basic_publish(exchange='',
-                         routing_key=props.reply_to,
-                         properties=pika.BasicProperties(correlation_id = str(constant.CM_ID)),
-                         body=str(response))
-        ch.basic_ack(delivery_tag = method.delivery_tag)
+            base_url = 'http://'+ str(ip) +':'+str(constant.PORT)+'/computation-module/compute/'
+            print ('base_url ', base_url)
+            res = requests.post(base_url, data = body, headers = headers)
+            response = res.text
+            print ('onRequest response', response)
+            ch.basic_publish(exchange='',
+                             routing_key=props.reply_to,
+                             properties=pika.BasicProperties(correlation_id = str(constant.CM_ID)),
+                             body=str(response))
+            ch.basic_ack(delivery_tag = method.delivery_tag)
     def on_cancelok(self, unused_frame):
         """This method is invoked by pika when RabbitMQ acknowledges the
         cancellation of a consumer. At this point we will close the channel.

@@ -80,6 +80,7 @@ def savefile(filename,url):
 
 @api.route('/compute/', methods=['POST'])
 def compute():
+    #TODO: CM provider must "change the documentation with the information of his CM
 
     """ compute the Calculation module (CM)from the main web services (MWS)-
     the main web service is sending

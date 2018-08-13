@@ -8,6 +8,7 @@ LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
               '-35s %(lineno) -5d: %(message)s')
 LOGGER = logging.getLogger(__name__)
 
+"""__________________________________Consumer for COMPUTE_______________________________________________________"""
 
 class Consumer(object):
     """This is an example consumer that will handle unexpected interactions
@@ -24,7 +25,7 @@ class Consumer(object):
     """
     EXCHANGE = 'message'
     EXCHANGE_TYPE = 'direct'
-    QUEUE = constant.RPC_Q
+    QUEUE =  constant.RPC_Q + str(constant.CM_ID)
     ROUTING_KEY = 'reply-to'
 
     def __init__(self, amqp_url):
@@ -262,7 +263,7 @@ class Consumer(object):
             print ('onRequest response', response)
             ch.basic_publish(exchange='',
                              routing_key=props.reply_to,
-                             properties=pika.BasicProperties(correlation_id = str(constant.CM_ID)),
+                             properties=pika.BasicProperties(correlation_id = props.correlation_id),
                              body=str(response))
             ch.basic_ack(delivery_tag = method.delivery_tag)
     def on_cancelok(self, unused_frame):

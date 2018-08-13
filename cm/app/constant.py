@@ -1,14 +1,14 @@
 
-CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
-#CELERY_BROKER_URL = 'amqp://localhost/'
+#CELERY_BROKER_URL = 'amqp://admin:mypass@rabbit:5672/'
+CELERY_BROKER_URL = 'amqp://localhost/'
 
 
 #CELERY_BROKER_URL = 'amqp://admin:mypass@localhost:5672/'
-
+CM_REGISTER_Q = 'rpc_queue_CM_register'
 
 CM_NAME = 'calculation_module_test'
-
-RPC_Q = 'rpc_queue_CM' # Do no change this value
+RPC_CM_ALIVE= 'rpc_queue_CM_ALIVE'
+RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 1
 PORT = 5000 + CM_ID
 

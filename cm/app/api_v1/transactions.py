@@ -13,7 +13,7 @@ from app.constant import PORT,RPC_Q
 from app.api_v1 import errors
 import socket
 from . import calculation_module
-
+from app import CalculationModuleRpcClient
 
 
 
@@ -47,12 +47,19 @@ def register():
     #    """
 
     # about to send the external IP
+    print ('CM will register ')
     ip = socket.gethostbyname(socket.gethostname())
+    # retrive dynamic url
     base_url = 'http://'+ str(ip) +':'+ str(PORT) +'/'
     signature_final = SIGNATURE
+
+    calculation_module_rpc = CalculationModuleRpcClient()
+
     signature_final["cm_url"] = base_url
     payload = json.dumps(signature_final)
-    return registerCM(payload)
+    response = calculation_module_rpc.call(payload)
+
+    return response
 
 # TODO: WP4 Developer create q register queue
 def registerCM(data):

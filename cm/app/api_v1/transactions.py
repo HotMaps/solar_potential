@@ -9,7 +9,7 @@ import os
 from flask import send_from_directory
 import uuid
 from app import constant
-from app.constant import PORT,RPC_Q
+
 from app.api_v1 import errors
 import socket
 from . import calculation_module
@@ -47,17 +47,19 @@ def register():
     #    """
 
     # about to send the external IP
-    print ('CM will register ')
+    print ('CM will begin register ')
     ip = socket.gethostbyname(socket.gethostname())
     # retrive dynamic url
-    base_url = 'http://'+ str(ip) +':'+ str(PORT) +'/'
+    base_url = 'http://'+ str(ip) +':'+ str(constant.PORT) +'/'
     signature_final = SIGNATURE
+
 
     calculation_module_rpc = CalculationModuleRpcClient()
 
     signature_final["cm_url"] = base_url
     payload = json.dumps(signature_final)
     response = calculation_module_rpc.call(payload)
+    print ('CM will finish register ')
 
     return response
 

@@ -5,8 +5,14 @@ from app import constant
 from run import application
 import socket
 import requests
+import logging
+
+LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
+              '-35s %(lineno) -5d: %(message)s')
+LOGGER = logging.getLogger(__name__)
 queue_name =  constant.RPC_Q + str(constant.CM_ID)
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+parameters = pika.URLParameters(constant.CELERY_BROKER_URL)
+connection = pika.BlockingConnection(parameters)
 
 channel = connection.channel()
 
@@ -22,7 +28,7 @@ def on_request(ch, method, props, body):
     headers = {'Content-Type':  'application/json'}
     ip = socket.gethostbyname(socket.gethostname())
 
-    base_url = 'http://'+ str(ip) +':'+str(constant.PORT)+'/computation-module/compute/'
+    base_url = constant.TRANFER_PROTOCOLE+ str(ip) +':'+str(constant.PORT)+'/computation-module/compute/'
     print ('base_url ', base_url)
     res = requests.post(base_url, data = body, headers = headers)
     response = res.text

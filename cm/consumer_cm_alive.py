@@ -18,7 +18,7 @@ channel.queue_declare(queue=queue_name)
 
 def on_request(ch, method, props, body):
     #body.status = 'up'
-    LOGGER.info("CM requested with body",body)
+
 
     response = body
 

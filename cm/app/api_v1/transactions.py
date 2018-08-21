@@ -153,6 +153,7 @@ def compute():
         'filename': filename
 
     }
+    print("indicator has {} ".format(response))
     response = json.dumps(response)
     return response
 

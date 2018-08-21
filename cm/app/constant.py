@@ -37,7 +37,10 @@ SIGNATURE = {
     "category": "Buildings",
     "cm_name": CM_NAME,
     "layers_needed": [
-        "heat_density_tot"
+        "heat_density_tot",
+        "cdd_curr_tif",
+       "gfa_nonres_curr_density",
+        "gfa_res_curr_density_lau"
     ],
     "cm_url": "Do not add something",
     "cm_description": "this computation module allows to divide the HDM",

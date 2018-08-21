@@ -14,7 +14,7 @@ from app.api_v1 import errors
 import socket
 from . import calculation_module
 from app import CalculationModuleRpcClient
-
+from celery.task.control import revoke
 
 
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
@@ -129,7 +129,7 @@ def compute():
     filename = data["filename"]
     # part to modify from the CM rpovider
         #parameters needed from the CM
-    reduction_factor = data["reduction_factor"]
+    reduction_factor = int(data["reduction_factor"])
     print ('reduction_factor ',reduction_factor)
     input_raster_selection = savefile(filename,url_file) # input raster selection
     filename = str(uuid.uuid4()) + '.tif'

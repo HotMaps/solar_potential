@@ -20,9 +20,18 @@ def calculation(input_raster_selection, factor, output_raster):
     indicator = pixel_values_modified.sum()
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()
-    out_ds = gtiff_driver.Create(output_raster, ds_band.XSize, ds_band.YSize, 1, ds_band.DataType)
+    out_ds = gtiff_driver.Create(output_raster, ds_band.XSize, ds_band.YSize, 1, gdal.GDT_UInt16, ['compress=DEFLATE',
+                                                                                                         'TILED=YES',
+                                                                                                         'TFW=YES',
+                                                                                                         'ZLEVEL=9',
+                                                                                                         'PREDICTOR=1'])
     out_ds.SetProjection(ds.GetProjection())
     out_ds.SetGeoTransform(ds.GetGeoTransform())
+
+    ct = gdal.ColorTable()
+    ct.SetColorEntry(0, (0,0,0,255))
+    ct.SetColorEntry(1, (110,220,110,255))
+    out_ds.GetRasterBand(1).SetColorTable(ct)
 
     out_ds_band = out_ds.GetRasterBand(1)
     out_ds_band.SetNoDataValue(0)
@@ -30,3 +39,10 @@ def calculation(input_raster_selection, factor, output_raster):
 
     del out_ds
     return indicator
+
+def colorizeMyOutputRaster(out_ds):
+    ct = gdal.ColorTable()
+    ct.SetColorEntry(0, (0,0,0,255))
+    ct.SetColorEntry(1, (110,220,110,255))
+    out_ds.SetColorTable(ct)
+    return out_ds

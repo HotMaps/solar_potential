@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 import pika
 import logging
-from app import constant
+
+
+from app.constant import RPC_CM_ALIVE,CM_ID,CELERY_BROKER_URL
 LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
               '-35s %(lineno) -5d: %(message)s')
 LOGGER = logging.getLogger(__name__)
 
-queue_name =  constant.RPC_CM_ALIVE + str(constant.CM_ID)
-parameters = pika.URLParameters(str(constant.CELERY_BROKER_URL))
+queue_name =  RPC_CM_ALIVE + str(CM_ID)
+parameters = pika.URLParameters(str(CELERY_BROKER_URL))
 connection = pika.BlockingConnection(parameters)
 
 channel = connection.channel()

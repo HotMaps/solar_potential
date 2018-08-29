@@ -3,13 +3,11 @@
 #
 #
 
-FROM ubuntu:16.04
 
-
-ENV CELERY_BROKER_URL amqp://admin:mypass@rabbit:5672/
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
-ENV C_FORCE_ROOT true
-
+FROM continuumio/miniconda3
+RUN conda update -y conda
+RUN conda config --add channels conda-forge
+RUN conda install -y gdal rasterio geopandas
 
 MAINTAINER lesly Houndole <lesly.houndole@crem.ch>
 
@@ -17,38 +15,9 @@ MAINTAINER lesly Houndole <lesly.houndole@crem.ch>
 RUN mkdir -p /data
 VOLUME /data
 
-
-# Build commands
-RUN apt-get update && apt-get dist-upgrade -y && apt-get autoremove -y
-
-# Install required software
-
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y \
-    build-essential \
-    software-properties-common \
-    wget \
-    gdal-bin \
-    ca-certificates \
-    gcc \
-    git \
-    libpq-dev \
-    libgeos-dev \
-    libgdal-dev \
-    python-gdal \
-    make \
-    python-pip \
-    ssh \
-    && apt-get autoremove \
-    && apt-get clean
-
-
-
-
-
-
-
+ENV CELERY_BROKER_URL amqp://admin:mypass@rabbit:5672/
+ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+ENV C_FORCE_ROOT true
 
 
 # Setup app server
@@ -58,9 +27,18 @@ WORKDIR /cm
 
 RUN ls
 
-# Install required python modules
+
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python get-pip.py
+
 
 RUN pip install -r requirements.txt
+RUN pip install gunicorn
+
+
+
+# Install required python modules
+
 
 # Copy app source code
 

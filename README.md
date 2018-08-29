@@ -336,7 +336,15 @@ python run.py
 ```
 
 
-#TODO LIST of layers 
+
+
+#TODO LIST of layers
+
+here is the layers possibly used for a CM
+
+
+
+ 
 [logoinput]: https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Textbox2.gif/220px-Textbox2.gif ""
 
 [logoselect]: https://upload.wikimedia.org/wikipedia/commons/d/d1/Drop-down_list_example.PNG ""

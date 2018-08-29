@@ -14,7 +14,7 @@ from app.api_v1 import errors
 import socket
 from . import calculation_module
 from app import CalculationModuleRpcClient
-from celery.task.control import revoke
+
 
 
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
@@ -62,16 +62,6 @@ def register():
     print ('CM will finish register ')
 
     return response
-
-# TODO: WP4 Developer create q register queue
-def registerCM(data):
-    headers = {'Content-Type':  'application/json'}
-    res = requests.post( ""+'api/cm/register/', data = data, headers = headers)
-
-
-    reponse = res.text
-    status_code = res.status_code
-    return reponse
 
 
 
@@ -126,6 +116,7 @@ def compute():
     data = request.get_json()
 
     url_file = data["url_file"]
+
     filename = data["filename"]
     # part to modify from the CM rpovider
         #parameters needed from the CM
@@ -136,8 +127,9 @@ def compute():
     output_raster_selection = UPLOAD_DIRECTORY+'/'+filename  # output raster
 
     # call the calculation module function
-    indicator = calculation_module.calculation(input_raster_selection, factor=reduction_factor, output_raster=output_raster_selection)
-    base_url =  request.base_url.replace("compute","files")
+    indicator = calculation_module.calculation(input_raster_selection, factor = reduction_factor, output_raster = output_raster_selection)
+    ip = socket.gethostbyname(socket.gethostname())
+    base_url = constant.TRANFER_PROTOCOLE+ str(ip) +':'+str(constant.PORT)+'/computation-module/files/'
     url_download_raster = base_url + filename
     print("indicator has {} ".format(indicator))
 

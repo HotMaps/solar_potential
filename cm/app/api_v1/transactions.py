@@ -4,7 +4,7 @@ from . import api
 from .. import SIGNATURE,CM_NAME
 import json
 import requests
-
+import logging
 import os
 from flask import send_from_directory
 import uuid
@@ -15,6 +15,9 @@ import socket
 from . import calculation_module
 from app import CalculationModuleRpcClient
 
+LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
+              '-35s %(lineno) -5d: %(message)s')
+LOGGER = logging.getLogger(__name__)
 
 
 UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
@@ -77,6 +80,7 @@ def savefile(filename,url):
             for chunk in r.iter_content(1024):
                 f.write(chunk)
     else:
+        LOGGER.error('API unable to download tif files')
         print ('unsable to download tif')
     return path
 

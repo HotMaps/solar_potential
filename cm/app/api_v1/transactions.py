@@ -70,9 +70,17 @@ def register():
 
 
 def savefile(filename,url):
-    print (url)
-    r = requests.get(url, stream=True)
+    print ('CM is Computing and will dowload files with url: ',url)
+    r = None
     path = None
+    try:
+        r = requests.get(url, stream=True)
+    except:
+        LOGGER.error('API unable to download tif files')
+        print ('API unable to download tif files saved')
+
+
+
     print ('image saved',r.status_code)
     if r.status_code == 200:
         path = os.path.join(UPLOAD_DIRECTORY, filename)

@@ -5,8 +5,8 @@ services:
       context: ./cm
       dockerfile: Dockerfile
     restart: always
-    ports:
-     - "5001:5001"
+    expose:
+      - 80
     external_links:
          - rabbit
     networks:

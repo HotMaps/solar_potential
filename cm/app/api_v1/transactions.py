@@ -76,6 +76,8 @@ def savefile(filename,url):
         with open(path, 'wb') as f:
             for chunk in r.iter_content(1024):
                 f.write(chunk)
+    else:
+        print ('unsable to download tif')
     return path
 
 @api.route('/compute/', methods=['POST'])

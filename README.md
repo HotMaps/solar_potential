@@ -7,8 +7,31 @@ A calulation Module (CM) is a plugin for hotmaps toolbox which is able to extend
 
 **How to connect a CM into the Hotmaps toolbox?**
 
-The CM can run on its own, but when it is on the same network as the Hotmaps toolbox API (HTAPI), it will be automatically detected.
+```
+*Registration and hearthbeat:
+
+_______________________________
+│                    │        │      1. Once in the network, CM won't stop trying to register until it get a response from the HTAPI. 
+│         HTAPI      │ CM DB  │      2. Once registered HTAPI will request the CM in order to know if it's still alive or not.   
+│                    │        │      3. While alive a CM can be computed from the frontend using the interface GUI it describe on its SIGNATURE.   
+│____________________│________│ 
+                        │    │
+                        │    │
+                        │    │    _________
+                        │    └── │   CM2  │
+                        │        │________│
+                        │  __________
+                        └─│  CM1    │
+                          │________ │
  
+   
+```
+
+The CM can run on its own, but when it is on the same network as the Hotmaps toolbox API (HTAPI), it will be automatically detected.
+using Celery queue to register, HTAPI contains heartbear that will Check at anytime if a calculation is running or not. That means the achitecture for CMs is working in realtime
+ 
+**Calculation module regitration**
+
 the HTAPI will retrieve the CM SIGNATURE and modify the frontend to allow the user to use the CM and modify the user interface with the inputs it needs to be ran.
 
 

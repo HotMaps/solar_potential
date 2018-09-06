@@ -23,7 +23,7 @@ channel.queue_declare(queue=queue_name)
 def on_request(ch, method, props, body):
     #body.status = 'up'
 
-
+    print ('body',body)
 
     headers = {'Content-Type':  'application/json'}
     ip = socket.gethostbyname(socket.gethostname())

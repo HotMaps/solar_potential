@@ -1,6 +1,12 @@
 
 # Calculation module documentation and guidelines
 
+**requirement:**
+
+- Having GIT command installed on your computer
+- Having a Python version >= 3.5
+- Having a Gdal version >= 2.0
+
 **Definition** :
 
 A calulation Module (CM) is a plugin for hotmaps toolbox which is able to extend toolbox functionality.
@@ -60,48 +66,63 @@ ___________
 
 
 ```
-0. Create a repository on github named name_of_my_module
+0. Create a repository on github named name_of_my_module, create a folder on your computer named it "name_of_my_module", 
+go inside your new folder create
 
-1. Type on your terminal :
+1. Using git command on your terminal be ready to code:
 ```bash
-git clone https://github.com/HotMaps/base_calculation_module.git name_of_my_module
-cd name_of_my_module
+
+git init
+git remote add origin https://github.com/HotMaps/name_of_my_module.git # add a remote link to my repository
+git remote add upstream https://github.com/HotMaps/base_calculation_module.git # add a remote link to the base calculation module (BCM)# .
+git pull upstream master
+git add .
+git commit -m "first commit" #update changes
+git push -u origin master # push the changes (minimum code for run) .
 
 ``` 
 
-3. Link my code with my repositority in github 
+3. Start coding, switch branch from master to develop
 ```bash
-git remote add mycm https://github.com/HotMaps/name_of_my_module.git
+git fetch && git checkout develop
 ``` 
 
-4. Now the CM is able to retrieve changes from the CM base with the command:
-
-
-```bash
-git pull origin master
-``` 
-5. To update my changes on my git repository for a version release on the toolbox
+4. After coding
 
 ```bash
 git add .
-git commit -m "message"
-git push mycm master
+git commit -m "message to describe the changes"
+git push origin develop
+
 ``` 
 
-6.  To update changes on my git repository for a version in development 
-if there is no develop branch please create it with this command :
+
+5. Updating code with the base calculation module (BCM) code
 
 ```bash
-git checkout -b develop
-git push mycm develop
+git pull upstream master
+
 ``` 
 
-to update the develop
+If you encounter any issue like GIT conflict please contact CREM.
+
+
+
+6. Release a version of my CM
+
+After testing your calculation module using and update all the changes in develop branch
 ```bash
-git add .
-git commit -m "message"
-git push mycm develop
+git fetch && git checkout master # retrieved master branch
+git merge develop # update the changes from develop to master
+git push origin master # push changes on master branch
 ``` 
+now tag your version then take a snapshot on your current version
+```bash
+git fetch && git checkout master # retrieved master branch
+git merge develop # update the changes from develop to master
+git push origin master # push changes on master branch
+``` 
+
 
 **Connection with the main webservice HTAPI**
 *******************************************
@@ -112,8 +133,6 @@ git push mycm develop
 It's information that describes the calculation module and how to use it. The signature can be found in **constants.py** file. the SIGNATURE must be modified by the developer this signature can be divided into 2 parts,
 see bellow:
    
-    
-    
     
     
     INPUTS_CALCULATION_MODULE=  [
@@ -166,7 +185,7 @@ This is the name of the calculation module that will be displayed on the fronten
 
 **layers needed:**
 *****************
-Layer that is needed to run the calculation module
+Layers needed to run the calculation module
 
 **cm description:**
 *****************
@@ -308,7 +327,11 @@ cm/
 
 ###Guidelines
 
+***Retriving list of layers available for CM***
 
+please find in the link the list of layers available as input for a  CM (ressource name column):
+
+https://docs.google.com/spreadsheets/d/1cGMRWkgIL8jxghrpjIWy6Xf_kS3Dx6LqGNfrCBLQ_GI/edit#gid=1730959780
 
 
 ***Accessing and testing my CM:***
@@ -342,15 +365,43 @@ docker-compose up -d --build
 cd cm
 python run.py
 ```
-***implementing my CM***
+***Implementing my CM***
 
-1 . modify the signature in constant.py to describe your CM
+1. modify the signature in constant.py to describe your CM
 
-2 . modify the input parameter name in transaction.py in the input of calculation() from **calculation_module.py**
+2. modify the input parameter name in transaction.py in the input of calculation() from **calculation_module.py**
 
-2 . add main function in calculation() functions (calculation_module.py )
+3. add main function in calculation() functions (calculation_module.py )
 
+***multiple Raster as input***
 
+1. In constants.py file there is the SIGNATURE file named layers *layers_needed* Layers needed to run the calculation module 
+```bash
+    "layers_needed": [
+           "heat_density_tot",
+           "cdd_curr_tif",
+           "gfa_nonres_curr_density",
+           "gfa_res_curr_density_lau"
+       ],
+```
+ When HTAPI will be compute a CM, it will send a python dictionnary named  inputs_raster_selection in which there is a key ,the name of the layer for example heat_curr_density_tot and a value, the name of the files generated by HATPI  
+ Raster wanted can be retrieved from the inputs_raster_selection dictionary
+ 
+ ```bash
+      clipped_heat_tot =  inputs_raster_selection["heat_tot_curr_density"]  
+      clipped_gfa_tot =  inputs_raster_selection["gfa_tot_curr_density"]  
+      
+ ```
+ ***multiple Raster as output***
+ 
+ A CM can generate multiple layers as output. the calculation_module.calculation() function 
+ must return all the path of the raster generated
+
+ ```bash
+       output_raster_path1,output_raster_path2, indicator1 ,indicator2= calculation_module.calculation()
+       outputs_raster_selection['layes1'] = output_raster_path1
+       outputs_raster_selection['layes2'] = output_raster_path2
+ ```
 
 
 ```json
@@ -361,9 +412,9 @@ python run.py
 
 
 
-#TODO LIST of layers
 
-here is the layers possibly used for a CM
+
+
 
 
 

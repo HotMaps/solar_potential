@@ -7,7 +7,7 @@ import requests
 import logging
 import os
 from flask import send_from_directory
-import uuid
+
 from app import constant
 
 from app.api_v1 import errors
@@ -127,32 +127,34 @@ def compute():
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
 
-    url_file = data["url_file"]
 
-    input_filename = data["filename"]
+
+    inputs_raster_selection = data["inputs_raster_selection"]
     # part to modify from the CM rpovider
         #parameters needed from the CM
     reduction_factor = int(data["reduction_factor"])
     print ('reduction_factor ',reduction_factor)
-    input_raster_selection = UPLOAD_DIRECTORY+'/'+input_filename  # input raster selection
-    filename = str(uuid.uuid4()) + '.tif'
-    output_raster_selection = UPLOAD_DIRECTORY+'/'+filename  # output raster
+
 
     # call the calculation module function
-    indicator = calculation_module.calculation(input_raster_selection, factor = reduction_factor, output_raster = output_raster_selection)
-    ip = socket.gethostbyname(socket.gethostname())
-    #base_url = constant.TRANFER_PROTOCOLE+ str(ip) +':'+str(constant.PORT)+'/computation-module/files/'
-    #url_download_raster = base_url + filename
-    print("indicator has {} ".format(indicator))
-
+    output_raster_selection1, indicator1 = calculation_module.calculation(UPLOAD_DIRECTORY,inputs_raster_selection, factor = reduction_factor)
+    outputs_raster_selection = {}
+    outputs_raster_selection['layes1'] = output_raster_selection1
+    output_raster_selection2, indicator2 = calculation_module.calculation(UPLOAD_DIRECTORY,inputs_raster_selection, factor = reduction_factor+2)
+    outputs_raster_selection['layes2'] = output_raster_selection2
     response = {
         'values': [{
-            'name': 'Heat demand from Calculation Module',
-            'value': str(indicator),
+            'name': 'Heat demand with a factor '+ str(reduction_factor),
+            'value': str(indicator1),
+            'unit': 'MWh',}
+            ,{
+            'name': 'Heat demand with a factor '+ str(reduction_factor + 2),
+            'value': str(indicator2),
             'unit': 'MWh',}
 
         ],
-        'filename': filename
+        'outputs_raster_selection':outputs_raster_selection,
+        'filename': output_raster_selection1
 
     }
     print("indicator has {} ".format(response))

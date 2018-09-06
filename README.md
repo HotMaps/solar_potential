@@ -50,17 +50,17 @@ Find bellow the architecture of the CMs. All the CMs inherit from the base calcu
 *GIT Repository architecture*:
 
 ___________ 
-│ CM base │
+│ CM base │ upstream
 │_________│
   │
   │
   │   __________
-  └── │   CM1  │
+  └── │   CM1  │ origin
   │   │________│
   │
   │
   │   __________
-  └── │   CM2  │
+  └── │   CM2  │ origin
       │________│
 
 
@@ -82,12 +82,12 @@ git push -u origin master # push the changes (minimum code for run) .
 
 ``` 
 
-3. Start coding, switch branch from master to develop
+2. Start coding, switch branch from master to develop
 ```bash
 git fetch && git checkout develop
 ``` 
 
-4. After coding
+3. After coding
 
 ```bash
 git add .
@@ -97,7 +97,7 @@ git push origin develop
 ``` 
 
 
-5. Updating code with the base calculation module (BCM) code
+4. Updating code with the base calculation module (BCM) code
 
 ```bash
 git pull upstream master
@@ -108,7 +108,7 @@ If you encounter any issue like GIT conflict please contact CREM.
 
 
 
-6. Release a version of my CM
+5. Release a version of my CM
 
 After testing your calculation module using and update all the changes in develop branch
 ```bash

@@ -1,6 +1,7 @@
 
 from osgeo import gdal
 import uuid
+from ..helper import generate_output_file_tif
 """ Entry point of the calculation module function"""
 
 #TODO: CM provider must "change this code"
@@ -10,8 +11,8 @@ import uuid
 def calculation(output_directory, inputs_raster_selection, factor):
     #TODO the folowing code must be changed by the code of the calculation module
 
-    filename = str(uuid.uuid4()) + '.tif'
-    output_raster_selection = output_directory+'/'+filename  # output raster
+
+    output_raster_path_tif = generate_output_file_tif(output_directory)# output raster
 
     input_raster_selection =  inputs_raster_selection["heat_tot_curr_density"]
     ds = gdal.Open(input_raster_selection)
@@ -25,7 +26,7 @@ def calculation(output_directory, inputs_raster_selection, factor):
     indicator = pixel_values_modified.sum()
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()
-    out_ds = gtiff_driver.Create(output_raster_selection, ds_band.XSize, ds_band.YSize, 1, gdal.GDT_UInt16, ['compress=DEFLATE',
+    out_ds = gtiff_driver.Create(output_raster_path_tif, ds_band.XSize, ds_band.YSize, 1, gdal.GDT_UInt16, ['compress=DEFLATE',
                                                                                                          'TILED=YES',
                                                                                                          'TFW=YES',
                                                                                                          'ZLEVEL=9',
@@ -43,7 +44,7 @@ def calculation(output_directory, inputs_raster_selection, factor):
     out_ds_band.WriteArray(pixel_values_modified)
 
     del out_ds
-    return output_raster_selection, indicator
+    return output_raster_path_tif, indicator
 
 def colorizeMyOutputRaster(out_ds):
     ct = gdal.ColorTable()

@@ -1,7 +1,7 @@
 
 # Calculation module documentation and guidelines
 
-**requirement:**
+**requirements:**
 
 - Having GIT command installed on your computer
 - Having a Python version >= 3.5
@@ -370,7 +370,33 @@ The purpose of this part is to give developers the ability to build differents k
                              {"name": "heat density layer divide by 3","path": output_raster_path_tif_2},
                              {"name": "heat density layer divide by 4","path": output_raster_path_tif_3},
                              
+                             ],
+                 "graphics": [{
+                         "type": "bar",
+                         "data": {
+                             "labels": ["Default dataset","FR569","DE562","AT130","FR125"],
+                             "datasets": [
+                                 {
+                                     "label": "Calculation module chart",
+                                     "backgroundColor": [ "#3e95cd","#8e5ea2","#3cba9f","#e8c3b9","#c45850" ],
+                                     "data": [2478,5267,734,784,433]
+                                 }
                              ]
+                         }
+                     },{
+                           "type": "bar",
+                           "data": {
+                               "labels": ["Default dataset","FR569","DE562","AT130","FR125"],
+                               "datasets": [
+                                   {
+                                       "label": "Calculation module chart",
+                                       "backgroundColor": [ "#3e95cd","#8e5ea2","#3cba9f","#e8c3b9","#c45850" ],
+                                       "data": [2478,5267,734,784,433]
+                                   }
+                               ]
+                           }
+                           },]
+
             }
 ```
 
@@ -423,48 +449,46 @@ this indicators will be displayed on the result panel of the frontend.
              ]
  ```
  
-***GRAPHIC OUTPUT:***
+***CHARTS OUTPUT:***
 
 
 In this part it's describes how to create graphics that will be displayed of the frontend
 
- **Structure of graphics as output:**
+ **Structure of charts as output:**
  
-**type (string) :**  this is the type of graphic that will be display Type of chart (possible values: 'bar', 'line', 'radar', 'pie', 'polarArea', 'bubble')
- - **line:** A line chart or line graph is a type of chart which displays information as a series of data points called 'markers' connected by straight line segment
-   
-   ![alt text][line]
-   
-   
- - **bar:** A bar chart or bar graph is a chart or graph that presents categorical data with rectangular bars with heights or lengths proportional to the values that they represent.
-   
-   ![alt text][bar]
-   
-   
-  - **radar:** A radar chart is a way of showing multiple data points and the variation between them.
+- **charts (Array):** Array of chart
+ 
+    - **type (string) :**  this is the type of graphic that will be display Type of chart (possible values: 'bar', 'line', 'radar', 'pie', 'polarArea', 'bubble')
     
+        - **line:** A line chart or line graph is a type of chart which displays information as a series of data points called 'markers' connected by straight line segment
+   
+        ![alt text][line]
+   
+        - **bar:** A bar chart or bar graph is a chart or graph that presents categorical data with rectangular 
+   bars with heights or lengths proportional to the values that they represent.
+        ![alt text][bar]
+        - **radar:** A radar chart is a way of showing multiple data points and the variation between them.   
    ![alt text][radar]
-   
-  
-    
-- **pie:** A pie chart is divided into segments, the arc of each segment shows the proportional value of each piece of data..
-
+        - **pie:** A pie chart is divided into segments, the arc of each segment shows the proportional value of each piece of data..
     ![alt text][pie]
     
-- **polarArea:** Polar area charts are similar to pie charts, but each segment has the same angle - the radius of the segment differs depending on the value..
+        - **polarArea:** Polar area charts are similar to pie charts, but each segment has the same angle - the radius of the segment differs depending on the value..
 
     ![alt text][polarArea]
     
-**labels (string[]) :** x axis labels
 
-**datasets (Array):** set of data with there configuration
-  - **label (string) :** Serie's label
-  - **backgroundColor (string[]) :** Background color of each value to display
-  - **data (number[]) :** Each value for the serie
+- **data**: Contains label and datasets
+    - **labels (string[]) :** x axis labels
+
+    -   **datasets (Array):** set of data with there configuration
+        -  **label (string) :** Serie's label
+        -  **backgroundColor (string[]) :** Background color of each value to display
+        -  **data (number[]) :** Each value for the serie
+
 
 ```json
-{
-    "chart": {
+
+    "charts": [{
         "type": "bar",
         "data": {
             "labels": ["Default dataset","FR569","DE562","AT130","FR125"],
@@ -476,14 +500,26 @@ In this part it's describes how to create graphics that will be displayed of the
                 }
             ]
         }
-    }
-}
+    },{
+      "type": "bar",
+      "data": {
+          "labels": ["Default dataset","FR569","DE562","AT130","FR125"],
+          "datasets": [
+              {
+                  "label": "Calculation module chart",
+                  "backgroundColor": [ "#3e95cd","#8e5ea2","#3cba9f","#e8c3b9","#c45850" ],
+                  "data": [2478,5267,734,784,433]
+              }
+          ]
+              }
+          },]
+
 ```
 
 
 
 
-###Guidelines
+
 
 ***Retriving list of layers available for CM***
 

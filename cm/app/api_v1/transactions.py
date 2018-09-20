@@ -89,6 +89,7 @@ def savefile(filename,url):
         print ('unsable to download tif')
     return path
 
+
 @api.route('/compute/', methods=['POST'])
 def compute():
     #TODO: CM provider must "change the documentation with the information of his CM
@@ -97,16 +98,16 @@ def compute():
     the main web service is sending
         ---
        parameters:
-          - name: filename
+          - name: inputs_raster_selection
             in: path
-            type: string
+            type: dict
             required: true
-            default: 6d998d5c-5139-4f77-b0b3-8ee078e4527c.tif
-          - name: url_file
+            default:  {'heat_tot_curr_density': '/var/hotmaps/cm_files_uploaded/raster_for_test.tif'}
+          - name: inputs_parameter_selection
             in: path
-            type: string
+            type: dict
             required: true
-            default: http://127.0.0.1:5000/api/cm/files/6d998d5c-5139-4f77-b0b3-8ee078e4527c.tif
+            default: {'reduction_factor': 2}
           - name: reduction_factor
             in: path
             type: integer
@@ -127,40 +128,26 @@ def compute():
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
 
-
-
+    #TODO CM Developper do not need to change anything here
+    # here is the inputs layers and parameters
     inputs_raster_selection = data["inputs_raster_selection"]
-    # part to modify from the CM rpovider
-        #parameters needed from the CM
-    reduction_factor = int(data["reduction_factor"])
-    print ('reduction_factor ',reduction_factor)
-
-
+    print ('inputs_raster_selection', inputs_raster_selection)
+    inputs_parameter_selection = data["inputs_parameter_selection"]
+    print ('inputs_parameter_selection', inputs_parameter_selection)
+    output_directory = UPLOAD_DIRECTORY
     # call the calculation module function
-    output_raster_selection1, indicator1 = calculation_module.calculation(UPLOAD_DIRECTORY,inputs_raster_selection, factor = reduction_factor)
-    outputs_raster_selection = {}
-    outputs_raster_selection['layes1'] = output_raster_selection1
-    output_raster_selection2, indicator2 = calculation_module.calculation(UPLOAD_DIRECTORY,inputs_raster_selection, factor = reduction_factor+2)
-    outputs_raster_selection['layes2'] = output_raster_selection2
-    response = {
-        'values': [{
-            'name': 'Heat demand with a factor '+ str(reduction_factor),
-            'value': str(indicator1),
-            'unit': 'MWh',}
-            ,{
-            'name': 'Heat demand with a factor '+ str(reduction_factor + 2),
-            'value': str(indicator2),
-            'unit': 'MWh',}
+    result = calculation_module.calculation(output_directory, inputs_raster_selection,inputs_parameter_selection)
 
-        ],
-        'outputs_raster_selection':outputs_raster_selection,
-        'filename': output_raster_selection1
+    response = {
+        'result': result
+
 
     }
-    print("indicator has {} ".format(response))
+    print("response ",response)
+
+    print("type response ",type(response))
+    # convert response dict to json
     response = json.dumps(response)
     return response
-
-
 
 

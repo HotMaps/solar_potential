@@ -371,6 +371,11 @@ The purpose of this part is to give developers the ability to build differents k
                              {"name": "heat density layer divide by 4","path": output_raster_path_tif_3},
                              
                              ],
+                 "vectors_layers":[
+                                  {"name": "heat density layer divide by 2","path": output_shapefile_path_1},
+                                  {"name": "heat density layer divide by 3","path": output_shapefile_path_2}},
+                                  {"name": "heat density layer divide by 4","path": output_shapefile_path_3}},
+                                      ],
                  "graphics": [{
                          "type": "bar",
                          "data": {
@@ -527,23 +532,50 @@ please find in the link the list of layers available as input for a  CM (ressour
 
 https://docs.google.com/spreadsheets/d/1cGMRWkgIL8jxghrpjIWy6Xf_kS3Dx6LqGNfrCBLQ_GI/edit#gid=1730959780
 
+*******************************************************************
+**Calculation Module development GUIDELINES in local environement**
 
-***Accessing and testing my CM:***
-- For manual testing after launching the calculation module on a local (Docker or  computer environement )
-    ```bash
-    cd cm
-    python run.py
-    ```
-    go to the url(http://0.0.0.0:5001/apidocs/)
+**1. Install requirements.**
 
-- For automatic testing type on the terminal,
-before running test you must run for downloading file in the directory 
-    ```bash
-    cd cm/
-    python run.py #give access to the service needeed for testing
-    python test.py #tests if the compute fucntion is working and validate the integration of the CM 
+Install all the libraries needed to run the CM
+```bash
+cd cm
+pip install -r requirements.txt
+```
+
+**2. Run the CM API:**
+
+run the api in a terminal
+```bash
+cd cm
+python run.py
+```
     
-    ```
+the documentation can be check at http://0.0.0.0:5001/apidocs/)
+    
+**3. Test my CM :**
+
+ before writing writing any line of code test the existing one,
+run the test in a new terminal
+
+```bash
+cd cm
+python test.py 
+```
+
+**4. Modify constant.py :**
+
+if the test is ran and ok the constants.py file must be changed in order to
+- give a CM name
+- build  frontend user interface of the CM
+- assign a unique CM_ID (please contact the research center of Martigny (CREM))
+- modify the SIGNATURE
+- etc
+
+**5. Write your code on calculation_module.py :**
+
+the calculation_module.py is a bridge between the CM function and the CM architecture
+all the new code must be added on the directory **my_calculation_module_directory**
 
 
 

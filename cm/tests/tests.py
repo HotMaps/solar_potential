@@ -26,33 +26,23 @@ class TestAPI(unittest.TestCase):
         self.ctx.pop()
 
 
-
-
-
     def test_compute(self):
         raster_file_path = 'tests/data/raster_for_test.tif'
-
+        # simulate copy from HTAPI to CM
         save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
         copyfile(raster_file_path, save_path)
+
+        inputs_raster_selection = {}
+        inputs_parameter_selection = {}
+        inputs_raster_selection["heat_tot_curr_density"]  = save_path
+        inputs_parameter_selection["reduction_factor"] = 2
         # register the calculation module a
-        payload = {"filename": "raster_for_test.tif",
-                   "url_file": "http://127.0.0.1:5001/computation-module/files/raster_for_test.tif",
-                   "reduction_factor": 2}
+        payload = {"inputs_raster_selection": inputs_raster_selection,
+                   "inputs_parameter_selection": inputs_parameter_selection}
 
 
         rv, json = self.client.post('computation-module/compute/', data=payload)
 
         self.assertTrue(rv.status_code == 200)
-
-
-""" def test_register(self):
-      # register the calculation module a
-      rv, json = self.client.post('computation-module/register/', data={'name': 'prod1'})
-
-      self.assertTrue(rv.status_code == 200)
-
-      # get list of products"""
-
-
 
 

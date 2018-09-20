@@ -1,8 +1,12 @@
-
+import uuid
 
 
 def generate_output_file_tif(output_directory):
     return generate_output_file_with_extension(output_directory,'.tif')
+
+
+def generate_output_file_shp(output_directory):
+    return generate_output_file_with_extension(output_directory, '.shp')
 
 
 def generate_output_file_with_extension(output_directory,extension):

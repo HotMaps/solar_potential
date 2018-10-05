@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 CELERY_BROKER_URL_DOCKER = 'amqp://admin:mypass@rabbit:5672/'
 CELERY_BROKER_URL_LOCAL = 'amqp://localhost/'
@@ -302,7 +303,7 @@ INPUTS_CALCULATION_MODULE = [
      # 'input_desc': 'Interest rate applicable for the loan type',
      'input_type': 'input',
      'input_parameter_name': 'interest_rate',
-     'input_value': 4.0.,
+     'input_value': 4.0,
      'input_unit': '%',
      'input_min': 0.,
      'input_max': 100.,

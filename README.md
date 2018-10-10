@@ -67,7 +67,7 @@ ___________
 
 ```
 0. Create a repository on github named name_of_my_module, create a folder on your computer named it "name_of_my_module", 
-go inside your new folder create
+go inside your new folder create. Please let the repository of your new module empty until you retrived the base_calculation_module code.
 
 1. Using git command on your terminal be ready to code:
 ```bash

@@ -41,6 +41,9 @@ SIGNATURE = {
     "layers_needed": [
         "heat_tot_curr_density",
     ],
+    "type_layer_needed": [
+        "heat",
+    ],
     "cm_url": "Do not add something",
     "cm_description": "this computation module allows to divide the HDM",
     "cm_id": CM_ID,

@@ -10,7 +10,9 @@ CM_NAME = 'calculation_module_test'
 RPC_CM_ALIVE= 'rpc_queue_CM_ALIVE' # Do no change this value
 RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 1 # CM_ID is defined by the enegy research center of Martigny (CREM)
-PORT = int('500' + str(CM_ID))
+PORT_LOCAL = int('500' + str(CM_ID))
+PORT_DOCKER = 80
+PORT = PORT_DOCKER
 TRANFER_PROTOCOLE ='http://'
 INPUTS_CALCULATION_MODULE = [
     {'input_name': 'Reduction factor',
@@ -38,6 +40,9 @@ SIGNATURE = {
     "cm_name": CM_NAME,
     "layers_needed": [
         "heat_tot_curr_density",
+    ],
+    "type_layer_needed": [
+        "heat",
     ],
     "cm_url": "Do not add something",
     "cm_description": "this computation module allows to divide the HDM",

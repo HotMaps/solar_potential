@@ -1,6 +1,6 @@
 
 from osgeo import gdal
-import uuid
+
 from ..helper import generate_output_file_tif
 """ Entry point of the calculation module function"""
 

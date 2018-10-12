@@ -78,7 +78,7 @@ Tax: Linear depreciation over 20 years is used in order to
 """
 INPUTS_CALCULATION_MODULE = [
     #
-    # Spatial filter
+    # Planning information
     # =================
     {'input_name': 'Effective building roof utilization factor',
      'input_type': 'range',
@@ -89,99 +89,51 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 1,
      'cm_id': CM_ID
      },
-    #
-    # General information of the solar system
-    # ========================================
-    {'input_name': 'Efficiency of the solar system',
-     'input_type': 'range',
-     'input_parameter_name': 'efficiency_solar_system',
-     'input_value': 0.12,
+    {'input_name': 'Fraction of buildings with solar panels',
+     'input_type': 'input',
+     'input_parameter_name': 'reduction_factor',
+     'input_value': 0.3,
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
      'cm_id': CM_ID
      },
-    {'input_name': 'Useful system life [years]',
-     # 'input_desc': 'Time after which the installation is considered worthless',
-     'input_type': 'input',
-     'input_parameter_name': 'solar_life',
-     'input_value': 25,
-     'input_unit': 'years',
-     'input_min': 0,
-     'input_max': 50,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Performance system degradation [%/year]',
-     # 'input_desc': '',
-     'input_type': 'input',
-     'input_parameter_name': 'solar_degradation',
-     'input_value': 0.5,
-     'input_unit': '%/year',
-     'input_min': 0,
-     'input_max': 100,
-     'cm_id': CM_ID
-     },
     #
-    # Feed in tariffs
-    #
-    {'input_name': 'Feed in tariffs: number of years [years]',
-     # 'input_desc': 'Duration of the feed-in-tariff',
+    # Technical information of the solar system
+    # ========================================
+    {'input_name': 'Installed peak power [kW_p]',
      'input_type': 'input',
-     'input_parameter_name': 'feed_years',
-     'input_value': 20,
-     'input_unit': 'years',
+     'input_parameter_name': 'peak_power_pv',
+     'input_value': 3,
+     'input_unit': 'kW',
      'input_min': 0,
-     'input_max': 50,
+     'input_max': 20,
      'cm_id': CM_ID
      },
-    {'input_name': 'Feed in tariffs: energy price [currency/kWh]',
-     # 'input_desc': '',
+    {'input_name': 'Efficiency of the solar system',
      'input_type': 'input',
-     'input_parameter_name': 'energy_price',
-     'input_value': 0.18,
-     'input_unit': 'currency/kWh',
-     'input_min': 0.,
-     'input_max': 0.80,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Feed in tariffs: index linked',
-     # 'input_desc': 'FiT linked to an inflation index?',
-     'input_type': 'checkbox',
-     'input_parameter_name': 'feed_in_price',
-     'input_value': 'false',
-     'input_unit': 'currency/kWh',
+     'input_parameter_name': 'efficiency_pv',
+     'input_value': 0.75,
+     'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
      'cm_id': CM_ID
      },
-    #
-    # Income after Guarantee
-    # =======================
-    {'input_name': 'Own consumption costs [currency/kWh]',
-     # 'input_desc': 'Feed-in-tariff subsidy for own consumption'
+    {'input_name': 'Module efficiency at Standard Test Conditions [kW m^{-2}]',
      'input_type': 'input',
-     'input_parameter_name': 'consumption_costs',
-     'input_value': 0.25,
-     'input_unit': 'currency/kWh',
-     'input_min': 0.,
-     'input_max': 0.50,
+     'input_parameter_name': 'k_pv',
+     'input_value': 0.15,
+     'input_unit': 'none',
+     'input_min': 0,
+     'input_max': 0.6,
      'cm_id': CM_ID
      },
-    {'input_name': 'Own consumption factor',
-     # 'input_desc': 'Expected own consumption',
-     'input_type': 'input',
-     'input_parameter_name': 'consumption_factor',
-     'input_value': 0.2,
-     'input_unit': '',
-     'input_min': 0.,
-     'input_max': 1.,
-     'cm_id': CM_ID
-     },
-    #
+
     # Electricity price consumption
     # ===============================
     {'input_name': 'Price now [currency/kWh]',
-     # 'input_desc': 'Energy price now, used for estimating future energy prices',
+     # 'input_desc': 'Energy price now, used for estimating
+     # future energy prices',
      'input_type': 'input',
      'input_parameter_name': 'energy_price',
      'input_value': 0.2,
@@ -207,7 +159,8 @@ INPUTS_CALCULATION_MODULE = [
      # 'input_desc': 'Setup cost of the installation (fixed cost)'
      'input_type': 'input',
      'input_parameter_name': 'setup_costs',
-     'input_value': 3000,
+     'input_value': 5000,
+     # default value by IRENA
      'input_unit': 'currency/kWp',
      'input_min': 0.,
      'input_max': 10000,
@@ -216,74 +169,13 @@ INPUTS_CALCULATION_MODULE = [
     #
     # Running costs
     # ====================
-    {'input_name': 'Lease [currency/year]',
-     # 'input_desc': 'If a lease is to be paid enter this here, annual costs'
-     'input_type': 'input',
-     'input_parameter_name': 'running_costs_lease',
-     'input_value': 0,
-     'input_unit': 'currency/year',
-     'input_min': 0.,
-     'input_max': 10000000,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Insurance premium [%]',
-     # 'input_desc': 'Annual insurance premium as a percentage of the initial value of the installation'
-     'input_type': 'input',
-     'input_parameter_name': 'insurance_percentage',
-     'input_value': 0.5,
-     'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Maintenance [%]',
-     # 'input_desc': 'Annual maintenance cost as a percentage of the initial value of the installation'
+    {'input_name': 'Maintenance and operation costs [%] of the setup cost',
+     # 'input_desc': 'Annual maintenance cost as a percentage
+     # of the initial value of the installation'
      'input_type': 'input',
      'input_parameter_name': 'maintenance_percentage',
-     'input_value': 0.5,
-     'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Inflation rate [%/year]',
-     # 'input_desc': 'Inflation rate is used to predict future costs'
-     'input_type': 'input',
-     'input_parameter_name': 'inflation_rate',
-     'input_value': 2.,
-     'input_unit': '%/year',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    #
-    # Financing
-    # =================
-    {'input_name': 'Own funds [%]',
-     # 'input_desc': 'Own funds provided as a fraction (in %) of the setup cost'
-     'input_type': 'input',
-     'input_parameter_name': 'own_fund_percentage',
-     'input_value': 100.,
-     'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'loan type',
-     # 'input_desc': 'SELECT:: Simple: Simple loan, no redemption. Annuity: Works like a mortgage. Redeemable: Redemptions possible at specified times',
-     'input_type': 'input',
-     'input_parameter_name': 'loan_type',
-     'input_value': 2.,
-     'input_unit': '%]',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Redemption Sched.',
-     # 'input_desc': 'SELECT::This option only applies to loan type "redeemable": Uniform:Redemptions are chosen such that a uniform dividend can be paid. Maximum: Redemptions are maximized so that the loan is paid back quickest. '
-     'input_type': 'input',
-     'input_parameter_name': 'redemption_sched',
-     'input_value': 0.5,
+     'input_value': 2,
+     # default value by JRC
      'input_unit': '%',
      'input_min': 0.,
      'input_max': 100.,
@@ -299,49 +191,16 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 40.,
      'cm_id': CM_ID
      },
-    {'input_name': 'Interest rate [%]',
+    {'input_name': 'Discount rate [%]',
      # 'input_desc': 'Interest rate applicable for the loan type',
      'input_type': 'input',
-     'input_parameter_name': 'interest_rate',
+     'input_parameter_name': 'discount_rate',
      'input_value': 4.0,
      'input_unit': '%',
      'input_min': 0.,
      'input_max': 100.,
      'cm_id': CM_ID
      },
-    {'input_name': 'Disagio [%]',
-     # 'input_desc': 'Disagio in percent, i.e. a 3% disagio means a 97% loan'
-     'input_type': 'input',
-     'input_parameter_name': 'disagio',
-     'input_value': 3.,
-     'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Investment yield [%]',
-     # 'input_desc': 'Applicable for loan type "simple". Determines which return assumes to be achieved when building the reserve'
-     'input_type': 'input',
-     'input_parameter_name': 'inflation_rate',
-     'input_value': 3.5,
-     'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
-    #
-    # Tax
-    # =================
-    {'input_name': 'Tax rate',
-     # 'input_desc': 'Tax rate applicable to taxable income (equals income before redemption less depreciation)'
-     'input_type': 'input',
-     'input_parameter_name': 'inflation_rate',
-     'input_value': 3.5,
-     'input_unit': 'none',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     }
 ]
 
 
@@ -353,7 +212,9 @@ SIGNATURE = {
         "solar_optimal_total",  # kWh/m²/year
     ],
     "cm_url": "Do not add something",
-    "cm_description": "this computation module allows to divide the HDM",
+    "cm_description": "This computation aims to compute the photovoltaic"
+                      "energy potential and the financial feasibility of"
+                      "a selected area ",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE
 }

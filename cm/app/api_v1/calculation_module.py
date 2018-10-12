@@ -2,53 +2,159 @@
 from osgeo import gdal
 import uuid
 from ..helper import generate_output_file_tif
+
+import numpy as np
 """ Entry point of the calculation module function"""
 
 #TODO: CM provider must "change this code"
 #TODO: CM provider must "not change input_raster_selection,output_raster  1 raster input => 1 raster output"
 #TODO: CM provider can "add all the parameters he needs to run his CM
 #TODO: CM provider can "return as many indicators as he wants"
-def calculation(output_directory, inputs_raster_selection, inputs_parameter_selection):
-    #TODO the folowing code must be changed by the code of the calculation module
+
+
+def lcoe(tot_investment, tot_cost_year, n, i_r, en_gen_per_year):
+    """
+    Levelized cost of Energy
+
+    Tot_investment = Total investment ( Outflow everything is
+                     included in this voice,
+    plese refer to the Excel spreadsheet made by Simon) [positive real number]
+
+    Tot_cost_year =  (Outflow) variable cost [positive real number]
+
+    n number of years    [Natural number or positive integer]
+
+    i_r discount rate [0.0< positive real number<1.0]
+
+    EN_gen_per_year = total energy generated during a year
+                      [KWH/Y] [ positive real number]
+    -- computed as
+
+    Nominal capacity * COP * Load or apacity factor  in whch
+
+    Nominal capacity [KW]
+    Hours per year [H/y = hours/year]
+
+    test: geothermal savings oil
+
+    >>> LCOE( 7473340,   4918, 27, 0.03,  6962999)
+    0.05926970484809364
+
+    test: geothermal savings gas
+    """
+
+    flows = []
+    flows.append(tot_investment)
+
+    for i in range(1, n+1):
+
+        flow_k = tot_cost_year*np.power(float(1+i_r), -i)
+        flows.append(flow_k)
+
+    tot_inv_and_sum_annual_discounted_costs = sum(flows)
+
+    discounted_ener = []
+
+    for i in range(1, n+1):
+        discounted_ener_k = en_gen_per_year*np.power(float(1+i_r), -i)
+        discounted_ener.append(discounted_ener_k)
+
+    total_discounted_energy = sum(discounted_ener)
+
+    lcoe = tot_inv_and_sum_annual_discounted_costs/total_discounted_energy
+
+    return lcoe
+
+
+def calculation(output_directory, inputs_raster_selection,
+                inputs_parameter_selection):
+    # TODO the folowing code must be changed by
+    # the code of the calculation module
 
     # generate the output raster file
-    output_raster1 = generate_output_file_tif(output_directory)
+    output_suitable = generate_output_file_tif(output_directory)
 
-     #retrieve the inputs layes
-    input_raster_selection =  inputs_raster_selection["heat_tot_curr_density"]
-    #retrieve the inputs all input defined in the signature
-    factor =  int(inputs_parameter_selection["reduction_factor"])
-
-
-    # TODO this part bellow must be change by the CM provider
-    ds = gdal.Open(input_raster_selection)
+    # retrieve the inputs layes
+    ds = gdal.Open(inputs_raster_selection["solar_optimal_total"])
     ds_band = ds.GetRasterBand(1)
+    ds_geo = ds.GetGeoTransform()
+    irradiation_pixel_area = ds_geo[1] * (-ds_geo[5])
+    irradiation_values = ds.ReadAsArray()
+    # retrieve the inputs all input defined in the signature
 
-    #----------------------------------------------------
-    pixel_values = ds.ReadAsArray()
-    #----------Reduction factor----------------
+    tot_investment = (inputs_parameter_selection['peak_power_pv'] *
+                      inputs_parameter_selection['setup_costs'])
 
-    pixel_values_modified = pixel_values/ float(factor)
-    hdm_sum  = pixel_values_modified.sum()
+    tot_cost_year = (inputs_parameter_selection['maintenance_percentage'] *
+                     inputs_parameter_selection['setup_costs'])
 
+    e_pv_mean = np.mean(np.nonzero(irradiation_values))
+    # the solar irradiation at standard test condition equal to 1 kWm-2
+    en_gen_per_year = (e_pv_mean *
+                       inputs_parameter_selection['peak_power_pv'] *
+                       inputs_parameter_selection['efficiency_pv'])
+    # compute lcoe for a single representative plant
+    lcoe_plant = lcoe(tot_investment, tot_cost_year,
+                      inputs_parameter_selection['financing_years'],
+                      inputs_parameter_selection['discount_rate'],
+                      en_gen_per_year)
+
+    area_plant = (inputs_parameter_selection['peak_power_pv'] /
+                  inputs_parameter_selection['k_pv'])
+
+    building_footprint = (np.count_nonzero(irradiation_values) *
+                          irradiation_pixel_area)
+
+    n_plants = (inputs_parameter_selection["roof_use_factor"] *
+                inputs_parameter_selection["reduction_factor"] *
+                building_footprint / area_plant)
+
+    tot_setup_costs = inputs_parameter_selection['setup_costs'] * n_plants
+    tot_en_gen_per_year = en_gen_per_year * n_plants
+
+    # define the most suitable roofs,
+    # compute the energy for each pixel by considering a number of plants
+    # for each pixel and selected
+    # most suitable pixel to cover the enrgy production
+    # TODO: do not consider 0 values in the computation
+
+    # n_plant_pixel potential number of plants in a pixel
+    n_plant_pixel = (irradiation_pixel_area/area_plant *
+                     inputs_parameter_selection['roof_use_factor'])
+    en_values = (irradiation_values *
+                 inputs_parameter_selection['peak_power_pv'] *
+                 inputs_parameter_selection['efficiency_pv'] * n_plant_pixel
+                 )
+
+    # order the matix
+    ind = np.unravel_index(np.argsort(en_values, axis=None)[::-1],
+                           en_values.shape)
+    e_cum_sum = np.cumsum(en_values[ind])
+    # find the nearest element
+    idx = (np.abs(e_cum_sum - tot_en_gen_per_year)).argmin()
+
+    # create new array of zeros and ones
+    most_suitable = np.zeros_like(en_values)
+    for i, j in zip(ind[0][0:idx], ind[1][0:idx]):
+        most_suitable[i][j] = en_values[i][j]
     gtiff_driver = gdal.GetDriverByName('GTiff')
-    #print ()
-    out_ds = gtiff_driver.Create(output_raster1, ds_band.XSize, ds_band.YSize, 1, gdal.GDT_UInt16, ['compress=DEFLATE',
-                                                                                                         'TILED=YES',
-                                                                                                         'TFW=YES',
-                                                                                                         'ZLEVEL=9',
-                                                                                                         'PREDICTOR=1'])
+    out_ds = gtiff_driver.Create(output_suitable, ds_band.XSize, ds_band.YSize,
+                                 1, gdal.GDT_UInt16, ['compress=DEFLATE',
+                                                      'TILED=YES',
+                                                      'TFW=YES',
+                                                      'ZLEVEL=9',
+                                                      'PREDICTOR=1'])
     out_ds.SetProjection(ds.GetProjection())
     out_ds.SetGeoTransform(ds.GetGeoTransform())
 
     ct = gdal.ColorTable()
-    ct.SetColorEntry(0, (0,0,0,255))
-    ct.SetColorEntry(1, (110,220,110,255))
+    ct.SetColorEntry(0, (0, 0, 0, 255))
+    ct.SetColorEntry(1, (110, 220, 110, 255))
     out_ds.GetRasterBand(1).SetColorTable(ct)
 
     out_ds_band = out_ds.GetRasterBand(1)
     out_ds_band.SetNoDataValue(0)
-    out_ds_band.WriteArray(pixel_values_modified)
+    out_ds_band.WriteArray(most_suitable)
 
     del out_ds
     # output geneneration of the output
@@ -56,10 +162,21 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     vector_layers = []
     result = dict()
     result['name'] = 'CM Heat density divider'
-    result['indicator'] = [{"unit": "KWh", "name": "Heat density total divided by  {}".format(factor),"value": str(hdm_sum)}]
+    result['indicator'] = [{"unit": "kWh/year",
+                            "name": "Total energy production",
+                            "value": str(tot_en_gen_per_year)},
+                           {"unit": "currency/kWh",
+                            "name": "Total setup costs",
+                            "value": str(tot_setup_costs)},
+                           {"unit": "currency/kWh",
+                            "name": "Levelized Cost of Energy",
+                            "value": str(lcoe_plant)}
+                           ]
     result['graphics'] = graphics
     result['vector_layers'] = vector_layers
-    result['raster_layers'] = [{"name": "layers of heat_densiy {}".format(factor),"path": output_raster1} ]
+    result['raster_layers'] = [{"name":
+                                "layers of most suitable roofs",
+                                "path": output_suitable}]
     return result
 
 

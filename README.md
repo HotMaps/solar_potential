@@ -239,7 +239,7 @@ see bellow:
 
 The signature contained some parameters that are needed by the main webservice HTAPI for the data exchange:
 
- **category:**
+**category:**
 
 This is the category of the calculation module
  
@@ -270,17 +270,21 @@ Layers needed to run the calculation module
       
  ```
 
-**cm description:**
-
-Description of purpose of the CM that will be displayed on the frontend GUI.
 
 **cm description:**
 
 Description of purpose of the CM that will be displayed on the frontend GUI.
 
-It aims to compute the photovoltaic energy potential of a selected area by considering:
+It aims to compute the photovoltaic energy potential and the financial feasibility of a selected area by considering:
 - the installation of new PV systems on a percentage of building footprint
 - the financial feasibility of new plants
+
+The output of the module are:
+
+- the total cost of covering the selected area with PV panels [currency]
+- the total yearly energy production [MWh/year]
+- the Levelized Cost of Energy  [currency/kWh]
+- the most suitable roofs for PV energy production
 
 Starting from the available area and the kind of PV technology the module computes the PV energy production under the following assumptions:
 -optimal inclination of the PV system
@@ -290,7 +294,9 @@ Starting from the available area and the kind of PV technology the module comput
 
 These assumptions have been done in order to consider a planning phase for a region and not the design of a specific PV systems.
 
-The PV energy production can be computed as:
+The yearly energy output is  derived by considering the spatial distribution of yearly solar radiation on the building footprint.
+ 
+The PV energy production is computed for a single representative plant as:
 
 <img src="https://latex.codecogs.com/gif.latex?E_{el,pv,out}=E_{pv} W_{pv} f_{pv} /I_{ref} " /> 
 
@@ -298,27 +304,44 @@ with
 <img src="https://latex.codecogs.com/gif.latex?E_{el,pv,out}
 \text { yearly energy output } [kWh ]" /> 
 <img src="https://latex.codecogs.com/gif.latex?E_{pv}
-\text { yearly solar irradiation } [kWh \, m^{-2}] " /> 
+\text { mean yearly solar irradiation } [kWh \, m^{-2}] " /> 
 <img src="https://latex.codecogs.com/gif.latex? W_{pv}
 \text { installed peak power } [kW_p] " /> 
 <img src="https://latex.codecogs.com/gif.latex? f_{pv}
 \text { system efficiency } [-] " /> 
 <img src="https://latex.codecogs.com/gif.latex? I_{ref}
-\text { is the solar radiation in standard test condition equal to 1 } kW \, m^{-2} " /> 
+\text { is the solar radiation at Standard Test Condition equal to 1 } kW \, m^{-2} " /> 
 
-The installed peak power is equal to:
+The most representative installed peak power for a PV system is an input of the module.
+Consequently, the surface covered by a single plant is computed as:
 
-<img src="https://latex.codecogs.com/gif.latex?W_{pv} = K_{pv} A_{pv} " /> 
+<img src="https://latex.codecogs.com/gif.latex?A_{pv} = W_{pv} k_{pv} " /> 
 
 with 
 <img src="https://latex.codecogs.com/gif.latex? K_{pv}
 \text { module efficiency at Standard Test Conditions } [kW \, m^{-2}] " /> 
 <img src="https://latex.codecogs.com/gif.latex? A_{pv}
-\text { selected area } [m^{2}] " />
+\text { surface of a representative PV system } [m^{2}] " />
 
-The selected area is computed as a percentage of the building footprint.
+The default module efficiency at Standard Test Conditions is 0.15.
 
-The yearly energy output is  derived by considering the spatial distribution of yearly solar radiation on the building footprint.
+The total number of plants is computed as:
+
+<img src="https://latex.codecogs.com/gif.latex?N_{plants} = f_{roof} \, f_{buildings} \, A_{bui} / A_{pv] " /> 
+
+with 
+<img src="https://latex.codecogs.com/gif.latex? f_{roof}
+\text { effective building roof utilization factor } [-] " /> 
+<img src="https://latex.codecogs.com/gif.latex? A_{pv}
+\text { fraction of buildings with solar panels } [-] " /><img src="https://latex.codecogs.com/gif.latex? A_{bui}
+\text { building footprint computed from the input raster file } [-] " />
+
+The total energy production of the selected area is equal to:
+
+<img src="https://latex.codecogs.com/gif.latex?E_{el,pv,total}=E_{el,pv,out} N_{plants}" /> 
+ 
+The most suitable area is computed by considering the roofs with higher energy production. 
+The energy production of each pixel considers to cover only a fraction of the roofs equal to f_roof. The integral of the energy production of the most suitable area is equal to the total energy production of the selected area.
 
 
 **cm id:**

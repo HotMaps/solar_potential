@@ -77,9 +77,7 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
-    #
-    # Planning information
-    # =================
+[
     {'input_name': 'Effective building roof utilization factor',
      'input_type': 'range',
      'input_parameter_name': 'roof_use_factor',
@@ -87,7 +85,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
     {'input_name': 'Fraction of buildings with solar panels',
      'input_type': 'input',
@@ -96,11 +94,8 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
-    #
-    # Technical information of the solar system
-    # ========================================
     {'input_name': 'Installed peak power [kW_p]',
      'input_type': 'input',
      'input_parameter_name': 'peak_power_pv',
@@ -108,7 +103,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'kW',
      'input_min': 0,
      'input_max': 20,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
     {'input_name': 'Efficiency of the solar system',
      'input_type': 'input',
@@ -117,7 +112,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
     {'input_name': 'Module efficiency at Standard Test Conditions [kW m^{-2}]',
      'input_type': 'input',
@@ -126,81 +121,45 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 0.6,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
-
-    # Electricity price consumption
-    # ===============================
-    {'input_name': 'Price now [currency/kWh]',
-     # 'input_desc': 'Energy price now, used for estimating
-     # future energy prices',
-     'input_type': 'input',
-     'input_parameter_name': 'energy_price',
-     'input_value': 0.2,
-     'input_unit': 'currency/kWh',
-     'input_min': 0.,
-     'input_max': 1.,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Energy price inflation [%/year]',
-     # 'input_desc': 'Used for estimating future energy prices'
-     'input_type': 'input',
-     'input_parameter_name': 'energy_inflation',
-     'input_value': 1,
-     'input_unit': 'currency/kWh',
-     'input_min': 0,
-     'input_max': 100,
-     'cm_id': CM_ID
-     },
-    #
-    # Setup costs (all inclusive)
-    # ============================
     {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
-     # 'input_desc': 'Setup cost of the installation (fixed cost)'
      'input_type': 'input',
      'input_parameter_name': 'setup_costs',
      'input_value': 5000,
-     # default value by IRENA
      'input_unit': 'currency/kWp',
-     'input_min': 0.,
+     'input_min': 0.0,
      'input_max': 10000,
-     'cm_id': CM_ID
+     'cm_id': 313
      },
-    #
-    # Running costs
-    # ====================
     {'input_name': 'Maintenance and operation costs [%] of the setup cost',
-     # 'input_desc': 'Annual maintenance cost as a percentage
-     # of the initial value of the installation'
      'input_type': 'input',
      'input_parameter_name': 'maintenance_percentage',
      'input_value': 2,
-     # default value by JRC
      'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
+     'input_min': 0.0,
+     'input_max': 100,
+     'cm_id': 313
      },
     {'input_name': 'Financing years [year]',
-     # 'input_desc': 'Financing term'
      'input_type': 'input',
      'input_parameter_name': 'financing_years',
      'input_value': 20,
      'input_unit': 'year',
-     'input_min': 0.,
-     'input_max': 40.,
-     'cm_id': CM_ID
+     'input_min': 0.0,
+     'input_max': 40,
+     'cm_id': 313
      },
     {'input_name': 'Discount rate [%]',
-     # 'input_desc': 'Interest rate applicable for the loan type',
      'input_type': 'input',
      'input_parameter_name': 'discount_rate',
      'input_value': 4.0,
      'input_unit': '%',
-     'input_min': 0.,
-     'input_max': 100.,
-     'cm_id': CM_ID
-     },
+     'input_min': 0,
+     'input_max': 100,
+     'cm_id': 313
+     }
+]
 ]
 
 

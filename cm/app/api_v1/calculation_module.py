@@ -85,7 +85,8 @@ def calculation(output_directory, inputs_raster_selection,
     tot_investment = (inputs_parameter_selection['peak_power_pv'] *
                       inputs_parameter_selection['setup_costs'])
 
-    tot_cost_year = (inputs_parameter_selection['maintenance_percentage'] *
+    tot_cost_year = (inputs_parameter_selection['maintenance_percentage'] /
+                     100 *
                      inputs_parameter_selection['setup_costs'])
 
     e_pv_mean = np.mean(np.nonzero(irradiation_values))

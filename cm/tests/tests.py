@@ -1,12 +1,13 @@
+import tempfile
 import unittest
-from werkzeug.exceptions import NotFound
 from app import create_app
 import os.path
 from shutil import copyfile
 from .test_client import TestClient
 from app.constant import INPUTS_CALCULATION_MODULE
 
-UPLOAD_DIRECTORY = '/tmp/hotmaps/cm_files_uploaded'
+UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
+                                'hotmaps', 'cm_files_uploaded')
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)

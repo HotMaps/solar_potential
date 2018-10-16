@@ -77,7 +77,6 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
-[
     {'input_name': 'Effective building roof utilization factor',
      'input_type': 'range',
      'input_parameter_name': 'roof_use_factor',
@@ -160,7 +159,7 @@ INPUTS_CALCULATION_MODULE = [
      'cm_id': 313
      }
 ]
-]
+
 
 
 SIGNATURE = {

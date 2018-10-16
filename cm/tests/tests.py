@@ -6,7 +6,7 @@ from shutil import copyfile
 from .test_client import TestClient
 from app.constant import INPUTS_CALCULATION_MODULE
 
-UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
+UPLOAD_DIRECTORY = '/tmp/hotmaps/cm_files_uploaded'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)

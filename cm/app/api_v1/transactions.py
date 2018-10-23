@@ -7,7 +7,7 @@ import requests
 import logging
 import os
 from flask import send_from_directory
-
+from app import helper
 from app import constant
 
 from app.api_v1 import errors
@@ -242,10 +242,14 @@ def compute():
 
     #TODO CM Developper do not need to change anything here
     # here is the inputs layers and parameters
-    inputs_raster_selection = data["inputs_raster_selection"]
+    inputs_raster_selection = helper.validateJSON(data["inputs_raster_selection"])
     print ('inputs_raster_selection', inputs_raster_selection)
-    inputs_parameter_selection = data["inputs_parameter_selection"]
+    LOGGER.info('inputs_raster_selection', inputs_raster_selection)
+
+    inputs_parameter_selection = helper.validateJSON(data["inputs_parameter_selection"])
     print ('inputs_parameter_selection', inputs_parameter_selection)
+    LOGGER.info('inputs_parameter_selection', inputs_parameter_selection)
+
     output_directory = UPLOAD_DIRECTORY
     # call the calculation module function
     result = calculation_module.calculation(output_directory,
@@ -259,7 +263,6 @@ def compute():
     }
     print("response ",response)
 
-    print("type response ",type(response))
     # convert response dict to json
     response = json.dumps(response)
     return response

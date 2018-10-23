@@ -67,7 +67,7 @@ ___________
 
 ```
 0. Create a repository on github named name_of_my_module, create a folder on your computer named it "name_of_my_module", 
-go inside your new folder create
+go inside your new folder create. Please let the repository of your new module empty until you retrived the base_calculation_module code.
 
 1. Using git command on your terminal be ready to code:
 ```bash
@@ -84,7 +84,7 @@ git push -u origin master # push the changes (minimum code for run) .
 
 2. Start coding, switch branch from master to develop
 ```bash
-git fetch && git checkout develop
+git checkout -b develop
 ``` 
 
 3. After coding
@@ -551,8 +551,9 @@ In this part it's describes how to create graphics that will be displayed of the
 
     ![alt text][polarArea]
     
-
-- **data**: Contains label and datasets
+- **xLabel:** Define the text displayed on x-axis,
+- **yLabel:** Define the text displayed on y-axis (ex:Heat power(MW)),
+- **data:** Contains label and datasets
     - **labels (string[]) :** x axis labels
 
     -   **datasets (Array):** set of data with there configuration
@@ -565,6 +566,8 @@ In this part it's describes how to create graphics that will be displayed of the
 
     "charts": [{
         "type": "bar",
+         "xLabel": "Horizontal series label",
+         "yLabel": "Vertical series label name",
         "data": {
             "labels": ["Default dataset","FR569","DE562","AT130","FR125"],
             "datasets": [
@@ -592,7 +595,7 @@ In this part it's describes how to create graphics that will be displayed of the
 ```
 
 
-
+******************************************************************************************
 
 
 

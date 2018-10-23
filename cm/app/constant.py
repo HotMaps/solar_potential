@@ -10,7 +10,7 @@ CM_REGISTER_Q = 'rpc_queue_CM_register' # Do no change this value
 CM_NAME = 'solar_potential'
 RPC_CM_ALIVE= 'rpc_queue_CM_ALIVE' # Do no change this value
 RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
-CM_ID = 313
+CM_ID = 4
 PORT = 5001
 TRANFER_PROTOCOLE ='http://'
 

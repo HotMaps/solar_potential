@@ -327,13 +327,11 @@ This is a textbox where the user can type a value.
   {
     'input_name': 'select your input',
     'input_type': 'select',
-    'input_parameter_name': [
-                               "value_1",
-                               "value_2",
-                               "value_3",
-                               "value_4"
-                                   ],,
-    'input_value': 'none',
+    'input_parameter_name': ["List item 1",
+                             "List item 2",
+                             "List item 3",
+                             "List item 4"],
+    'input_value': 'List item 1',
     'input_unit': 'none',
     'input_min': 'none',
     'input_max': 'none', 'cm_id': CM_ID

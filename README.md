@@ -331,7 +331,7 @@ This is a textbox where the user can type a value.
                              "List item 2",
                              "List item 3",
                              "List item 4"],
-    'input_value': 'none',
+    'input_value': 'List item 1',
     'input_unit': 'none',
     'input_min': 'none',
     'input_max': 'none', 'cm_id': CM_ID

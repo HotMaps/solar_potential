@@ -338,17 +338,7 @@ This is a textbox where the user can type a value.
      },
  
   ```
-'''python
-  {'input_name': 'Reduction factor',
-       'input_type': 'input',
-       'input_parameter_name': 'reduction_factor',
-       'input_value': 1,
-       'input_unit': 'none',
-       'input_min': 1,
-       'input_max': 10, 'cm_id': CM_ID
-       },
-'''
-  
+
 
  This is a drop down menu that allows the user to choose one value from a list.
  - radio :

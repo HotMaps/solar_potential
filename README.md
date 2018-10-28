@@ -322,6 +322,35 @@ This is a textbox where the user can type a value.
  
  ![alt text][logoselect]
            
+ **exemple:**
+ ```python
+  {
+    'input_name': 'select your input',
+    'input_type': 'select',
+    'input_parameter_name': [
+                               "value_1",
+                               "value_2",
+                               "value_3",
+                               "value_4"
+                                   ],,
+    'input_value': 'none',
+    'input_unit': 'none',
+    'input_min': 'none',
+    'input_max': 'none', 'cm_id': CM_ID
+     },
+ 
+  ```
+'''python
+  {'input_name': 'Reduction factor',
+       'input_type': 'input',
+       'input_parameter_name': 'reduction_factor',
+       'input_value': 1,
+       'input_unit': 'none',
+       'input_min': 1,
+       'input_max': 10, 'cm_id': CM_ID
+       },
+'''
+  
 
  This is a drop down menu that allows the user to choose one value from a list.
  - radio :
@@ -430,11 +459,13 @@ The purpose of this part is to give developers the ability to build differents k
 ```
 
 ***INDICATORS OUTPUT:***
+---------------------------
 
 In transaction.py file The CM provider can modify the output in order to display as many indicator as he wants on the frontend
 this indicators will be displayed on the result panel of the frontend.
 
 **Structure of the indicator output:**
+---------------------------------------
 
 - **indicators (Array):** Array of indicators
     - **unit (string):** Unit of the indicator
@@ -454,8 +485,10 @@ this indicators will be displayed on the result panel of the frontend.
             }
 ```
 ***LAYERS OUTPUT:***
+---------------------
 
  **Structure of raster as output:**
+ ---------------------------------
  
  - **raster_layers (Array):** Array of raster layer
      - **name (string):** Name to be displayed on the frontend
@@ -480,13 +513,14 @@ this indicators will be displayed on the result panel of the frontend.
               
  ```
   **Structure of vector as output:**
+  ----------------------------------
   
   - **vector_layers (Array):** Array of vector layer
       - **name (string):** name to be displayed on the frontend
       - **path (string):** path generated of the vector file
       - **type (string):** this is the type of layer generated
       
-  the path must be generated on the first lines of calculation() function found in calculation_module.py using the function generate_output_file_shp() which need the output directory as an argument
+  The path must be generated on the first lines of calculation() function found in calculation_module.py using the function generate_output_file_shp() which need the output directory as an argument
  
  **exemple:** 
 ```python
@@ -511,6 +545,7 @@ this indicators will be displayed on the result panel of the frontend.
                
   ```
  **Structure of csv as output:**
+ ---------------------------------
  
  - **csv_files (Array):** Array of csv layer
      - **name (string):** Name to be displayed on the frontend
@@ -535,11 +570,13 @@ this indicators will be displayed on the result panel of the frontend.
               
  ```
 ***CHARTS OUTPUT:***
+---------------------
 
 
 In this part it's describes how to create graphics that will be displayed of the frontend
 
  **Structure of charts as output:**
+ ----------------------------------
  
 - **charts (Array):** Array of chart
  

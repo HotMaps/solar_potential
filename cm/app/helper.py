@@ -14,7 +14,7 @@ def generate_output_file_tif(output_directory):
 
 def generate_output_file_zip(output_directory):
     return generate_output_file_with_extension(output_directory,'.zip')
-def generate_output_file_shp(output_directory):
+def generate_output_file_csv(output_directory):
     return generate_output_file_with_extension(output_directory, '.csv')
 
 def generate_output_file_shp(output_directory):

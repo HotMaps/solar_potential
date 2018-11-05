@@ -87,7 +87,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Fraction of buildings with solar panels',
      'input_type': 'input',
@@ -96,7 +96,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Installed peak power [kW_p]',
      'input_type': 'input',
@@ -105,7 +105,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'kW',
      'input_min': 0,
      'input_max': 20,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Efficiency of the solar system',
      'input_type': 'input',
@@ -114,7 +114,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 1,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Module efficiency at Standard Test Conditions [kW m^{-2}]',
      'input_type': 'input',
@@ -123,7 +123,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'none',
      'input_min': 0,
      'input_max': 0.6,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
      'input_type': 'input',
@@ -132,7 +132,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'currency/kWp',
      'input_min': 0.0,
      'input_max': 10000,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Maintenance and operation costs [%] of the setup cost',
      'input_type': 'input',
@@ -141,7 +141,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': '%',
      'input_min': 0.0,
      'input_max': 100,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Financing years [year]',
      'input_type': 'input',
@@ -150,7 +150,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': 'year',
      'input_min': 0.0,
      'input_max': 40,
-     'cm_id': 313
+     'cm_id': CM_ID
      },
     {'input_name': 'Discount rate [%]',
      'input_type': 'input',
@@ -159,7 +159,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': '%',
      'input_min': 0,
      'input_max': 100,
-     'cm_id': 313
+     'cm_id': CM_ID
      }
 ]
 
@@ -171,6 +171,9 @@ SIGNATURE = {
     "layers_needed": [
         # TODO: add new default dataset with the total energy of the roof
         "solar_optimal_total",  # kWh/m²/year
+    ],
+    "type_layer_needed": [
+        "solar_optimal_total",
     ],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"

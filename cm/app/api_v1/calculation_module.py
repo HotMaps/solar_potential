@@ -175,9 +175,12 @@ def calculation(output_directory, inputs_raster_selection,
                            ]
     result['graphics'] = graphics
     result['vector_layers'] = vector_layers
+
     result['raster_layers'] = [{"name":
                                 "layers of most suitable roofs",
                                 "path": output_suitable}]
+
+    print()
     return result
 
 

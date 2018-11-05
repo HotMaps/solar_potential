@@ -11,7 +11,7 @@ httpie==0.8.0
 itsdangerous==0.24
 python-dateutil==2.2
 gunicorn==19.7.1
-requests==2.3.0
+requests>=2.20.0
 six==1.10.0
 flasgger==0.9.0
 Pika==0.12.0

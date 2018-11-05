@@ -18,6 +18,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
      'input_value': 1,
+     'input_priority': 0,
      'input_unit': 'none',
      'input_min': 1,
      'input_max': 10, 'cm_id': CM_ID
@@ -26,6 +27,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_type': 'range',
      'input_parameter_name': 'bla',
      'input_value': 50,
+     'input_priority': 1,
      'input_unit': '',
      'input_min': 10,
      'input_max': 1000,
@@ -36,6 +38,7 @@ INPUTS_CALCULATION_MODULE = [
 
 SIGNATURE = {
     "category": "Buildings",
+    "authorized_scale":['NUTS 2','NUTS 0','Hectare'],
     "cm_name": CM_NAME,
     "layers_needed": [
         "heat_tot_curr_density",

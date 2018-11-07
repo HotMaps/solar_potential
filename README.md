@@ -297,6 +297,22 @@ Description of purpose of the CM that will be displayed on the frontend GUI
 
 Unique identifier that is defined by the WP4 leader
 
+**authorized scale:**
+
+ This parameter will disable all scales not declared in it. Please find bellow the different scales allowed:
+   - NUTS 0 
+   - NUTS 1 
+   - NUTS 2 
+   - NUTS 3
+   - LAU 2 
+   - Hectare
+ 
+ 
+  ```bash
+        "authorized_scale":["NUTS 2","NUTS 0","Hectare"],
+       
+  ```
+
        
     
 
@@ -379,9 +395,26 @@ It's a default value for the input that will be displayed on the user interface
 **input min & max:**
 
 This is the range of the input value needed, this will prevent from mistake in the calculation 
-         
+
+**input priority**
+
+This parameter allows to categorize input in the user inteface. the value needed is an integer from 0-4
+- 0 =>imput always visible
+- 1 to 4 => the input is on a dropdown menu
 
 
+```python
+             {'input_name': 'Reduction factor',
+              'input_type': 'input',
+              'input_parameter_name': 'reduction_factor',
+              'input_value': 1,
+              'input_priority': 0,
+              'input_unit': 'none',
+              'input_min': 1,
+              'input_max': 10, 'cm_id': CM_ID  # Do no change this value
+              },
+            
+```
 
 
 *******************************   

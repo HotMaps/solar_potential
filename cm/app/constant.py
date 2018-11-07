@@ -21,7 +21,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_priority': 0,
      'input_unit': 'none',
      'input_min': 1,
-     'input_max': 10, 'cm_id': CM_ID
+     'input_max': 10, 'cm_id': CM_ID  # Do no change this value
      },
     {'input_name': 'Blablabla',
      'input_type': 'range',
@@ -31,14 +31,14 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': '',
      'input_min': 10,
      'input_max': 1000,
-     'cm_id': CM_ID
+     'cm_id': CM_ID  # Do no change this value
      }
 ]
 
 
 SIGNATURE = {
     "category": "Buildings",
-    "authorized_scale":['NUTS 2','NUTS 0','Hectare'],
+    "authorized_scale":["NUTS 2","NUTS 0","Hectare"],
     "cm_name": CM_NAME,
     "layers_needed": [
         "heat_tot_curr_density",

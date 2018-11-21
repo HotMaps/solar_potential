@@ -22,7 +22,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
 
 
     #retrieve the inputs layes
-    input_vector_selection =  inputs_vector_selection["heat_tot_curr_density"]
+    input_vector_selection =  inputs_vector_selection["heating_technologies_eu28"]
 
 
     #retrieve the inputs all input defined in the signature

@@ -3,7 +3,7 @@
 CELERY_BROKER_URL_DOCKER = 'amqp://admin:mypass@rabbit:5672/'
 CELERY_BROKER_URL_LOCAL = 'amqp://localhost/'
 
-CELERY_BROKER_URL = CELERY_BROKER_URL_LOCAL
+CELERY_BROKER_URL = CELERY_BROKER_URL_DOCKER
 #CELERY_BROKER_URL = 'amqp://admin:mypass@localhost:5672/'
 CM_REGISTER_Q = 'rpc_queue_CM_register' # Do no change this value
 
@@ -13,7 +13,7 @@ RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 4
 PORT_LOCAL = int('500' + str(CM_ID))
 PORT_DOCKER = 80
-PORT = PORT_LOCAL
+PORT = PORT_DOCKER
 
 TRANFER_PROTOCOLE ='http://'
 

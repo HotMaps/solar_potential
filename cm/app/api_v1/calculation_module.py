@@ -127,7 +127,7 @@ def calculation(output_directory, inputs_raster_selection,
                  inputs_parameter_selection['efficiency_pv'] * n_plant_pixel
                  )
 
-    # order the matix
+    # order the matrix
     ind = np.unravel_index(np.argsort(en_values, axis=None)[::-1],
                            en_values.shape)
     e_cum_sum = np.cumsum(en_values[ind])
@@ -162,11 +162,11 @@ def calculation(output_directory, inputs_raster_selection,
     graphics = []
     vector_layers = []
     result = dict()
-    result['name'] = 'CM Heat density divider'
-    result['indicator'] = [{"unit": "kWh/year",
+    result['name'] = 'CM solar potential'
+    result['indicator'] = [{"unit": "MWh/year",
                             "name": "Total energy production",
-                            "value": str(tot_en_gen_per_year)},
-                           {"unit": "currency/kWh",
+                            "value": str(tot_en_gen_per_year/1000)},
+                           {"unit": "currency",
                             "name": "Total setup costs",
                             "value": str(tot_setup_costs)},
                            {"unit": "currency/kWh",

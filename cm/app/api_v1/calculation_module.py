@@ -1,17 +1,74 @@
 
 from osgeo import gdal
+from matplotlib import colors
+
 import uuid
 from ..helper import generate_output_file_tif
 
 import numpy as np
 """ Entry point of the calculation module function"""
 
+
+CLRS_SUN = "#F19B03 #F6B13D #F9C774 #FDDBA3 #FFF0CE".split()
+CMAP_SUN = colors.LinearSegmentedColormap.from_list('solar', CLRS_SUN)
+
+
+def quantile_colors(array, output_suitable, proj, transform,
+                    qnumb=6,
+                    no_data_value=0,
+                    no_data_color=(0, 0, 0, 255),
+                    gtype=gdal.GDT_Byte,
+                    options='compress=DEFLATE TILED=YES TFW=YES'
+                            ' ZLEVEL=9 PREDICTOR=1',
+                    cmap=CMAP_SUN):
+    """Generate a GTiff categorical raster map based on quantiles
+    values.
+    """
+    # define the quantile limits
+    qvalues, qstep = np.linspace(0, 1., qnumb, retstep=True)
+    valid = array != no_data_value
+    quantiles = np.quantile(array[valid], qvalues)
+    
+    # create a categorical derived map
+    array_cats = np.zeros_like(array, dtype=np.uint8)
+    qv0 = quantiles[0] - 1.
+    array_cats[~valid] = 0
+    for i, (qk, qv) in enumerate(zip(qvalues[1:], quantiles[1:])):
+        print("{}: {} < valid <= {}".format(i+1, qv0, qv))
+        qindex = (qv0 < array) & (array <= qv)
+        array_cats[qindex] = i + 1
+        qv0 = qv
+
+    # create a color table
+    ct = gdal.ColorTable()
+    ct.SetColorEntry(no_data_value, no_data_color)
+    for i, clr in enumerate(cmap(qvalues)):
+        r, g, b, a = (np.array(clr) * 255).astype(np.uint8)
+        ct.SetColorEntry(i+1, (r, g, b, a))
+    
+    # create a new raster map
+    gtiff_driver = gdal.GetDriverByName('GTiff')
+    ysize, xsize= array_cats.shape
+    
+    out_ds = gtiff_driver.Create(output_suitable, 
+                                 xsize, ysize,
+                                 1, gtype, 
+                                 options.split())
+    out_ds.SetProjection(proj)
+    out_ds.SetGeoTransform(transform)
+
+    out_ds_band = out_ds.GetRasterBand(1)
+    out_ds_band.SetNoDataValue(no_data_value)
+    out_ds_band.SetColorTable(ct)
+    out_ds_band.WriteArray(array_cats)
+    out_ds.FlushCache()
+    return out_ds
+
+
 #TODO: CM provider must "change this code"
 #TODO: CM provider must "not change input_raster_selection,output_raster  1 raster input => 1 raster output"
 #TODO: CM provider can "add all the parameters he needs to run his CM
 #TODO: CM provider can "return as many indicators as he wants"
-
-
 def lcoe(tot_investment, tot_cost_year, n, i_r, en_gen_per_year):
     """
     Levelized cost of Energy
@@ -141,26 +198,20 @@ def calculation(output_directory, inputs_raster_selection,
     most_suitable = np.zeros_like(en_values)
     for i, j in zip(ind[0][0:idx], ind[1][0:idx]):
         most_suitable[i][j] = en_values[i][j]
-    gtiff_driver = gdal.GetDriverByName('GTiff')
-    out_ds = gtiff_driver.Create(output_suitable, ds_band.XSize, ds_band.YSize,
-                                 1, gdal.GDT_UInt16, ['compress=DEFLATE',
-                                                      'TILED=YES',
-                                                      'TFW=YES',
-                                                      'ZLEVEL=9',
-                                                      'PREDICTOR=1'])
-    out_ds.SetProjection(ds.GetProjection())
-    out_ds.SetGeoTransform(ds.GetGeoTransform())
 
-    ct = gdal.ColorTable()
-    ct.SetColorEntry(0, (0, 0, 0, 255))
-    ct.SetColorEntry(1, (110, 220, 110, 255))
-    out_ds.GetRasterBand(1).SetColorTable(ct)
-
-    out_ds_band = out_ds.GetRasterBand(1)
-    out_ds_band.SetNoDataValue(0)
-    out_ds_band.WriteArray(most_suitable)
-
+#    import ipdb; ipdb.set_trace()
+    out_ds = quantile_colors(most_suitable, 
+                             output_suitable, 
+                             proj=ds.GetProjection(), 
+                             transform=ds.GetGeoTransform(),
+                             qnumb=6,
+                             no_data_value=0, 
+                             gtype=gdal.GDT_Byte,
+                             options='compress=DEFLATE TILED=YES TFW=YES'
+                                     ' ZLEVEL=9 PREDICTOR=1',
+                             cmap=CMAP_SUN)
     del out_ds
+
     # output geneneration of the output
     graphics = []
     vector_layers = []

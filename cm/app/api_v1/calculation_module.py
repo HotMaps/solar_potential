@@ -93,15 +93,19 @@ def calculation(output_directory, inputs_raster_selection,
                      100 *
                      int(inputs_parameter_selection['setup_costs']))
 
-    e_pv_mean = np.mean(np.nonzero(irradiation_values))
+    financing_years = int(inputs_parameter_selection['financing_years'])
+
+    discount_rate = float(inputs_parameter_selection['discount_rate'])
+
+    e_pv_mean = float(np.mean(np.nonzero(irradiation_values)))
     # the solar irradiation at standard test condition equal to 1 kWm-2
     en_gen_per_year = (e_pv_mean *
                        float(inputs_parameter_selection['peak_power_pv']) *
                        float(inputs_parameter_selection['efficiency_pv']))
     # compute lcoe for a single representative plant
     lcoe_plant = lcoe(tot_investment, tot_cost_year,
-                      inputs_parameter_selection['financing_years'],
-                      inputs_parameter_selection['discount_rate'],
+                      financing_years,
+                      discount_rate,
                       en_gen_per_year)
 
     area_plant = float(float(inputs_parameter_selection['peak_power_pv']) /

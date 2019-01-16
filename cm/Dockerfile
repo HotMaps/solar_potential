@@ -28,6 +28,7 @@ RUN apt-get update \
     wget \
     gdal-bin \
     ca-certificates \
+    curl \
     gcc \
     git \
     libpq-dev \
@@ -43,6 +44,18 @@ RUN apt-get update \
 
 
 
+# Install / update relevant ubuntu packages:
+#RUN apt-get update \
+ #	&& apt-get install -y --no-install-recommends libgmp3-dev
+
+# Download and install glpk:
+ #RUN mkdir /usr/local/glpk \
+# 	&& curl http://ftp.gnu.org/gnu/glpk/glpk-4.39.tar.gz \
+# 	| tar xvzC /usr/local/glpk --strip-components=1 \
+# 	&& cd /usr/local/glpk \
+# 	&& ./configure \
+# 	&& make \
+# 	&& make install
 
 
 
@@ -63,11 +76,11 @@ RUN apt-get update \
     wget
 
 RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
+RUN python3 get-pip.py
 
 
-RUN pip install -r requirements.txt
-RUN pip install gunicorn
+RUN pip3 install -r requirements.txt
+RUN pip3 install gunicorn
 
 
 

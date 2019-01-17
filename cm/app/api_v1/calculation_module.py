@@ -12,6 +12,29 @@ import numpy as np
 #TODO: CM provider can "return as many indicators as he wants"
 
 
+def line(x, xlabel, **kwargs):
+    """
+    Define the dictionary for defining a multiline plot
+    :param x: list of x data
+    :param xlabel: string with x label
+    :param ylabels: list of strings with y labels of dataset
+    :param **kwargs: lists of dataset with their names
+    :returns: the dictionary for the app
+    """
+    dic = []
+    for key, value in kwargs.items():
+        dic.append({
+                    "label": "Calculation module chart",
+                    "backgroundColor": ["#3e95cd"],
+                    "data": [2478, 5267, 734, 784, 433]})
+
+    graph = {"type": "line",
+             "data": {"data": x,
+                      "datasets": dic}
+             }
+    return graph
+
+
 def lcoe(tot_investment, tot_cost_year, n, i_r, en_gen_per_year):
     """
     Levelized cost of Energy
@@ -44,19 +67,19 @@ def lcoe(tot_investment, tot_cost_year, n, i_r, en_gen_per_year):
     """
 
     flows = []
-    flows.append(tot_investment)
+    flows.append(float(tot_investment))
 
-    for i in range(1, n+1):
+    for i in range(1, int(n)+1):
 
-        flow_k = tot_cost_year*np.power(float(1+i_r), -i)
-        flows.append(flow_k)
+        flow_k = tot_cost_year*np.power(float(1+float(i_r)), float(-i))
+        flows.append(float(flow_k))
 
     tot_inv_and_sum_annual_discounted_costs = sum(flows)
 
     discounted_ener = []
 
-    for i in range(1, n+1):
-        discounted_ener_k = en_gen_per_year*np.power(float(1+i_r), -i)
+    for i in range(1, int(n)+1):
+        discounted_ener_k = en_gen_per_year*np.power(float(1+float(i_r)), float(-i))
         discounted_ener.append(discounted_ener_k)
 
     total_discounted_energy = sum(discounted_ener)
@@ -81,36 +104,39 @@ def calculation(output_directory, inputs_raster_selection,
     irradiation_pixel_area = ds_geo[1] * (-ds_geo[5])
     irradiation_values = ds.ReadAsArray()
     # retrieve the inputs all input defined in the signature
+    roof_use_factor = float(inputs_parameter_selection["roof_use_factor"])
+    reduction_factor = float(inputs_parameter_selection["reduction_factor"])
+    efficiency_pv = float(inputs_parameter_selection['efficiency_pv'])
+    peak_power_pv = float(inputs_parameter_selection['peak_power_pv'])
 
     tot_investment = (inputs_parameter_selection['peak_power_pv'] *
-                      inputs_parameter_selection['setup_costs'])
+                      int(inputs_parameter_selection['setup_costs']))
 
-    tot_cost_year = (inputs_parameter_selection['maintenance_percentage'] /
+    tot_cost_year = (float(inputs_parameter_selection['maintenance_percentage'] )/
                      100 *
-                     inputs_parameter_selection['setup_costs'])
+                     int(inputs_parameter_selection['setup_costs']))
 
     e_pv_mean = np.mean(np.nonzero(irradiation_values))
     # the solar irradiation at standard test condition equal to 1 kWm-2
     en_gen_per_year = (e_pv_mean *
-                       inputs_parameter_selection['peak_power_pv'] *
-                       inputs_parameter_selection['efficiency_pv'])
+                       float(inputs_parameter_selection['peak_power_pv']) *
+                       float(inputs_parameter_selection['efficiency_pv']))
     # compute lcoe for a single representative plant
     lcoe_plant = lcoe(tot_investment, tot_cost_year,
                       inputs_parameter_selection['financing_years'],
                       inputs_parameter_selection['discount_rate'],
                       en_gen_per_year)
 
-    area_plant = (inputs_parameter_selection['peak_power_pv'] /
-                  inputs_parameter_selection['k_pv'])
+    area_plant = float(float(inputs_parameter_selection['peak_power_pv']) /
+                  float(inputs_parameter_selection['k_pv']))
 
-    building_footprint = (np.count_nonzero(irradiation_values) *
+    building_footprint = float(np.count_nonzero(irradiation_values) *
                           irradiation_pixel_area)
 
-    n_plants = (inputs_parameter_selection["roof_use_factor"] *
-                inputs_parameter_selection["reduction_factor"] *
-                building_footprint / area_plant)
+    n_plants = roof_use_factor * reduction_factor * building_footprint / area_plant
 
-    tot_setup_costs = inputs_parameter_selection['setup_costs'] * n_plants
+
+    tot_setup_costs = int(inputs_parameter_selection['setup_costs']) * n_plants
     tot_en_gen_per_year = en_gen_per_year * n_plants
 
     # define the most suitable roofs,
@@ -121,10 +147,10 @@ def calculation(output_directory, inputs_raster_selection,
 
     # n_plant_pixel potential number of plants in a pixel
     n_plant_pixel = (irradiation_pixel_area/area_plant *
-                     inputs_parameter_selection['roof_use_factor'])
+                     roof_use_factor)
     en_values = (irradiation_values *
-                 inputs_parameter_selection['peak_power_pv'] *
-                 inputs_parameter_selection['efficiency_pv'] * n_plant_pixel
+                 peak_power_pv *
+                 efficiency_pv * n_plant_pixel
                  )
 
     # order the matrix
@@ -163,21 +189,22 @@ def calculation(output_directory, inputs_raster_selection,
     vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'
-    result['indicator'] = [{"unit": "MWh/year",
-                            "name": "Total energy production",
-                            "value": str(tot_en_gen_per_year/1000)},
-                           {"unit": "currency",
+    result['indicators'] = [{"unit": "MWh/year",
+                             "name": "Total energy production",
+                             "value": str(tot_en_gen_per_year/1000)},
+                            {"unit": "currency",
                             "name": "Total setup costs",
-                            "value": str(tot_setup_costs)},
-                           {"unit": "currency/kWh",
-                            "name": "Levelized Cost of Energy",
-                            "value": str(lcoe_plant)}
-                           ]
+                             "value": str(tot_setup_costs)},
+                            {"unit": "currency/kWh",
+                             "name": "Levelized Cost of Energy",
+                             "value": str(lcoe_plant)}]
     result['graphics'] = graphics
     result['vector_layers'] = vector_layers
+
     result['raster_layers'] = [{"name":
                                 "layers of most suitable roofs",
                                 "path": output_suitable}]
+
     return result
 
 

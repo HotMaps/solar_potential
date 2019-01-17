@@ -2,7 +2,7 @@
 CELERY_BROKER_URL_DOCKER = 'amqp://admin:mypass@rabbit:5672/'
 CELERY_BROKER_URL_LOCAL = 'amqp://localhost/'
 
-CELERY_BROKER_URL = CELERY_BROKER_URL_DOCKER
+
 CM_REGISTER_Q = 'rpc_queue_CM_register' # Do no change this value
 
 CM_NAME = 'calculation_module_test'
@@ -11,7 +11,14 @@ RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 1 # CM_ID is defined by the enegy research center of Martigny (CREM)
 PORT_LOCAL = int('500' + str(CM_ID))
 PORT_DOCKER = 80
-PORT = PORT_DOCKER
+
+#TODO ********************setup this URL depending on which version you are running***************************
+
+CELERY_BROKER_URL = CELERY_BROKER_URL_LOCAL
+PORT = PORT_LOCAL
+
+#TODO ********************setup this URL depending on which version you are running***************************
+
 TRANFER_PROTOCOLE ='http://'
 INPUTS_CALCULATION_MODULE = [
     {'input_name': 'Reduction factor',
@@ -37,8 +44,8 @@ INPUTS_CALCULATION_MODULE = [
 
 
 SIGNATURE = {
+
     "category": "Buildings",
-    "authorized_scale":["NUTS 2","NUTS 0","Hectare"],
     "cm_name": CM_NAME,
     "layers_needed": [
         "heat_tot_curr_density",

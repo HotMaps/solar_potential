@@ -10,7 +10,7 @@ path = os.path.dirname(os.path.dirname
 path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
-from my_calculation_module_directory.energy_production import costs, raster_suitable
+from my_calculation_module_directory.energy_production import indicators, raster_suitable, mean_plant
 from my_calculation_module_directory.visualization import quantile_colors, line
 
 """ Entry point of the calculation module function"""
@@ -31,32 +31,26 @@ def calculation(output_directory, inputs_raster_selection,
     # retrieve the inputs all input defined in the signature
     roof_use_factor = float(inputs_parameter_selection["roof_use_factor"])
     reduction_factor = float(inputs_parameter_selection["reduction_factor"])
-    efficiency_pv = float(inputs_parameter_selection['efficiency_pv'])
-    peak_power_pv = float(inputs_parameter_selection['peak_power_pv'])
-    setup_costs = int(inputs_parameter_selection['setup_costs'])
-    k_pv = float(inputs_parameter_selection['k_pv'])
-
-    tot_investment = int(peak_power_pv * setup_costs)
-
-    tot_cost_year = (float(inputs_parameter_selection['maintenance_percentage']) /
-                     100 * setup_costs)
-
-    financing_years = int(inputs_parameter_selection['financing_years'])
-
     discount_rate = float(inputs_parameter_selection['discount_rate'])
 
-    # compute the indicators and the output raster
+    pv_plant = mean_plant(inputs_parameter_selection)
 
-    n_plants, tot_en_gen_per_year, lcoe_plant = costs(irradiation_values, peak_power_pv, efficiency_pv, k_pv,
-                    tot_investment, tot_cost_year, discount_rate,
-                    financing_years, irradiation_pixel_area, roof_use_factor,
-                    reduction_factor, setup_costs)
+    n_plants, n_plant_pixel, pv_plant = indicators(irradiation_values,
+                                                   irradiation_pixel_area,
+                                                   roof_use_factor,
+                                                   reduction_factor,
+                                                   pv_plant)
+    lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
+                                         i_r=discount_rate)
 
-    most_suitable, n_plant_pixel, e_cum_sum = raster_suitable(roof_use_factor, peak_power_pv, efficiency_pv, k_pv,
-                  irradiation_pixel_area, irradiation_values,
-                  tot_en_gen_per_year)
+    tot_en_gen_per_year = n_plants * pv_plant.energy_production
 
-    tot_setup_costs = setup_costs * n_plants
+    most_suitable, e_cum_sum = raster_suitable(n_plant_pixel,
+                                               tot_en_gen_per_year,
+                                               irradiation_values,
+                                               pv_plant)
+
+    tot_setup_costs = pv_plant.financial.investement_cost * n_plants
 
     out_ds = quantile_colors(most_suitable,
                              output_suitable,

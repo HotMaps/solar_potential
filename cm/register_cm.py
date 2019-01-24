@@ -20,7 +20,13 @@ def start_runner():
             LOGGER.info('In start loop')
             response = register()
             LOGGER.info('Server not yet started')
-            cm = json.loads(json.loads(response.decode('utf-8')))
+
+            if type(response) is bytes:
+                # if the type is byte we tconvert the response to STR
+                response = json.loads(response.decode('utf-8'))
+            print (' response', response)
+            # then we dcode this response
+            cm = json.loads(response)
             cm_id = cm["cm_id"]
             if str(CM_ID) == str(cm_id) :
                 LOGGER.info('Server started, quiting start_loop')

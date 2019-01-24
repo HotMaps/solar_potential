@@ -101,7 +101,7 @@ def calculation(output_directory, inputs_raster_selection,
                              "name": "Levelized Cost of Energy",
                              "value": str(lcoe_plant)}]
     result['graphics'] = graphics
-    result['vector_layers'] = vector_layers
+    #result['vector_layers'] = vector_layers
 
     #result['raster_layers'] = [] #[{"name":
                                 #"layers of most suitable roofs",

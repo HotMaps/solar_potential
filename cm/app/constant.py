@@ -7,7 +7,7 @@ CELERY_BROKER_URL_LOCAL = 'amqp://localhost/'
 #CELERY_BROKER_URL = 'amqp://admin:mypass@localhost:5672/'
 CM_REGISTER_Q = 'rpc_queue_CM_register' # Do no change this value
 
-CM_NAME = 'solar_potential'
+CM_NAME = 'solar potential'
 RPC_CM_ALIVE= 'rpc_queue_CM_ALIVE' # Do no change this value
 RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 4

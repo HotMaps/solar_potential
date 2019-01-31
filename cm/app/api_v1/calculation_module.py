@@ -81,9 +81,9 @@ def calculation(output_directory, inputs_raster_selection,
 #
 #    import ipdb; ipdb.set_trace()
     roof_energy = "Energy produced by covering the {p}% of roofs".format(p=roof_use_factor)
-    graphics = line(x=x_cost, y_labels=['Energy production [GWh/year]',
+    graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]',
                                         roof_energy],
-                    y_values=[y_energy, y_costant])
+                    y_values=[y_energy, y_costant])]
 
     vector_layers = []
     result = dict()
@@ -106,6 +106,8 @@ def calculation(output_directory, inputs_raster_selection,
     #result['raster_layers'] = [] #[{"name":
                                 #"layers of most suitable roofs",
                                 # "path": output_suitable}]
+    print("graphics ",graphics)
+    print("result ",result)
 
     return result
 

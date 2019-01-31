@@ -106,8 +106,7 @@ def calculation(output_directory, inputs_raster_selection,
     #result['raster_layers'] = [] #[{"name":
                                 #"layers of most suitable roofs",
                                 # "path": output_suitable}]
-    print("graphics ",graphics)
-    print("result ",result)
+
 
     return result
 

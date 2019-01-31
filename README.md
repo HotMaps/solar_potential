@@ -563,9 +563,16 @@ this indicators will be displayed on the result panel of the frontend.
   All the layers outputs must be retrieved and added on the *raster_layers* array after they have been created by the calculation module provider functions
  
  ```python
-             "raster_layers":[
-                              {"name": "heat density layer divide by 2","path": output_raster_path_tif_1,"type": "heat"},
-                              {"name": "heat density layer divide by 3","path": output_raster_path_tif_2,"type": "heat"},
+             "raster_layers":[{"name": "heat density layer divide by 2","path": output_raster_path_tif_1,"type": "heat","symbology": [
+                                                                                                                               {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"50","label":"50MWh"},
+                                                                                                                               {"red":100,"green":150,"blue":10,"opacity":0.5,"value":"150","label":"150MWh"},
+                                                                                                                               {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"200","label":"200MWh"},
+                                                                                                                               {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"250","label":"250MWh"}},
+                              {"name": "heat density layer divide by 3","path": output_raster_path_tif_2,"type": "heat","symbology": [
+                                                                                                                                {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"50","label":"50MWh"},
+                                                                                                                                {"red":100,"green":150,"blue":10,"opacity":0.5,"value":"150","label":"150MWh"},
+                                                                                                                                {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"200","label":"200MWh"},
+                                                                                                                                {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"250","label":"250MWh"}},
                               {"name": "gross floor area layer divide by 4","path": output_raster_path_tif_3,"type": "gross_floor_area"},
                               
               

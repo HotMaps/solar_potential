@@ -39,7 +39,8 @@ def mean_plant(inputs_parameter_selection):
 
 def indicators(irradiation_values, irradiation_pixel_area, roof_use_factor,
                reduction_factor, pv_plant):
-    e_pv_mean = float(np.mean(np.nonzero(irradiation_values)))
+    no_zero = irradiation_values[np.nonzero(irradiation_values)]
+    e_pv_mean = float(np.mean(no_zero[~np.isnan(no_zero)]))
     # the solar irradiation at standard test condition equal to 1 kWm-2
     pv_plant.energy_production = (e_pv_mean * pv_plant.peak_power *
                                   pv_plant.efficiency)

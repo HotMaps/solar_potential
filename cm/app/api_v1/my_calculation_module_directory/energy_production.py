@@ -62,7 +62,7 @@ def raster_suitable(n_plant_pixel, tot_en_gen_per_year,
     # for each pixel and selected
     # most suitable pixel to cover the enrgy production
     # TODO: do not consider 0 values in the computation
-
+    irradiation_values = np.nan_to_num(irradiation_values)
     en_values = (irradiation_values * pv_plant.peak_power *
                  pv_plant.efficiency * n_plant_pixel)
 

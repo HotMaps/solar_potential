@@ -87,7 +87,7 @@ def calculation(output_directory, inputs_raster_selection,
                                         roof_energy],
                     y_values=[y_energy, y_costant])]
 
-    vector_layers = []
+    # vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'
     result['indicator'] = [{"unit": "GWh/year",
@@ -115,4 +115,3 @@ def calculation(output_directory, inputs_raster_selection,
     ]
     # import ipdb; ipdb.set_trace()
     return result
-

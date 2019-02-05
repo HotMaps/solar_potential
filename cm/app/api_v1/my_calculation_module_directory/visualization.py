@@ -28,55 +28,76 @@ def quantile_colors(array, output_suitable, proj, transform,
                     no_data_color=(0, 0, 0, 255),
                     gtype=gdal.GDT_Byte,
                     options='compress=DEFLATE TILED=YES TFW=YES'
-                            ' ZLEVEL=9 PREDICTOR=1'):
+                            ' ZLEVEL=9 PREDICTOR=1',
+                    round_decimals=-1,
+                    unit="MWh/year"):
     """Generate a GTiff categorical raster map based on quantiles
     values.
+
+    "symbology": [
+        {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"50","label":"50MWh"},
+        {"red":100,"green":150,"blue":10,"opacity":0.5,"value":"150MWh","label":"150MWh"},
+        {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"200MWh","label":"200MWh"},
+        {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"250MWh","label":"250MWh"}
+    ]
     """
     # define the quantile limits
     qvalues, qstep = np.linspace(0, 1., qnumb, retstep=True)
     valid = array != no_data_value
 
-    pctarr = array[valid]
-    print("pctarr {}".format(pctarr))
-    if pctarr.size == 0:
-        quantiles = None
-    else:
-        quantiles = np.quantile(array[valid], qvalues)
+    quantiles = np.quantile(array[valid], qvalues)
+
+    # round the number
+    quantiles = np.round(quantiles, round_decimals)
+
+    symbology = [
+            {"red": no_data_color[0],
+             "green": no_data_color[1],
+             "blue": no_data_color[2],
+             "opacity": no_data_color[3],
+             "value": no_data_value,
+             "label": "no data"},
+            ]
 
     # create a categorical derived map
-        array_cats = np.zeros_like(array, dtype=np.uint8)
-        qv0 = quantiles[0] - 1.
-        array_cats[~valid] = 0
-        for i, (qk, qv) in enumerate(zip(qvalues[1:], quantiles[1:])):
-            print("{}: {} < valid <= {}".format(i+1, qv0, qv))
-            qindex = (qv0 < array) & (array <= qv)
-            array_cats[qindex] = i + 1
-            qv0 = qv
+    array_cats = np.zeros_like(array, dtype=np.uint8)
+    qv0 = quantiles[0] - 1.
+    array_cats[~valid] = 0
+    for i, (qk, qv) in enumerate(zip(qvalues[1:], quantiles[1:])):
+        label = ("{qv0} {unit} < Solar potential <= {qv1} {unit}"
+                 "").format(qv0=qv0, qv1=qv, unit=unit)
+        print(label)
+        qindex = (qv0 < array) & (array <= qv)
+        array_cats[qindex] = i + 1
+        qv0 = qv
+        symbology.append(dict(value=int(i + 1), label=label))
 
-        # create a color table
-        ct = gdal.ColorTable()
-        ct.SetColorEntry(no_data_value, no_data_color)
-        for i, clr in enumerate(CMAP_SUN(qvalues)):
-            r, g, b, a = (np.array(clr) * 255).astype(np.uint8)
-            ct.SetColorEntry(i+1, (r, g, b, a))
+    # create a color table
+    ct = gdal.ColorTable()
+    ct.SetColorEntry(no_data_value, no_data_color)
+    for i, (clr, symb) in enumerate(zip(CMAP_SUN(qvalues), symbology[1:])):
+        r, g, b, a = (np.array(clr) * 255).astype(np.uint8)
+        ct.SetColorEntry(i+1, (r, g, b, a))
+        symb.update(dict(red=int(r), green=int(g), blue=int(b),
+                         opacity=int(a)))
 
-        # create a new raster map
-        gtiff_driver = gdal.GetDriverByName('GTiff')
-        ysize, xsize = array_cats.shape
+    # create a new raster map
+    gtiff_driver = gdal.GetDriverByName('GTiff')
+    ysize, xsize = array_cats.shape
 
-        out_ds = gtiff_driver.Create(output_suitable,
-                                     xsize, ysize,
-                                     1, gtype,
-                                     options.split())
-        out_ds.SetProjection(proj)
-        out_ds.SetGeoTransform(transform)
+    out_ds = gtiff_driver.Create(output_suitable,
+                                 xsize, ysize,
+                                 1, gtype,
+                                 options.split())
+    out_ds.SetProjection(proj)
+    out_ds.SetGeoTransform(transform)
 
-        out_ds_band = out_ds.GetRasterBand(1)
-        out_ds_band.SetNoDataValue(no_data_value)
-        out_ds_band.SetColorTable(ct)
-        out_ds_band.WriteArray(array_cats)
-        out_ds.FlushCache()
-        return out_ds
+    out_ds_band = out_ds.GetRasterBand(1)
+    out_ds_band.SetNoDataValue(no_data_value)
+    out_ds_band.SetColorTable(ct)
+    out_ds_band.WriteArray(array_cats)
+    out_ds.FlushCache()
+    return out_ds, symbology
 
 # TODO: fix color map according to raster visualization
 

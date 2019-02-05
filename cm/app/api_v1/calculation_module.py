@@ -40,8 +40,9 @@ def calculation(output_directory, inputs_raster_selection,
                                                    roof_use_factor,
                                                    reduction_factor,
                                                    pv_plant)
+
     lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
-                                         i_r=discount_rate)
+                                         i_r=discount_rate/100)
 
     tot_en_gen_per_year = n_plants * pv_plant.energy_production
 
@@ -52,15 +53,16 @@ def calculation(output_directory, inputs_raster_selection,
 
     tot_setup_costs = pv_plant.financial.investement_cost * n_plants
 
-    out_ds = quantile_colors(most_suitable,
-                             output_suitable,
-                             proj=ds.GetProjection(),
-                             transform=ds.GetGeoTransform(),
-                             qnumb=6,
-                             no_data_value=0,
-                             gtype=gdal.GDT_Byte,
-                             options='compress=DEFLATE TILED=YES TFW=YES'
-                                     ' ZLEVEL=9 PREDICTOR=1')
+    out_ds, symbology = quantile_colors(most_suitable,
+                                        output_suitable,
+                                        proj=ds.GetProjection(),
+                                        transform=ds.GetGeoTransform(),
+                                        qnumb=6,
+                                        no_data_value=0,
+                                        gtype=gdal.GDT_Byte,
+                                        options='compress=DEFLATE TILED=YES '
+                                                'TFW=YES '
+                                                'ZLEVEL=9 PREDICTOR=1')
     del out_ds
 
     # output geneneration of the output
@@ -85,7 +87,7 @@ def calculation(output_directory, inputs_raster_selection,
                                         roof_energy],
                     y_values=[y_energy, y_costant])]
 
-    vector_layers = []
+    # vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'
     result['indicator'] = [{"unit": "GWh/year",
@@ -103,12 +105,13 @@ def calculation(output_directory, inputs_raster_selection,
     result['graphics'] = graphics
     #result['vector_layers'] = vector_layers
 
-    #result['raster_layers'] = [] #[{"name":
-                                #"layers of most suitable roofs",
-                                # "path": output_suitable}]
-
-    print('result ',result)
-
-
+    result['raster_layers'] = [
+        {
+          "name": "layers of most suitable roofs",
+          "path": output_suitable,
+          "type": "custom",
+          "symbology": symbology
+        }
+    ]
+    # import ipdb; ipdb.set_trace()
     return result
-

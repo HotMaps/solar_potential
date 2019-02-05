@@ -180,7 +180,6 @@ SIGNATURE = {
     "category": "Solar potential",
     "cm_name": CM_NAME,
     "layers_needed": [
-        # TODO: add new default dataset with the total energy of the roof
         "solar_optimal_total",  # kWh/m²/year
     ],
     "type_layer_needed": [

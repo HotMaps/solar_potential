@@ -35,42 +35,48 @@ def quantile_colors(array, output_suitable, proj, transform,
     # define the quantile limits
     qvalues, qstep = np.linspace(0, 1., qnumb, retstep=True)
     valid = array != no_data_value
-    quantiles = np.quantile(array[valid], qvalues)
+
+    pctarr = array[valid]
+    print("pctarr {}".format(pctarr))
+    if pctarr.size == 0:
+        quantiles = None
+    else:
+        quantiles = np.quantile(array[valid], qvalues)
 
     # create a categorical derived map
-    array_cats = np.zeros_like(array, dtype=np.uint8)
-    qv0 = quantiles[0] - 1.
-    array_cats[~valid] = 0
-    for i, (qk, qv) in enumerate(zip(qvalues[1:], quantiles[1:])):
-        print("{}: {} < valid <= {}".format(i+1, qv0, qv))
-        qindex = (qv0 < array) & (array <= qv)
-        array_cats[qindex] = i + 1
-        qv0 = qv
+        array_cats = np.zeros_like(array, dtype=np.uint8)
+        qv0 = quantiles[0] - 1.
+        array_cats[~valid] = 0
+        for i, (qk, qv) in enumerate(zip(qvalues[1:], quantiles[1:])):
+            print("{}: {} < valid <= {}".format(i+1, qv0, qv))
+            qindex = (qv0 < array) & (array <= qv)
+            array_cats[qindex] = i + 1
+            qv0 = qv
 
-    # create a color table
-    ct = gdal.ColorTable()
-    ct.SetColorEntry(no_data_value, no_data_color)
-    for i, clr in enumerate(CMAP_SUN(qvalues)):
-        r, g, b, a = (np.array(clr) * 255).astype(np.uint8)
-        ct.SetColorEntry(i+1, (r, g, b, a))
+        # create a color table
+        ct = gdal.ColorTable()
+        ct.SetColorEntry(no_data_value, no_data_color)
+        for i, clr in enumerate(CMAP_SUN(qvalues)):
+            r, g, b, a = (np.array(clr) * 255).astype(np.uint8)
+            ct.SetColorEntry(i+1, (r, g, b, a))
 
-    # create a new raster map
-    gtiff_driver = gdal.GetDriverByName('GTiff')
-    ysize, xsize = array_cats.shape
+        # create a new raster map
+        gtiff_driver = gdal.GetDriverByName('GTiff')
+        ysize, xsize = array_cats.shape
 
-    out_ds = gtiff_driver.Create(output_suitable,
-                                 xsize, ysize,
-                                 1, gtype,
-                                 options.split())
-    out_ds.SetProjection(proj)
-    out_ds.SetGeoTransform(transform)
+        out_ds = gtiff_driver.Create(output_suitable,
+                                     xsize, ysize,
+                                     1, gtype,
+                                     options.split())
+        out_ds.SetProjection(proj)
+        out_ds.SetGeoTransform(transform)
 
-    out_ds_band = out_ds.GetRasterBand(1)
-    out_ds_band.SetNoDataValue(no_data_value)
-    out_ds_band.SetColorTable(ct)
-    out_ds_band.WriteArray(array_cats)
-    out_ds.FlushCache()
-    return out_ds
+        out_ds_band = out_ds.GetRasterBand(1)
+        out_ds_band.SetNoDataValue(no_data_value)
+        out_ds_band.SetColorTable(ct)
+        out_ds_band.WriteArray(array_cats)
+        out_ds.FlushCache()
+        return out_ds
 
 # TODO: fix color map according to raster visualization
 

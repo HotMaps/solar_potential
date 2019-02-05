@@ -53,16 +53,17 @@ def calculation(output_directory, inputs_raster_selection,
 
     tot_setup_costs = pv_plant.financial.investement_cost * n_plants
 
-#    out_ds = quantile_colors(most_suitable,
-#                             output_suitable,
-#                             proj=ds.GetProjection(),
-#                             transform=ds.GetGeoTransform(),
-#                             qnumb=6,
-#                             no_data_value=0,
-#                             gtype=gdal.GDT_Byte,
-#                             options='compress=DEFLATE TILED=YES TFW=YES'
-#                                     ' ZLEVEL=9 PREDICTOR=1')
-#    del out_ds
+    out_ds, symbology = quantile_colors(most_suitable,
+                                        output_suitable,
+                                        proj=ds.GetProjection(),
+                                        transform=ds.GetGeoTransform(),
+                                        qnumb=6,
+                                        no_data_value=0,
+                                        gtype=gdal.GDT_Byte,
+                                        options='compress=DEFLATE TILED=YES '
+                                                'TFW=YES '
+                                                'ZLEVEL=9 PREDICTOR=1')
+    del out_ds
 
     # output geneneration of the output
     non_zero = np.count_nonzero(irradiation_values)
@@ -82,9 +83,9 @@ def calculation(output_directory, inputs_raster_selection,
 #
 #    import ipdb; ipdb.set_trace()
     roof_energy = "Energy produced by covering the {p}% of roofs".format(p=roof_use_factor)
-    graphics = line(x=x_cost, y_labels=['Energy production [GWh/year]',
+    graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]',
                                         roof_energy],
-                    y_values=[y_energy, y_costant])
+                    y_values=[y_energy, y_costant])]
 
     vector_layers = []
     result = dict()
@@ -102,11 +103,16 @@ def calculation(output_directory, inputs_raster_selection,
                              "name": "Levelized Cost of Energy",
                              "value": str(lcoe_plant)}]
     result['graphics'] = graphics
-    result['vector_layers'] = vector_layers
+    #result['vector_layers'] = vector_layers
 
-    result['raster_layers'] = [] #[{"name":
-                                #"layers of most suitable roofs",
-                                # "path": output_suitable}]
-
+    result['raster_layers'] = [
+        {
+          "name": "layers of most suitable roofs",
+          "path": output_suitable,
+          "type": "custom",
+          "symbology": symbology
+        }
+    ]
+    # import ipdb; ipdb.set_trace()
     return result
 

@@ -115,7 +115,8 @@ def best_unit(array, current_unit, no_data=0, fstat=np.median, powershift=0):
     bprefx = best_prefix(nvalue, powershift=powershift)
     bfactor = UNIT_PREFIX.at[bprefx, 'power_exp']
     bsymb = UNIT_PREFIX.at[bprefx, 'symbol']
-    return array * (10**nfactor / 10**bfactor), bsymb+unit
+    factor = (10**nfactor / 10**bfactor)
+    return array * factor, bsymb+unit, factor
 
 
 if __name__ == "__main__":

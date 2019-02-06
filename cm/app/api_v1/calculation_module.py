@@ -53,14 +53,13 @@ def calculation(output_directory, inputs_raster_selection,
                                                irradiation_values,
                                                pv_plant)
 
-    # cvals = most_suitable[most_suitable > 0]
-    # print(cvals.min(), cvals.mean(), np.median(cvals), cvals.max())
-    most_suitable, unit = best_unit(most_suitable,
-                                    current_unit="kWh/pixel/year",
-                                    no_data=0, fstat=np.min, powershift=-2)
-    # print(unit)
-    # cvals = most_suitable[most_suitable > 0]
-    # print(cvals.min(), cvals.mean(), np.median(cvals), cvals.max())
+    most_suitable, unit, factor = best_unit(most_suitable,
+                                            current_unit="kWh/pixel/year",
+                                            no_data=0, fstat=np.min,
+                                            powershift=-2)
+    # fix e_cum_sum to have the same unit
+    e_cum_sum = e_cum_sum * factor
+    tot_en_gen_per_year = tot_en_gen_per_year * factor
 
     tot_setup_costs = pv_plant.financial.investement_cost * n_plants
 
@@ -80,10 +79,10 @@ def calculation(output_directory, inputs_raster_selection,
     # output geneneration of the output
     non_zero = np.count_nonzero(irradiation_values)
     step = int(non_zero/10)
-    y_energy = e_cum_sum[0:non_zero:step]/1000000  # GWh/year
-    x_cost = [(i+1) * n_plant_pixel / non_zero * n_plant_pixel *100
-              for i in range(0, non_zero, step)]
-    # y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year/1000000
+
+    y_energy = e_cum_sum[0:non_zero:step]
+    x_cost = [(i+1)/non_zero *100 for i in range(0, non_zero, step)]
+    # y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year
 
 #    import matplotlib.pyplot as plt
 #    fig = plt.figure()
@@ -95,15 +94,21 @@ def calculation(output_directory, inputs_raster_selection,
 #    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
     graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]'],
                     y_values=[y_energy])]
+=======
+    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
+    graphics = [line(x=x_cost, y_labels=['Energy production [{}]'.format(unit),
+                                        roof_energy],
+                    y_values=[y_energy, y_costant])]
+>>>>>>> 86586d5d7b10db622f53cec53414624f404c0c2d
 
     # vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'
-    result['indicator'] = [{"unit": "GWh/year",
+    result['indicator'] = [{"unit": unit,
                              "name": "Total energy production",
-                             "value": str(tot_en_gen_per_year/1000000)},
+                             "value": str(tot_en_gen_per_year)},
                             {"unit": "Million of currency",
-                            "name": "Total setup costs",
+                            "name": "Total setup costs",  # M€
                              "value": str(tot_setup_costs/1000000)},
                             {"unit": "-",
                              "name": "Number of installed systems",

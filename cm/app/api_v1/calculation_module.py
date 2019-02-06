@@ -12,6 +12,7 @@ if path not in sys.path:
         sys.path.append(path)
 from my_calculation_module_directory.energy_production import indicators, raster_suitable, mean_plant
 from my_calculation_module_directory.visualization import quantile_colors, line
+from my_calculation_module_directory.utils import best_unit
 
 """ Entry point of the calculation module function"""
 
@@ -51,6 +52,15 @@ def calculation(output_directory, inputs_raster_selection,
                                                irradiation_values,
                                                pv_plant)
 
+    # cvals = most_suitable[most_suitable > 0]
+    # print(cvals.min(), cvals.mean(), np.median(cvals), cvals.max())
+    most_suitable, unit = best_unit(most_suitable,
+                                    current_unit="kWh/pixel/year",
+                                    no_data=0, fstat=np.min, powershift=-2)
+    # print(unit)
+    # cvals = most_suitable[most_suitable > 0]
+    # print(cvals.min(), cvals.mean(), np.median(cvals), cvals.max())
+
     tot_setup_costs = pv_plant.financial.investement_cost * n_plants
 
     out_ds, symbology = quantile_colors(most_suitable,
@@ -60,6 +70,7 @@ def calculation(output_directory, inputs_raster_selection,
                                         qnumb=6,
                                         no_data_value=0,
                                         gtype=gdal.GDT_Byte,
+                                        unit=unit,
                                         options='compress=DEFLATE TILED=YES '
                                                 'TFW=YES '
                                                 'ZLEVEL=9 PREDICTOR=1')

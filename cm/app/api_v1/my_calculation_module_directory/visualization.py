@@ -22,6 +22,23 @@ def colorizeMyOutputRaster(out_ds):
     return out_ds
 
 
+def quantile(array, qnumb=6, round_decimals=-2):
+    # define the quantile limits
+    qvalues, qstep = np.linspace(0, 1., qnumb, retstep=True)
+
+    quantiles = np.quantile(array, qvalues)
+    # round the number
+    while True:
+        q0 = np.round(quantiles, round_decimals)
+        if len(set(q0)) != len(quantiles):
+            print("Increase decimals")
+            round_decimals += 1
+        else:
+            break
+
+    return qvalues, q0
+
+
 def quantile_colors(array, output_suitable, proj, transform,
                     qnumb=6,
                     no_data_value=0,
@@ -29,8 +46,8 @@ def quantile_colors(array, output_suitable, proj, transform,
                     gtype=gdal.GDT_Byte,
                     options='compress=DEFLATE TILED=YES TFW=YES'
                             ' ZLEVEL=9 PREDICTOR=1',
-                    round_decimals=-1,
-                    unit="MWh/year"):
+                    round_decimals=-2,
+                    unit="kWh/year"):
     """Generate a GTiff categorical raster map based on quantiles
     values.
 
@@ -41,14 +58,9 @@ def quantile_colors(array, output_suitable, proj, transform,
         {"red":50,"green":50,"blue":50,"opacity":0.5,"value":"250MWh","label":"250MWh"}
     ]
     """
-    # define the quantile limits
-    qvalues, qstep = np.linspace(0, 1., qnumb, retstep=True)
     valid = array != no_data_value
-
-    quantiles = np.quantile(array[valid], qvalues)
-
-    # round the number
-    quantiles = np.round(quantiles, round_decimals)
+    qvalues, quantiles = quantile(array[valid], qnumb=qnumb,
+                                  round_decimals=round_decimals)
 
     symbology = [
             {"red": no_data_color[0],

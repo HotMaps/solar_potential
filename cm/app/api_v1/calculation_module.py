@@ -38,7 +38,7 @@ def calculation(output_directory, inputs_raster_selection,
     n_plants, n_plant_pixel, pv_plant = indicators(irradiation_values,
                                                    irradiation_pixel_area,
                                                    roof_use_factor,
-                                                   reduction_factor,
+                                                   reduction_factor/100,
                                                    pv_plant)
 
     lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
@@ -82,7 +82,7 @@ def calculation(output_directory, inputs_raster_selection,
 #    fig.savefig('prova.png')
 #
 #    import ipdb; ipdb.set_trace()
-    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=roof_use_factor)
+    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
     graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]',
                                         roof_energy],
                     y_values=[y_energy, y_costant])]

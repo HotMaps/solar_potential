@@ -114,7 +114,7 @@ def quantile_colors(array, output_suitable, proj, transform,
 # TODO: fix color map according to raster visualization
 
 
-def line(x, y_labels, y_values):
+def line(x, y_labels, y_values, unit):
     """
     Define the dictionary for defining a multiline plot
     :param x: list of x data
@@ -131,7 +131,7 @@ def line(x, y_labels, y_values):
                     "data": [str(y) for y in y_values[i]]})
 
     graph = {"xLabel": "Percentage of buildings",
-             "yLabel": "Energy production (GWh)",
+             "yLabel": 'Energy production [{}]'.format(unit),
              "type": "line",
              "data": {"labels": [str(xx) for xx in x],
                       "datasets": dic}

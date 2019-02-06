@@ -56,8 +56,11 @@ def calculation(output_directory, inputs_raster_selection,
     most_suitable, unit, factor = best_unit(most_suitable,
                                             current_unit="kWh/pixel/year",
                                             no_data=0, fstat=np.min,
-                                            powershift=-2)
+                                            powershift=0)
     # fix e_cum_sum to have the same unit
+    # if sum the unit is not for pixel
+    # TODO: this is a brutal change by deleting pixel
+    unit_sum = unit.replace("/pixel", "")
     e_cum_sum = e_cum_sum * factor
     tot_en_gen_per_year = tot_en_gen_per_year * factor
 
@@ -80,10 +83,10 @@ def calculation(output_directory, inputs_raster_selection,
     non_zero = np.count_nonzero(irradiation_values)
     step = int(non_zero/10)
 
-    y_energy = e_cum_sum[0:non_zero:step]
+    y_energy = np.round(e_cum_sum[0:non_zero:step],2)
     x_cost = [(i+1)/non_zero *100 for i in range(0, non_zero, step)]
     # y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year
-
+#
 #    import matplotlib.pyplot as plt
 #    fig = plt.figure()
 #    ax = plt.axes()
@@ -92,30 +95,24 @@ def calculation(output_directory, inputs_raster_selection,
 ##
 #    import ipdb; ipdb.set_trace()
 #    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
-    graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]'],
-                    y_values=[y_energy])]
-=======
-    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
-    graphics = [line(x=x_cost, y_labels=['Energy production [{}]'.format(unit),
-                                        roof_energy],
-                    y_values=[y_energy, y_costant])]
->>>>>>> 86586d5d7b10db622f53cec53414624f404c0c2d
+    graphics = [line(x=x_cost, y_labels=['Energy production [{}]'.format(unit_sum)],
+                    y_values=[y_energy], unit=unit_sum)]
 
     # vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'
-    result['indicator'] = [{"unit": unit,
+    result['indicator'] = [{"unit": unit_sum,
                              "name": "Total energy production",
-                             "value": str(tot_en_gen_per_year)},
+                             "value": str(round(tot_en_gen_per_year,2))},
                             {"unit": "Million of currency",
                             "name": "Total setup costs",  # M€
-                             "value": str(tot_setup_costs/1000000)},
+                             "value": str(round(tot_setup_costs/1000000))},
                             {"unit": "-",
                              "name": "Number of installed systems",
-                             "value": str(n_plants)},
+                             "value": str(round(n_plants))},
                             {"unit": "currency/kWh",
                              "name": "Levelized Cost of Energy",
-                             "value": str(lcoe_plant)}]
+                             "value": str(round(lcoe_plant,2))}]
     result['graphics'] = graphics
     #result['vector_layers'] = vector_layers
 

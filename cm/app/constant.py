@@ -135,7 +135,7 @@ INPUTS_CALCULATION_MODULE = [
     {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
      'input_type': 'input',
      'input_parameter_name': 'setup_costs',
-     'input_value': 5000,
+     'input_value': 2000,
      'input_priority': 1,
      'input_unit': 'currency/kWp',
      'input_min': 0.0,

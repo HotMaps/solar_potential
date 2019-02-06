@@ -97,7 +97,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_parameter_name': 'reduction_factor',
      'input_value': 0.3,
      'input_priority': 0,
-     'input_unit': 'none',
+     'input_unit': ' ',
      'input_min': 0,
      'input_max': 1,
      'cm_id': CM_ID
@@ -117,7 +117,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_parameter_name': 'efficiency_pv',
      'input_value': 0.75,
      'input_priority': 1,
-     'input_unit': 'none',
+     'input_unit': ' ',
      'input_min': 0,
      'input_max': 1,
      'cm_id': CM_ID
@@ -127,7 +127,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_parameter_name': 'k_pv',
      'input_value': 0.15,
      'input_priority': 1,
-     'input_unit': 'none',
+     'input_unit': ' ',
      'input_min': 0,
      'input_max': 0.6,
      'cm_id': CM_ID

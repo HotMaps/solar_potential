@@ -82,16 +82,6 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
-    {'input_name': 'Effective building roof utilization factor',
-     'input_type': 'input',
-     'input_priority': 0,
-     'input_parameter_name': 'roof_use_factor',
-     'input_value': 0.15,
-     'input_unit': ' ',
-     'input_min': 0,
-     'input_max': 1,
-     'cm_id': CM_ID
-     },
     {'input_name': 'Percentage of buildings with solar panels',
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
@@ -100,6 +90,26 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': '%',
      'input_min': 0,
      'input_max': 100,
+     'cm_id': CM_ID
+     },
+     {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
+     'input_type': 'input',
+     'input_parameter_name': 'setup_costs',
+     'input_value': 2000,
+     'input_priority': 1,
+     'input_unit': 'currency/kWp',
+     'input_min': 0.0,
+     'input_max': 10000,
+     'cm_id': CM_ID
+     },
+     {'input_name': 'Effective building roof utilization factor',
+     'input_type': 'input',
+     'input_priority': 0,
+     'input_parameter_name': 'roof_use_factor',
+     'input_value': 0.15,
+     'input_unit': ' ',
+     'input_min': 0,
+     'input_max': 1,
      'cm_id': CM_ID
      },
     {'input_name': 'Installed peak power [kW_p]',
@@ -130,16 +140,6 @@ INPUTS_CALCULATION_MODULE = [
      'input_unit': ' ',
      'input_min': 0,
      'input_max': 0.6,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
-     'input_type': 'input',
-     'input_parameter_name': 'setup_costs',
-     'input_value': 2000,
-     'input_priority': 1,
-     'input_unit': 'currency/kWp',
-     'input_min': 0.0,
-     'input_max': 10000,
      'cm_id': CM_ID
      },
     {'input_name': 'Maintenance and operation costs [%] of the setup cost',

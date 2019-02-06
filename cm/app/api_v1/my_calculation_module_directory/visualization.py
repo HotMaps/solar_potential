@@ -118,7 +118,7 @@ def line(x, y_labels, y_values):
                     "backgroundColor": palette[i],
                     "data": [str(y) for y in y_values[i]]})
 
-    graph = {"xLabel": "Investment costs (10^6 €)",
+    graph = {"xLabel": "Investment costs (Milllion of currency)",
              "yLabel": "Energy production (GWh)",
              "type": "line",
              "data": {"labels": [str(xx) for xx in x],

@@ -27,6 +27,7 @@ def calculation(output_directory, inputs_raster_selection,
     ds_geo = ds.GetGeoTransform()
     irradiation_pixel_area = ds_geo[1] * (-ds_geo[5])
     irradiation_values = ds.ReadAsArray()
+    irradiation_values = np.nan_to_num(irradiation_values)
 
     # retrieve the inputs all input defined in the signature
     roof_use_factor = float(inputs_parameter_selection["roof_use_factor"])
@@ -69,23 +70,20 @@ def calculation(output_directory, inputs_raster_selection,
     non_zero = np.count_nonzero(irradiation_values)
     step = int(non_zero/10)
     y_energy = e_cum_sum[0:non_zero:step]/1000000  # GWh/year
-    x_cost = [(i+1) * n_plant_pixel *
-              int(inputs_parameter_selection['setup_costs']) / 1000000
+    x_cost = [(i+1) * n_plant_pixel / non_zero * n_plant_pixel *100
               for i in range(0, non_zero, step)]
-    y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year/1000000
+    # y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year/1000000
 
 #    import matplotlib.pyplot as plt
 #    fig = plt.figure()
 #    ax = plt.axes()
 #    ax.plot(x_cost, y_energy) # GWh
-#    ax.plot(x_cost, y_costant) # GWh
 #    fig.savefig('prova.png')
-#
+##
 #    import ipdb; ipdb.set_trace()
-    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
-    graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]',
-                                        roof_energy],
-                    y_values=[y_energy, y_costant])]
+#    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
+    graphics = [line(x=x_cost, y_labels=['Energy production [GWh/year]'],
+                    y_values=[y_energy])]
 
     # vector_layers = []
     result = dict()
@@ -113,5 +111,6 @@ def calculation(output_directory, inputs_raster_selection,
           "symbology": symbology
         }
     ]
+    print(result)
     # import ipdb; ipdb.set_trace()
     return result

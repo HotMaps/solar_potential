@@ -112,7 +112,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 1,
      'cm_id': CM_ID
      },
-    {'input_name': 'Installed peak power [kW_p]',
+    {'input_name': 'Average installed peak power per plant [kW_p]',
      'input_type': 'input',
      'input_parameter_name': 'peak_power_pv',
      'input_value': 3,

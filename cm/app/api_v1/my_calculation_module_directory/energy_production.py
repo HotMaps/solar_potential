@@ -37,8 +37,8 @@ def mean_plant(inputs_parameter_selection):
     return pv_plant
 
 
-def indicators(irradiation_values, irradiation_pixel_area, roof_use_factor,
-               reduction_factor, pv_plant):
+def indicators(PV_target, irradiation_values, irradiation_pixel_area,
+               roof_use_factor, reduction_factor, pv_plant):
     no_zero = irradiation_values[np.nonzero(irradiation_values)]
     e_pv_mean = float(np.mean(no_zero[~np.isnan(no_zero)]))
     # the solar irradiation at standard test condition equal to 1 kWm-2
@@ -46,13 +46,21 @@ def indicators(irradiation_values, irradiation_pixel_area, roof_use_factor,
                                   pv_plant.efficiency)
     building_footprint = (float(np.count_nonzero(irradiation_values) *
                           irradiation_pixel_area))
+    area_available = roof_use_factor * building_footprint
+    energy_available = (area_available / pv_plant.area *
+                        pv_plant.energy_production)
 
-    n_plants = (roof_use_factor * reduction_factor * building_footprint /
-                pv_plant.area())
+    if PV_target == 0:
+        PV_target = energy_available
+
+    rules = plant.Planning_rules(area_target=reduction_factor*area_available,
+                                 PV_target,
+                                 area_available, energy_available)
+    n_plants = rules.n_plants(pv_plant)
     n_plant_pixel = (irradiation_pixel_area/pv_plant.area() *
                      roof_use_factor)
 
-    return n_plants, n_plant_pixel, pv_plant
+    return n_plants, n_plant_pixel, pv_plant, building_footprint
 
 
 def raster_suitable(n_plant_pixel, tot_en_gen_per_year,

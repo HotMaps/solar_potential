@@ -82,6 +82,16 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
+    {'input_name': 'Target PV production',
+     'input_type': 'input',
+     'input_parameter_name': 'PV_target',
+     'input_value': 0,
+     'input_priority': 0,
+     'input_unit': 'GWh',
+     'input_min': 0,
+     'input_max': 10000000000000,
+     'cm_id': CM_ID
+     },
     {'input_name': 'Percentage of buildings with solar panels',
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
@@ -104,7 +114,7 @@ INPUTS_CALCULATION_MODULE = [
      },
      {'input_name': 'Effective building roof utilization factor',
      'input_type': 'input',
-     'input_priority': 0,
+     'input_priority': 1,
      'input_parameter_name': 'roof_use_factor',
      'input_value': 0.15,
      'input_unit': ' ',

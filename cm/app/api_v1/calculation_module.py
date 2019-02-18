@@ -34,10 +34,12 @@ def calculation(output_directory, inputs_raster_selection,
     roof_use_factor = float(inputs_parameter_selection["roof_use_factor"])
     reduction_factor = float(inputs_parameter_selection["reduction_factor"])
     discount_rate = float(inputs_parameter_selection['discount_rate'])
+    PV_target = float(inputs_parameter_selection["PV_target"])
 
     pv_plant = mean_plant(inputs_parameter_selection)
 
-    n_plants, n_plant_pixel, pv_plant = indicators(irradiation_values,
+    n_plants, n_plant_pixel, pv_plant = indicators(PV_target,
+                                                   irradiation_values,
                                                    irradiation_pixel_area,
                                                    roof_use_factor,
                                                    reduction_factor/100,

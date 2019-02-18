@@ -47,3 +47,52 @@ class TestAPI(unittest.TestCase):
                                     data=payload)
 
         self.assertTrue(rv.status_code == 200)
+
+    def test_100bui(self):
+        # load the raster test file and the percentage of building 100%
+        # from app.constant
+        raster_file_path = 'tests/data/raster_for_test.tif'
+        # simulate copy from HTAPI to CM
+        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
+        copyfile(raster_file_path, save_path)
+        inputs_raster_selection = {}
+        inputs_parameter_selection = {}
+        inputs_raster_selection["solar_optimal_total"]  = save_path
+        for inp in INPUTS_CALCULATION_MODULE:
+            inputs_parameter_selection[inp['input_parameter_name']]  = inp['input_value']
+        
+        # register the calculation module a
+        inputs_parameter_selection['reduction_factor'] = 100
+        payload = {"inputs_raster_selection": inputs_raster_selection,
+                   "inputs_parameter_selection": inputs_parameter_selection}
+
+        rv, json = self.client.post('computation-module/compute/',
+                                    data=payload)
+        
+        # count cell of the two rasters
+
+        self.assertTrue(rv.status_code == 200)
+
+
+    def test_10kWp(self):
+        # load the raster test file and the percentage of building 100%
+        # from app.constant
+        raster_file_path = 'tests/data/raster_for_test.tif'
+        # simulate copy from HTAPI to CM
+        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
+        copyfile(raster_file_path, save_path)
+        inputs_raster_selection = {}
+        inputs_parameter_selection = {}
+        inputs_raster_selection["solar_optimal_total"]  = save_path
+        for inp in INPUTS_CALCULATION_MODULE:
+            inputs_parameter_selection[inp['input_parameter_name']]  = inp['input_value']
+        
+        # register the calculation module a
+        inputs_parameter_selection['peak_power_pv'] = 10
+        payload = {"inputs_raster_selection": inputs_raster_selection,
+                   "inputs_parameter_selection": inputs_parameter_selection}
+
+        rv, json = self.client.post('computation-module/compute/',
+                                    data=payload)
+
+        self.assertTrue(rv.status_code == 200)

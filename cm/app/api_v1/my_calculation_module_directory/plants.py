@@ -29,24 +29,24 @@ class Planning_rules:
         self.area_available = area_available
         self.energy_available = energy_available
 
-        def n_plants(self, plant):
-            """
-            Compute the number of plants in a region accounting for the minimum
-            bewteen energy and area targets
+    def n_plants(self, plant):
+        """
+        Compute the number of plants in a region accounting for the minimum
+        bewteen energy and area targets
 
-            :param plant: plant object
-            """
-            n_plants_area = self.area_target / plant.area
-            n_plants_energy = self.energy_target / plant.energy_production
-            return min(n_plants_area, n_plants_energy)
+        :param plant: plant object
+        """
+        n_plants_area = self.area_target / plant.area()
+        n_plants_energy = self.energy_target / plant.energy_production
+        return min(n_plants_area, n_plants_energy)
 
-        def validity(self):
-            """
-            Verify the consistency between constraints
-            """
-            consistency = ((self.area_target < self.area_available) *
-                           (self.energy_target < self.energy_available))
-            return consistency
+    def validity(self):
+        """
+        Verify the consistency between constraints
+        """
+        consistency = ((self.area_target < self.area_available) *
+                       (self.energy_target < self.energy_available))
+        return consistency
 
 
 class Financial:

@@ -49,7 +49,7 @@ def calculation(output_directory, inputs_raster_selection,
                                          i_r=discount_rate/100)
 
     tot_en_gen_per_year = n_plants * pv_plant.energy_production
-
+    
     most_suitable, e_cum_sum = raster_suitable(n_plant_pixel,
                                                tot_en_gen_per_year,
                                                irradiation_values,

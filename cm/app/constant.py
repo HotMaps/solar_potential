@@ -14,8 +14,8 @@ CM_ID = 4
 PORT_LOCAL = int('500' + str(CM_ID))
 PORT_DOCKER = 80
 #TODO:**********************************************************
-CELERY_BROKER_URL = CELERY_BROKER_URL_DOCKER
-PORT = PORT_DOCKER
+CELERY_BROKER_URL = CELERY_BROKER_URL_LOCAL
+PORT = PORT_LOCAL
 #TODO:**********************************************************
 TRANFER_PROTOCOLE ='http://'
 

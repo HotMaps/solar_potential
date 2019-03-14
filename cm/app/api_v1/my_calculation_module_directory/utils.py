@@ -9,6 +9,7 @@ import io
 import numpy as np
 import pandas as pd
 from osgeo import osr
+from scipy import integrate
 
 
 UNIT_CSV = io.StringIO("""text,symbol,power_exp

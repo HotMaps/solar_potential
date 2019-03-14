@@ -86,7 +86,6 @@ def calculation(output_directory, inputs_raster_selection,
 
     # compute the representative plant in the suitable area
     pv_plant.energy_production =  e_pv_mean/n_plant_pixel/factor
-    import ipdb; ipdb.set_trace()
     lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
                                          i_r=discount_rate/100)
 
@@ -94,12 +93,15 @@ def calculation(output_directory, inputs_raster_selection,
                             (np.abs(most_suitable - e_pv_mean)).shape)
     x = ds_geo[0] + i * ds_geo[1] 
     y = ds_geo[3] + j * ds_geo[5]
-    lat, long = xy2latlong(x, y, ds)
+    long, lat = xy2latlong(x, y, ds)
     
     # generation of the output time profile
-    capacity = n_plants * float(inputs_parameter_selection['peak_power_pv'])
-    df_profile = pv_profile(lat, long, capacity,
-                            system_loss=float(inputs_parameter_selection['efficiency_pv']))
+    capacity = float(inputs_parameter_selection['peak_power_pv']) * n_plants
+    df_profile = pv_profile(lat, long, 
+                            capacity,
+                            system_loss=1-float(inputs_parameter_selection['efficiency_pv']))
+    tot_energy_rn =  df_profile.sum() * factor
+    diff = tot_energy_rn - tot_en_gen_per_year
     # transform unit
     hourly_profile, unit_capacity, con = best_unit(df_profile['output'].values,
                                                    'kW', no_data=0,

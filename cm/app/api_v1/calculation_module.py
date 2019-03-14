@@ -12,7 +12,8 @@ if path not in sys.path:
         sys.path.append(path)
 from my_calculation_module_directory.energy_production import indicators, raster_suitable, mean_plant
 from my_calculation_module_directory.visualization import quantile_colors, line
-from my_calculation_module_directory.utils import best_unit
+from my_calculation_module_directory.utils import best_unit, xy2latlong
+from my_calculation_module_directory.time_profiles import pv_profile
 
 """ Entry point of the calculation module function"""
 
@@ -45,9 +46,6 @@ def calculation(output_directory, inputs_raster_selection,
                                                    reduction_factor/100,
                                                    pv_plant)
 
-    lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
-                                         i_r=discount_rate/100)
-
     tot_en_gen_per_year = n_plants * pv_plant.energy_production
     
     most_suitable, e_cum_sum = raster_suitable(n_plant_pixel,
@@ -59,6 +57,7 @@ def calculation(output_directory, inputs_raster_selection,
                                             current_unit="kWh/pixel/year",
                                             no_data=0, fstat=np.min,
                                             powershift=0)
+
     # fix e_cum_sum to have the same unit
     # if sum the unit is not for pixel
     # TODO: this is a brutal change by deleting pixel
@@ -81,25 +80,45 @@ def calculation(output_directory, inputs_raster_selection,
                                                 'ZLEVEL=9 PREDICTOR=1')
     del out_ds
 
+    # look for the post representative point
+    no_zero = most_suitable[np.nonzero(most_suitable)]
+    e_pv_mean = float(np.mean(no_zero[~np.isnan(no_zero)]))
+
+    # compute the representative plant in the suitable area
+    pv_plant.energy_production =  e_pv_mean/n_plant_pixel/factor
+    import ipdb; ipdb.set_trace()
+    lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
+                                         i_r=discount_rate/100)
+
+    i, j = np.unravel_index((np.abs(most_suitable - e_pv_mean)).argmin(),
+                            (np.abs(most_suitable - e_pv_mean)).shape)
+    x = ds_geo[0] + i * ds_geo[1] 
+    y = ds_geo[3] + j * ds_geo[5]
+    lat, long = xy2latlong(x, y, ds)
+    
+    # generation of the output time profile
+    capacity = n_plants * float(inputs_parameter_selection['peak_power_pv'])
+    df_profile = pv_profile(lat, long, capacity,
+                            system_loss=float(inputs_parameter_selection['efficiency_pv']))
+    # transform unit
+    hourly_profile, unit_capacity, con = best_unit(df_profile['output'].values,
+                                                   'kW', no_data=0,
+                                                    fstat=np.median,
+                                                    powershift=0)
+    graph_hours = line(x=df_profile.index,
+                       y_labels=['Hourly profile [{}]'.format(unit_capacity)],
+                       y_values=[hourly_profile], unit=unit_capacity)
+
     # output geneneration of the output
     non_zero = np.count_nonzero(irradiation_values)
     step = int(non_zero/10)
 
     y_energy = np.round(e_cum_sum[0:non_zero:step],2)
     x_cost = [(i+1)/non_zero *100 for i in range(0, non_zero, step)]
-    # y_costant = np.ones(np.shape(y_energy)) * tot_en_gen_per_year
-#
-#    import matplotlib.pyplot as plt
-#    fig = plt.figure()
-#    ax = plt.axes()
-#    ax.plot(x_cost, y_energy) # GWh
-#    fig.savefig('prova.png')
-##
-#    import ipdb; ipdb.set_trace()
-#    roof_energy = "Energy produced by covering the {p}% of roofs".format(p=reduction_factor)
-    graphics = [line(x=x_cost, y_labels=['Energy production [{}]'.format(unit_sum)],
-                    y_values=[y_energy], unit=unit_sum)]
-
+    graph_energy_tot = line(x=x_cost, y_labels=['Energy production [{}]'.format(unit_sum)],
+                       y_values=[y_energy], unit=unit_sum)
+    
+    graphics = [graph_hours, graph_energy_tot]
     # vector_layers = []
     result = dict()
     result['name'] = 'CM solar potential'

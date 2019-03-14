@@ -8,6 +8,7 @@ Created on Wed Feb  6 11:24:52 2019
 import io
 import numpy as np
 import pandas as pd
+from osgeo import osr
 
 
 UNIT_CSV = io.StringIO("""text,symbol,power_exp
@@ -117,6 +118,38 @@ def best_unit(array, current_unit, no_data=0, fstat=np.median, powershift=0):
     bsymb = UNIT_PREFIX.at[bprefx, 'symbol']
     factor = (10**nfactor / 10**bfactor)
     return array * factor, bsymb+unit, factor
+
+
+def xy2latlong(x, y, ds):
+    """Return lat long coordinate by x, y
+
+    >>> import gdal
+    >>> path = "../../../tests/data/raster_for_test.tif"
+    >>> ds = gdal.Open(path)
+    >>> xy2latlong(3715171, 2909857, ds)
+    (1.7036231518576481, 48.994284431891565)
+    """
+    old_cs = osr.SpatialReference()
+    old_cs.ImportFromWkt(ds.GetProjectionRef())
+    # create the new coordinate system
+    wgs84_wkt = """
+    GEOGCS["WGS 84",
+        DATUM["WGS_1984",
+            SPHEROID["WGS 84",6378137,298.257223563,
+                AUTHORITY["EPSG","7030"]],
+            AUTHORITY["EPSG","6326"]],
+        PRIMEM["Greenwich",0,
+            AUTHORITY["EPSG","8901"]],
+        UNIT["degree",0.01745329251994328,
+            AUTHORITY["EPSG","9122"]],
+        AUTHORITY["EPSG","4326"]]"""
+    new_cs = osr.SpatialReference()
+    new_cs .ImportFromWkt(wgs84_wkt)
+    # create a transform object to convert between coordinate systems
+    transform = osr.CoordinateTransformation(old_cs, new_cs)
+    # get the coordinates in lat long
+    latlong = transform.TransformPoint(x, y)
+    return latlong[0], latlong[1]
 
 
 if __name__ == "__main__":

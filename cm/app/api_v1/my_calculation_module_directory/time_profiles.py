@@ -35,7 +35,7 @@ def pv_profile(lat, lon, capacity, system_loss):
         'system_loss': system_loss,
         'tracking': 0,
         'tilt': 30,
-        'azim': 0,
+        'azim': 180,
         'format': 'json',
         'metadata': False,
         'raw': False

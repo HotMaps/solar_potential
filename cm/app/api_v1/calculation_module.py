@@ -38,20 +38,32 @@ def calculation(output_directory, inputs_raster_selection,
     PV_target = float(inputs_parameter_selection["PV_target"])
 
     pv_plant = mean_plant(inputs_parameter_selection)
-
-    n_plants, n_plant_pixel, pv_plant = indicators(PV_target,
-                                                   irradiation_values,
-                                                   irradiation_pixel_area,
-                                                   roof_use_factor,
-                                                   reduction_factor/100,
-                                                   pv_plant)
-
+    
+    # TODO:the building footprint is now equal to the pixel area
+    building_footprint = np.zeros(irradiation_values.shape)
+    building_footprint[irradiation_values>0] = irradiation_pixel_area
+    
+    n_plants, pv_plant = indicators(PV_target,
+                                    irradiation_values,
+                                    building_footprint,
+                                    roof_use_factor,
+                                    reduction_factor/100,
+                                    pv_plant)
+    
     tot_en_gen_per_year = n_plants * pv_plant.energy_production
     
-    most_suitable, e_cum_sum = raster_suitable(n_plant_pixel,
+    # compute the raster with the number of plant per pixel
+    n_plant_raster = (building_footprint/pv_plant.area() * roof_use_factor *
+                      reduction_factor / 100)
+    n_plant_raster = n_plant_raster.astype(int)
+    
+    most_suitable, e_cum_sum = raster_suitable(n_plant_raster,
                                                tot_en_gen_per_year,
                                                irradiation_values,
                                                pv_plant)
+    # TODO: I am creating a raster with the number of plants in a pixel,
+    # this will be obtained as a transformation of the input file with 
+    # square mater available from building footprint
 
     most_suitable, unit, factor = best_unit(most_suitable,
                                             current_unit="kWh/pixel/year",
@@ -81,11 +93,17 @@ def calculation(output_directory, inputs_raster_selection,
     del out_ds
 
     # look for the post representative point
-    no_zero = most_suitable[np.nonzero(most_suitable)]
-    e_pv_mean = float(np.mean(no_zero[~np.isnan(no_zero)]))
-
-    # compute the representative plant in the suitable area
-    pv_plant.energy_production =  e_pv_mean/n_plant_pixel/factor
+    e_pv_mean = irradiation_values[most_suitable>0].mean()
+    
+    # reclassifiy array
+    bins = 3
+    e_bins = np.histogram(irradiation_values[most_suitable>0], bins=bins)
+    n_plant_bins = [n_plant_raster[(irradiation_values >= e_bins[1][0]) &
+                                   (irradiation_values <= e_bins[1][1])].sum()]
+    for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
+        n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
+                                           (irradiation_values <= high)].sum())
+    pv_plant.energy_production =  pv_plant.compute_energy(e_pv_mean)
     lcoe_plant = pv_plant.financial.lcoe(pv_plant.energy_production,
                                          i_r=discount_rate/100)
 
@@ -96,12 +114,14 @@ def calculation(output_directory, inputs_raster_selection,
     long, lat = xy2latlong(x, y, ds)
     
     # generation of the output time profile
-    capacity = float(inputs_parameter_selection['peak_power_pv']) * n_plants
+    capacity = float(inputs_parameter_selection['peak_power_pv'])
+    system_loss = 100 * (1-float(inputs_parameter_selection['efficiency_pv']))
     df_profile = pv_profile(lat, long, 
                             capacity,
-                            system_loss=1-float(inputs_parameter_selection['efficiency_pv']))
-    tot_energy_rn =  df_profile.sum() * factor
-    diff = tot_energy_rn - tot_en_gen_per_year
+                            system_loss)
+    # check with pvgis data
+    tot_energy_rn =  df_profile.sum() * factor * n_plants
+    diff = pv_plant.energy_production - df_profile.sum()
     # transform unit
     hourly_profile, unit_capacity, con = best_unit(df_profile['output'].values,
                                                    'kW', no_data=0,

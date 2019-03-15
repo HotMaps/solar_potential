@@ -38,7 +38,7 @@ class Planning_rules:
         """
         n_plants_area = self.area_target / plant.area()
         n_plants_energy = self.energy_target / plant.energy_production
-        return min(n_plants_area, n_plants_energy)
+        return min(int(n_plants_area), int(n_plants_energy))
 
     def validity(self):
         """
@@ -151,5 +151,9 @@ class PV_plant(Plant):
             self.__setattr__(k, kwargs[k])
 
     def area(self):
-        """Calculate and return the area of the rectangle."""
+        """Calculate and return the area of the pv system."""
         return self.peak_power / self.k_pv
+
+    def compute_energy(self, irradiation):
+        """Calculate the energy production on the base"""
+        return irradiation * self.peak_power * self.efficiency

@@ -2,7 +2,7 @@
 from osgeo import gdal
 
 from ..helper import generate_output_file_tif, create_zip_shapefiles
-
+import time
 
 """ Entry point of the calculation module function"""
 
@@ -17,11 +17,10 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
     output_raster1 = generate_output_file_tif(output_directory)
 
 
-    #retrieve the inputs layers
-    input_raster_selection =  inputs_raster_selection["heat_tot_curr_density"]
+    #retrieve the inputs layes
+    input_raster_selection =  inputs_raster_selection["heat"]
 
-
-    #retrieve the inputs vectors
+    #retrieve the inputs layes
     input_vector_selection =  inputs_vector_selection["heating_technologies_eu28"]
 
 

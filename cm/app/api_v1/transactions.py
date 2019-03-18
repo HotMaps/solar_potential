@@ -62,7 +62,7 @@ def register():
     signature_final["cm_url"] = base_url
     payload = json.dumps(signature_final)
     response = calculation_module_rpc.call(payload)
-    print ('CM will finish register ')
+
 
     return response
 
@@ -76,7 +76,7 @@ def savefile(filename,url):
         r = requests.get(url, stream=True)
     except:
         LOGGER.error('API unable to download tif files')
-        print ('API unable to download tif files saved')
+
 
     print ('image saved',r.status_code)
     if r.status_code == 200:
@@ -86,7 +86,7 @@ def savefile(filename,url):
                 f.write(chunk)
     else:
         LOGGER.error('API unable to download tif files')
-        print ('unsable to download tif')
+
     return path
 
 
@@ -131,12 +131,10 @@ def compute():
     #TODO CM Developper do not need to change anything here
     # here is the inputs layers and parameters
     inputs_raster_selection = helper.validateJSON(data["inputs_raster_selection"])
-    print ('inputs_raster_selection', inputs_raster_selection)
-    LOGGER.info('inputs_raster_selection', inputs_raster_selection)
+
 
     inputs_parameter_selection = helper.validateJSON(data["inputs_parameter_selection"])
-    print ('inputs_parameter_selection', inputs_parameter_selection)
-    LOGGER.info('inputs_parameter_selection', inputs_parameter_selection)
+
 
 
     inputs_vector_selection = helper.validateJSON(data["inputs_vector_selection"])
@@ -152,9 +150,9 @@ def compute():
 
 
     }
-    print("response ",response)
+
  #   LOGGER.info('response', response)
-    print("type response ",type(response))
+
 #    LOGGER.info("type response ",type(response))
     # convert response dict to json
     response = json.dumps(response)

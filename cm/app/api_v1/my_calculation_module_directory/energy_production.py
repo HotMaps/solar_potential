@@ -95,5 +95,3 @@ def hourly_indicators(df, capacity):
     working_hours = df[df > 0].count()
     equivalent_hours = tot_energy/capacity
     return (tot_energy, working_hours, equivalent_hours)
-
-    

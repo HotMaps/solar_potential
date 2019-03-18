@@ -9,8 +9,9 @@ import io
 import numpy as np
 import pandas as pd
 from osgeo import osr
-from scipy import integrate
+from pint import UnitRegistry
 
+ureg = UnitRegistry()
 
 UNIT_CSV = io.StringIO("""text,symbol,power_exp
 yotta,Y,24
@@ -99,14 +100,14 @@ def best_unit(array, current_unit, no_data=0, fstat=np.median, powershift=0):
     """Return a tuple with a new array with the transformed value and the unit.
 
     >>> best_unit(np.array([1, 1000, 1000000]), "Wh", fstat=np.max)
-    (array([1.e-06, 1.e-03, 1.e+00]), 'MWh')
+    (array([1.e-06, 1.e-03, 1.e+00]), 'MWh', 1e-06)
     >>> best_unit(np.array([1, 1000, 1000000]), "Wh", fstat=np.median)
-    (array([1.e-03, 1.e+00, 1.e+03]), 'kWh')
+    (array([1.e-03, 1.e+00, 1.e+03]), 'kWh', 0.001)
     >>> best_unit(np.array([1000, 100000, 1000000]), "kWh", fstat=np.min)
-    (array([   1.,  100., 1000.]), 'MWh')
+    (array([   1.,  100., 1000.]), 'MWh', 0.001)
     >>> best_unit(np.array([1866686.5, 1905409.8, 1905081.1, 1941486.4]),
     ...           "kWh", fstat=np.min, powershift=-2)
-    (array([1866.6865, 1905.4098, 1905.0811, 1941.4864]), 'MWh')
+    (array([1866.6865, 1905.4098, 1905.0811, 1941.4864]), 'MWh', 0.001)
     """
     prefix, unit = split_prefix(current_unit)
     index = ~np.isnan(array) if np.isnan(no_data) else array != no_data
@@ -151,6 +152,68 @@ def xy2latlong(x, y, ds):
     # get the coordinates in lat long
     latlong = transform.TransformPoint(x, y)
     return latlong[0], latlong[1]
+
+
+def search(indicator_list, name):
+    """
+    Return a value of a name in the list of indicators
+
+    :param indicator_list: list with the dictionaries with the indicators
+    :param name: name to search for
+
+    :returns: the value related to the name or None if missing
+    >>> ind = [{'unit': 'MWh/year', 'name': 'Total energy production',
+    ...         'value': '2887254.54'},
+    ...        {'unit': 'Million of currency', 'name': 'Total setup costs',
+    ...         'value': '6137'},
+    ...        {'unit': '-', 'name': 'Number of installed systems',
+    ...         'value': '1022847'},
+    ...        {'unit': 'currency/kWh', 'name': 'Levelized Cost of Energy',
+    ...         'value': '0.17'}]
+    >>> search(ind, 'Total energy production')
+    (2887254.54, 'MWh/year')
+    """
+    for dic in indicator_list:
+        if dic['name'] == name:
+            return float(dic['value']), dic['unit']
+    return None
+
+
+def production_per_plant(json):
+    """
+    Return the value of the production of a single plant
+
+    :param json: json to parse with results
+
+    :returns: the vale
+    """
+    value, unit = search(json['result']['indicator'],
+                         'Total energy production')
+    energy = ureg.Quantity(value, unit)
+    n_plants, unit = search(json['result']['indicator'],
+                            'Number of installed systems')
+    e_plant = energy/n_plants
+    e_plant.ito(ureg.kilowatt_hour / ureg.day)
+    return e_plant
+
+
+def diff_raster(raster_in, raster_out):
+    """
+    Verify the position of the pixel and the consistent with the input file
+
+    :param raster_in: array with the input values
+    :param raster_out: array with the putput values
+
+    :returns: the relative error of missing pixels
+    >>> raster_in = np.array([[1, 2], [3, 4]])
+    >>> raster_out = np.array([[1, 2], [3, 0]])
+    >>> diff_raster(raster_in, raster_out)
+    0.4
+    """
+    # count cell of the two rasters
+    diff = np.nansum(raster_in) - np.nansum(raster_in[raster_out > 0])
+    error = diff/np.nansum(raster_in)
+    return error
 
 
 if __name__ == "__main__":

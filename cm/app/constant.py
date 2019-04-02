@@ -198,7 +198,7 @@ SIGNATURE = {
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"
                       "energy potential and the financial feasibility of"
-                      "a selected area ",
+                      "a selected area. The code is on Hotmaps Github group and has been developed by EURAC",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE
 }

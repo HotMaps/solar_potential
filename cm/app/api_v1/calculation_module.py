@@ -134,6 +134,7 @@ def calculation(output_directory, inputs_raster_selection,
         for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
             n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
                                                (irradiation_values <= high)].sum())
+            
 
         diff = most_suitable - np.mean(most_suitable[most_suitable>0])
         i, j = np.unravel_index(np.abs(diff).argmin(), diff.shape)
@@ -185,8 +186,6 @@ def calculation(output_directory, inputs_raster_selection,
         
 
         result['graphics'] = graphics
-        #result['vector_layers'] = vector_layers
-    
         
     else:
         # TODO: How to manage message

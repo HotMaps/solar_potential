@@ -58,10 +58,11 @@ def indicators(PV_target, irradiation_values, building_footprint,
 
 def raster_suitable(n_plant_raster, tot_en_gen_per_year,
                     irradiation_values, pv_plant):
-    # define the most suitable roofs,
-    # compute the energy for each pixel by considering a number of plants
-    # for each pixel and selected
-    # most suitable pixel to cover the enrgy production
+    """ Define the most suitable roofs,
+    by computing the energy for each pixel by considering a number of plants
+    for each pixel and selected
+    most suitable pixel to cover the enrgy production
+    """
     # TODO: do not consider 0 values in the computation
     en_values = (irradiation_values * pv_plant.peak_power *
                  pv_plant.efficiency * n_plant_raster)

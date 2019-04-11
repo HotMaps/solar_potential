@@ -19,3 +19,4 @@ amqp==2.2.2
 numpy==1.16.0
 gdal
 matplotlib==3.0.2
+pint

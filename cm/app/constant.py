@@ -82,10 +82,20 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
+    {'input_name': 'Target PV production',
+     'input_type': 'input',
+     'input_parameter_name': 'PV_target',
+     'input_value': 0,
+     'input_priority': 0,
+     'input_unit': 'GWh',
+     'input_min': 0,
+     'input_max': 10000000000000,
+     'cm_id': CM_ID
+     },
     {'input_name': 'Percentage of buildings with solar panels',
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
-     'input_value': 3,
+     'input_value': 30,
      'input_priority': 0,
      'input_unit': '%',
      'input_min': 0,
@@ -96,7 +106,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_type': 'input',
      'input_parameter_name': 'setup_costs',
      'input_value': 2000,
-     'input_priority': 1,
+     'input_priority': 0,
      'input_unit': 'currency/kWp',
      'input_min': 0.0,
      'input_max': 10000,
@@ -104,7 +114,7 @@ INPUTS_CALCULATION_MODULE = [
      },
      {'input_name': 'Effective building roof utilization factor',
      'input_type': 'input',
-     'input_priority': 0,
+     'input_priority': 1,
      'input_parameter_name': 'roof_use_factor',
      'input_value': 0.15,
      'input_unit': ' ',
@@ -188,7 +198,7 @@ SIGNATURE = {
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"
                       "energy potential and the financial feasibility of"
-                      "a selected area ",
+                      "a selected area. The code is on Hotmaps Github group and has been developed by EURAC",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE
 }

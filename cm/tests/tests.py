@@ -5,6 +5,10 @@ import os.path
 from shutil import copyfile
 from .test_client import TestClient
 from app.constant import INPUTS_CALCULATION_MODULE
+from osgeo import gdal
+import numpy as np
+
+from app.api_v1.my_calculation_module_directory.utils import production_per_plant, search, diff_raster
 
 UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
                                 'hotmaps', 'cm_files_uploaded')
@@ -12,6 +16,44 @@ UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
     os.chmod(UPLOAD_DIRECTORY, 0o777)
+
+
+def load_input():
+    """
+    Load the input values in the file constant.py
+
+    :return a dictionary with the imput values
+    """
+    inputs_parameter = {}
+    for inp in INPUTS_CALCULATION_MODULE:
+        inputs_parameter[inp['input_parameter_name']] = inp['input_value']
+    return inputs_parameter
+
+
+def load_raster(raster):
+    """
+    Load the raster file for testing
+
+    :return a dictionary with the raster file paths
+    """
+    raster_file_path = os.path.join('tests/data', raster)
+    # simulate copy from HTAPI to CM
+    save_path = os.path.join(UPLOAD_DIRECTORY, raster)
+    copyfile(raster_file_path, save_path)
+    inputs_raster_selection = {}
+    inputs_raster_selection["solar_optimal_total"] = save_path
+    return inputs_raster_selection
+
+
+def modify_input(inputs_parameter, **kwargs):
+    """
+    Modify the dictionary of input parameter
+
+    :return a dictionary with input file modified
+    """
+    for key, value in kwargs.items():
+        inputs_parameter[key] = value
+    return inputs_parameter
 
 
 class TestAPI(unittest.TestCase):
@@ -28,71 +70,72 @@ class TestAPI(unittest.TestCase):
         self.ctx.pop()
 
     def test_compute(self):
-        # load the raster test file and the default values
-        # from app.constant
-        raster_file_path = 'tests/data/raster_for_test.tif'
-        # simulate copy from HTAPI to CM
-        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
-        copyfile(raster_file_path, save_path)
-        inputs_raster_selection = {}
-        inputs_parameter_selection = {}
-        inputs_raster_selection["solar_optimal_total"]  = save_path
-        for inp in INPUTS_CALCULATION_MODULE:
-            inputs_parameter_selection[inp['input_parameter_name']]  = inp['input_value']
+        """
+        Test of the default values from app.constat by
+        1) asserting the production per platn between 5 and 15 kWh/day
+        2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
+        """
+        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_parameter_selection = load_input()
+        # register the calculation module a
+        payload = {"inputs_raster_selection": inputs_raster_selection,
+                   "inputs_parameter_selection": inputs_parameter_selection}
+        rv, json = self.client.post('computation-module/compute/',
+                                    data=payload)
+        # 1) assert that the production is beetween 5 and 15 kWh/day per plant
+        e_plant = production_per_plant(json)
+        self.assertGreaterEqual(e_plant.magnitude, 5)
+        self.assertLessEqual(e_plant.magnitude, 15)
+        # 2) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
+        lcoe, unit = search(json['result']['indicator'],
+                            'Levelized Cost of Energy')
+        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertLessEqual(lcoe, 0.2)
+        self.assertTrue(rv.status_code == 200)
+
+    def test_raster(self):
+        """
+        Test the output raster
+        1) the consistent between input file and output file in the case
+        of using the total surface of the buildings
+        """
+        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_parameter_selection = load_input()
+        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+                                                  reduction_factor=100)
         # register the calculation module a
         payload = {"inputs_raster_selection": inputs_raster_selection,
                    "inputs_parameter_selection": inputs_parameter_selection}
 
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
+        # 1) the consistent between input file and output file in the case
+        # of using the total surface of the buildings
+        path_output = json['result']['raster_layers'][0]['path']
+        ds = gdal.Open(path_output)
+        raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
+        ds = gdal.Open(inputs_raster_selection["solar_optimal_total"])
+        raster_in = np.array(ds.GetRasterBand(1).ReadAsArray())
+        error = diff_raster(raster_in, raster_out)
+        self.assertLessEqual(error, 0.01)
 
-        self.assertTrue(rv.status_code == 200)
-
-    def test_100bui(self):
-        # load the raster test file and the percentage of building 100%
-        # from app.constant
-        raster_file_path = 'tests/data/raster_for_test.tif'
-        # simulate copy from HTAPI to CM
-        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
-        copyfile(raster_file_path, save_path)
-        inputs_raster_selection = {}
-        inputs_parameter_selection = {}
-        inputs_raster_selection["solar_optimal_total"]  = save_path
-        for inp in INPUTS_CALCULATION_MODULE:
-            inputs_parameter_selection[inp['input_parameter_name']]  = inp['input_value']
-        
+    def test_noresults(self):
+        """
+        Test the message when no output file are produced
+        """
+        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_parameter_selection = load_input()
+        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+                                                  roof_use_factor=0.1)
         # register the calculation module a
-        inputs_parameter_selection['reduction_factor'] = 100
         payload = {"inputs_raster_selection": inputs_raster_selection,
                    "inputs_parameter_selection": inputs_parameter_selection}
 
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
-        
-        # count cell of the two rasters
-
         self.assertTrue(rv.status_code == 200)
 
 
-    def test_10kWp(self):
-        # load the raster test file and the percentage of building 100%
-        # from app.constant
-        raster_file_path = 'tests/data/raster_for_test.tif'
-        # simulate copy from HTAPI to CM
-        save_path = UPLOAD_DIRECTORY+"/raster_for_test.tif"
-        copyfile(raster_file_path, save_path)
-        inputs_raster_selection = {}
-        inputs_parameter_selection = {}
-        inputs_raster_selection["solar_optimal_total"]  = save_path
-        for inp in INPUTS_CALCULATION_MODULE:
-            inputs_parameter_selection[inp['input_parameter_name']]  = inp['input_value']
-        
-        # register the calculation module a
-        inputs_parameter_selection['peak_power_pv'] = 10
-        payload = {"inputs_raster_selection": inputs_raster_selection,
-                   "inputs_parameter_selection": inputs_parameter_selection}
-
-        rv, json = self.client.post('computation-module/compute/',
-                                    data=payload)
-
-        self.assertTrue(rv.status_code == 200)
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

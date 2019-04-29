@@ -163,7 +163,9 @@ def calculation(output_directory, inputs_raster_selection,
                                                         powershift=0)
         graph_hours = line(x=df_profile.index,
                            y_labels=['Hourly profile [{}]'.format(unit_capacity)],
-                           y_values=[hourly_profile], unit=unit_capacity)
+                           y_values=[hourly_profile], unit=unit_capacity,
+                           xLabel="Hours",
+                           yLabel='Hourly profile [{}]'.format(unit_capacity))
     
         # output geneneration of the output
         # fix e_cum_sum to have the same unit

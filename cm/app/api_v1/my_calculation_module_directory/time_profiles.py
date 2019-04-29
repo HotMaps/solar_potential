@@ -43,6 +43,10 @@ def pv_profile(lat, lon, capacity, system_loss):
     r = s.get(url, params=args)
     # Parse JSON to get a pandas.DataFrame
     df = pd.read_json(r.text, orient='index')
+    pd.to_datetime(df.index,
+                   format='%Y-%m-%d %H:%M:S').strftime('%d-%b %H')
+
+    # modify the labels by deleting the year
     return df
 
 

@@ -138,3 +138,23 @@ def line(x, y_labels, y_values, unit, xLabel="Percentage of buildings",
                       "datasets": dic}
              }
     return graph
+
+
+def reducelabels(x, steps=10):
+    """
+    Insert an empty string in order to better visualize x labels
+    :param x: list of x data
+    :param steps: integer with the number of x values to visualize
+
+    >>> x = [str(i) for i in range(0,10)]
+    >>> reducelabels(x, steps=3)
+    ['0', '', '', '3', '', '', '6', '', '', '9']
+    """
+    x_rep = ["" for i in range(0, len(x))]
+    for i in range(0, len(x), round(len(x)/steps)):
+        x_rep[i] = x[i]
+    return x_rep
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

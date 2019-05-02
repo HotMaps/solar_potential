@@ -187,7 +187,7 @@ INPUTS_CALCULATION_MODULE = [
 
 
 SIGNATURE = {
-    "category": "Solar potential",
+    "category": "Solar PV potential",
     "cm_name": CM_NAME,
     "layers_needed": [
         "solar_optimal_total",  # kWh/m²/year

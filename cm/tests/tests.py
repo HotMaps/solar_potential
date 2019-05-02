@@ -7,6 +7,7 @@ from .test_client import TestClient
 from app.constant import INPUTS_CALCULATION_MODULE
 from osgeo import gdal
 import numpy as np
+import matplotlib.pyplot as plt
 
 from app.api_v1.my_calculation_module_directory.utils import production_per_plant, search, diff_raster
 
@@ -56,6 +57,30 @@ def modify_input(inputs_parameter, **kwargs):
     return inputs_parameter
 
 
+def test_graph(graph):
+    """
+    Print a graph with matplot lib by reading the dictionary with graph info
+    """
+    for n, g in enumerate(graph):
+        graph_file_path = os.path.join('tests/data', 'plot{}.png'.format(n))
+        # simulate copy from HTAPI to CM
+        x = [i for i in range(0, len(g['data']['labels']))]
+        # TODO loop in datasets to plot more lines
+        y = [int(i) for i in g['data']['datasets'][0]['data']]
+        plt.plot(x, y, label=g['data']['datasets'][0]['label'])
+        plt.xlabel(g['xLabel'])
+        plt.ylabel(g['yLabel'])
+        plt.xticks(rotation=90)
+        ax = plt.gca()
+        axes = plt.axes()
+        axes.set_xticks(x)
+        ax.set_xticklabels(g['data']['labels'])
+#        locs, labels = plt.xticks()
+#        plt.xticks(locs, g['data']['labels'])
+        plt.savefig(graph_file_path)
+        plt.clf()
+
+
 class TestAPI(unittest.TestCase):
 
     def setUp(self):
@@ -82,6 +107,8 @@ class TestAPI(unittest.TestCase):
                    "inputs_parameter_selection": inputs_parameter_selection}
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
+        # 0) print graphs
+        test_graph(json['result']['graphics'])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant
         e_plant = production_per_plant(json)
         self.assertGreaterEqual(e_plant.magnitude, 5)
@@ -109,6 +136,7 @@ class TestAPI(unittest.TestCase):
 
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
+
         # 1) the consistent between input file and output file in the case
         # of using the total surface of the buildings
         path_output = json['result']['raster_layers'][0]['path']

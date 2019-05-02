@@ -2,6 +2,7 @@ import os
 import sys
 from osgeo import gdal
 import numpy as np
+import pandas as pd
 import warnings
 
 # TODO:  change with try and better define the path
@@ -11,7 +12,7 @@ path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
 from my_calculation_module_directory.energy_production import indicators, raster_suitable, mean_plant
-from my_calculation_module_directory.visualization import quantile_colors, line
+from my_calculation_module_directory.visualization import quantile_colors, line, reducelabels
 from my_calculation_module_directory.utils import best_unit, xy2latlong
 from my_calculation_module_directory.time_profiles import pv_profile
 from ..helper import generate_output_file_tif
@@ -161,28 +162,43 @@ def calculation(output_directory, inputs_raster_selection,
                                                        'kW', no_data=0,
                                                         fstat=np.median,
                                                         powershift=0)
-        graph_hours = line(x=df_profile.index,
+
+        graph_hours = line(x= reducelabels(df_profile.index.strftime('%d-%b %H:%M')),
                            y_labels=['Hourly profile [{}]'.format(unit_capacity)],
                            y_values=[hourly_profile], unit=unit_capacity,
                            xLabel="Hours",
                            yLabel='Hourly profile [{}]'.format(unit_capacity))
+        
+        
+        ## monthly profile of energy production
+        
+        df_month = df_profile.groupby(pd.Grouper(freq='M')).sum()
+        monthly_profile, unit_mon, con = best_unit(df_month['output'].values,
+                                                       'kWh', no_data=0,
+                                                        fstat=np.median,
+                                                        powershift=0)
+        graph_month = line(x=df_month.index.strftime('%b'),
+                           y_labels=['Monthly energy production [{}]'.format(unit_mon)],
+                           y_values=[monthly_profile], unit=unit_mon,
+                           xLabel="Months",
+                           yLabel='Monthly profile [{}]'.format(unit_mon))
     
         # output geneneration of the output
         # fix e_cum_sum to have the same unit
         # if sum the unit is not for pixel
         # TODO: this is a brutal change by deleting pixel        
         
-        e_cum_sum = e_cum_sum * factor
-        non_zero = np.count_nonzero(irradiation_values)
-        step = int(non_zero/10)
-    
-        y_energy = np.round(e_cum_sum[0:non_zero:step],2)
-        x_cost = [(i+1)/non_zero *100 for i in range(0, non_zero, step)]
-        graph_energy_tot = line(x=x_cost,
-                                y_labels=['Energy production [{}]'.format(unit_sum)],
-                           y_values=[y_energy], unit=unit_sum)
+#        e_cum_sum = e_cum_sum * factor
+#        non_zero = np.count_nonzero(irradiation_values)
+#        step = int(non_zero/10)
+#    
+#        y_energy = np.round(e_cum_sum[0:non_zero:step],2)
+#        x_cost = [(i+1)/non_zero *100 for i in range(0, non_zero, step)]
+#        graph_energy_tot = line(x=x_cost,
+#                                y_labels=['Energy production [{}]'.format(unit_sum)],
+#                           y_values=[y_energy], unit=unit_sum)
         
-        graphics = [graph_hours, graph_energy_tot]
+        graphics = [graph_hours, graph_month]
         
             # vector_layers = []
         

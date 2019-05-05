@@ -82,17 +82,7 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
-    {'input_name': 'Target PV production',
-     'input_type': 'input',
-     'input_parameter_name': 'PV_target',
-     'input_value': 0,
-     'input_priority': 0,
-     'input_unit': 'GWh',
-     'input_min': 0,
-     'input_max': 10000000000000,
-     'cm_id': CM_ID
-     },
-    {'input_name': 'Percentage of buildings with solar panels',
+    {'input_name': 'Buildings with solar panels (PV and ST) [% of total buildings]',
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
      'input_value': 30,
@@ -102,27 +92,67 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 100,
      'cm_id': CM_ID
      },
-     {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
+    {'input_name': 'PV energy target of the region if available',
      'input_type': 'input',
-     'input_parameter_name': 'setup_costs',
-     'input_value': 2000,
+     'input_parameter_name': 'PV_target',
+     'input_value': 0,
      'input_priority': 0,
+     'input_unit': 'GWh',
+     'input_min': 0,
+     'input_max': 10000000000000,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'ST energy target of the region if available',
+     'input_type': 'input',
+     'input_parameter_name': 'ST_target',
+     'input_value': 0,
+     'input_priority': 0,
+     'input_unit': 'GWh',
+     'input_min': 0,
+     'input_max': 10000000000000,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'PV Setup costs (all inclusive) price [currency/kWp]',
+     'input_type': 'input',
+     'input_parameter_name': 'setup_costs_pv',
+     'input_value': 2000,
+     'input_priority': 1,
      'input_unit': 'currency/kWp',
      'input_min': 0.0,
      'input_max': 10000,
      'cm_id': CM_ID
      },
-     {'input_name': 'Effective building roof utilization factor',
+    {'input_name': 'Solar Thermal Setup costs (all inclusive) price [currency/m2]',
      'input_type': 'input',
+     'input_parameter_name': 'setup_costs_st',
+     'input_value': 1000,
      'input_priority': 1,
-     'input_parameter_name': 'roof_use_factor',
+     'input_unit': 'currency/m2',
+     'input_min': 0.0,
+     'input_max': 5000,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'Roof area coverd by PV [% of the total roof]',
+     'input_type': 'input',
+     'input_priority': 0,
+     'input_parameter_name': 'roof_use_factor_pv',
      'input_value': 0.15,
      'input_unit': ' ',
      'input_min': 0,
      'input_max': 1,
      'cm_id': CM_ID
      },
-    {'input_name': 'Average installed peak power per plant [kW_p]',
+    {'input_name': 'Roof area covered by ST [% of the total roof]',
+     'input_type': 'input',
+     'input_priority': 0,
+     'input_parameter_name': 'roof_use_factor_st',
+     'input_value': 0.15,
+     'input_unit': ' ',
+     'input_min': 0,
+     'input_max': 1,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'PV average installed peak power per plant [kW_p]',
      'input_type': 'input',
      'input_parameter_name': 'peak_power_pv',
      'input_value': 3,
@@ -132,7 +162,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 20,
      'cm_id': CM_ID
      },
-    {'input_name': 'Efficiency of the solar system',
+    {'input_name': 'Efficiency of the PV system',
      'input_type': 'input',
      'input_parameter_name': 'efficiency_pv',
      'input_value': 0.75,
@@ -142,7 +172,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 1,
      'cm_id': CM_ID
      },
-    {'input_name': 'Module efficiency at Standard Test Conditions [kW m^{-2}]',
+    {'input_name': 'PV module efficiency at Standard Test Conditions [kW m^{-2}]',
      'input_type': 'input',
      'input_parameter_name': 'k_pv',
      'input_value': 0.15,
@@ -152,9 +182,39 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 0.6,
      'cm_id': CM_ID
      },
-    {'input_name': 'Maintenance and operation costs [%] of the setup cost',
+    {'input_name': 'Solar Thermal average installed surface per plant [m2]',
      'input_type': 'input',
-     'input_parameter_name': 'maintenance_percentage',
+     'input_parameter_name': 'area_st',
+     'input_value': 5,
+     'input_priority': 1,
+     'input_unit': 'm2',
+     'input_min': 0,
+     'input_max': 20,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'Efficiency of the Solar Thermal system',
+     'input_type': 'input',
+     'input_parameter_name': 'efficiency_st',
+     'input_value': 0.75,
+     'input_priority': 1,
+     'input_unit': ' ',
+     'input_min': 0,
+     'input_max': 1,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'PV maintenance and operation costs [% of the setup cost]',
+     'input_type': 'input',
+     'input_parameter_name': 'maintenance_percentage_pv',
+     'input_value': 2,
+     'input_priority': 1,
+     'input_unit': '%',
+     'input_min': 0.0,
+     'input_max': 100,
+     'cm_id': CM_ID
+     },
+    {'input_name': 'Solar Thermal maintenance and operation costs [% of the setup cost]',
+     'input_type': 'input',
+     'input_parameter_name': 'maintenance_percentage_st',
      'input_value': 2,
      'input_priority': 1,
      'input_unit': '%',
@@ -185,7 +245,6 @@ INPUTS_CALCULATION_MODULE = [
 ]
 
 
-
 SIGNATURE = {
     "category": "Solar PV potential",
     "cm_name": CM_NAME,
@@ -193,12 +252,14 @@ SIGNATURE = {
         "solar_optimal_total",  # kWh/m²/year
     ],
     "type_layer_needed": [
-        "solar_optimal_total",
+        "solar",
     ],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"
                       "energy potential and the financial feasibility of"
-                      "a selected area. The code is on Hotmaps Github group and has been developed by EURAC",
+                      "a selected area."
+                      "The code is on Hotmaps Github group and has"
+                      " been developed by EURAC",
     "cm_id": CM_ID,
     'inputs_calculation_module': INPUTS_CALCULATION_MODULE
 }

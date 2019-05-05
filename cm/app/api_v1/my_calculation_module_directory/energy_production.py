@@ -8,6 +8,8 @@ Created on Fri Jan 18 07:17:34 2019
 import os
 import sys
 import numpy as np
+import warnings
+from osgeo import gdal
 # TODO:  chane with try and better define the path
 path = os.path.dirname(os.path.dirname
                        (os.path.dirname(os.path.abspath(__file__))))
@@ -15,26 +17,131 @@ path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
 import my_calculation_module_directory.plants as plant
+from my_calculation_module_directory.visualization import quantile_colors
+from my_calculation_module_directory.utils import best_unit, xy2latlong
+from my_calculation_module_directory.time_profiles import pv_profile
 
 
-def mean_plant(inputs_parameter_selection):
-    setup_costs = int(inputs_parameter_selection['setup_costs'])
-    tot_cost_year = (float(inputs_parameter_selection['maintenance_percentage']) /
-                     100 * setup_costs)
-    financing_years = int(inputs_parameter_selection['financing_years'])
+def get_plants(plant, target, irradiation_values,
+               building_footprint, roof_use_factor,
+               reduction_factor):
+    n_plants, plant = indicators(target,
+                                 irradiation_values,
+                                 building_footprint,
+                                 roof_use_factor,
+                                 reduction_factor/100,
+                                 plant)
 
-    # compute the indicators and the output raster
+    tot_en_gen_per_year = n_plants * plant.energy_production
+    # compute the raster with the number of plant per pixel
+    n_plant_raster = (building_footprint / plant.area * roof_use_factor *
+                      reduction_factor / 100)
+    n_plant_raster = n_plant_raster.astype(int)
+    most_suitable = raster_suitable(n_plant_raster,
+                                    tot_en_gen_per_year,
+                                    irradiation_values,
+                                    plant)
+    return n_plant_raster, most_suitable
 
-    pv_plant = plant.PV_plant('mean',
-                              peak_power=float(inputs_parameter_selection['peak_power_pv']),
-                              efficiency=float(inputs_parameter_selection['efficiency_pv'])
-                              )
-    pv_plant.k_pv = float(inputs_parameter_selection['k_pv'])
-    tot_investment = int(pv_plant.peak_power * setup_costs)
-    pv_plant.financial = plant.Financial(investement_cost=tot_investment,
-                                         yearly_cost=tot_cost_year,
-                                         plant_life=financing_years)
-    return pv_plant
+
+def get_indicators(kind, plant, most_suitable,
+                   n_plant_raster, discount_rate):
+        # Compute indicators
+        ####################
+    n_plants = n_plant_raster[most_suitable > 0].sum()
+    plant.energy_production = (most_suitable[most_suitable > 0].sum()
+                               / n_plants)
+    tot_en_gen_per_year = plant.energy_production * n_plants
+    error = abs(tot_en_gen_per_year -
+                most_suitable.sum())/(tot_en_gen_per_year)
+    if abs(error) > 0.01:
+        warnings.warn("""Difference between raster value sum and
+                      total energy greater than {}%""".format(int(error)))
+
+    tot_en_gen, unit, factor = best_unit(tot_en_gen_per_year,
+                                         current_unit='kWh/year',
+                                         no_data=0,
+                                         fstat=np.min,
+                                         powershift=0)
+    tot_setup_costs = plant.financial.investement_cost * n_plants
+    lcoe_plant = plant.financial.lcoe(plant.energy_production,
+                                      i_r=discount_rate/100)
+    return [{"unit": unit,
+             "name": "{} total energy production".format(kind),
+             "value": str(round(tot_en_gen, 2))},
+            {"unit": "Million of currency",
+             "name": "{} total setup costs".format(kind),  # M€
+             "value": str(round(tot_setup_costs/1000000))},
+            {"unit": "-",
+             "name": "Number of installed {} Systems".format(kind),
+             "value": str(round(n_plants))},
+            {"unit": "currency/kWh",
+             "name": "Levelized Cost of {} Energy".format(kind),
+             "value": str(round(lcoe_plant, 2))}]
+
+
+def get_raster(most_suitable, output_suitable, ds):
+    most_suitable, unit, factor = best_unit(most_suitable,
+                                            current_unit="kWh/pixel/year",
+                                            no_data=0, fstat=np.min,
+                                            powershift=0)
+    out_ds, symbology = quantile_colors(most_suitable,
+                                        output_suitable,
+                                        proj=ds.GetProjection(),
+                                        transform=ds.GetGeoTransform(),
+                                        qnumb=6,
+                                        no_data_value=0,
+                                        gtype=gdal.GDT_Byte,
+                                        unit=unit,
+                                        options='compress=DEFLATE TILED=YES '
+                                                'TFW=YES '
+                                                'ZLEVEL=9 PREDICTOR=1')
+    del out_ds
+
+    return [{"name": "layers of most suitable roofs",
+             "path": output_suitable,
+             "type": "custom",
+             "symbology": symbology
+             }]
+
+
+def get_profile(irradiation_values, ds,
+                most_suitable, n_plant_raster, plant):
+        # Compute graphs
+        ####################
+        bins = 3
+        e_bins = np.histogram(irradiation_values[most_suitable > 0], bins=bins)
+        n_plant_bins = [n_plant_raster[(irradiation_values >= e_bins[1][0]) &
+                                       (irradiation_values
+                                        <= e_bins[1][1])].sum()]
+        for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
+            n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
+                                               (irradiation_values <=
+                                                high)].sum())
+
+        diff = most_suitable - np.mean(most_suitable[most_suitable > 0])
+        i, j = np.unravel_index(np.abs(diff).argmin(), diff.shape)
+        ds_geo = ds.GetGeoTransform()
+        x = ds_geo[0] + i * ds_geo[1]
+        y = ds_geo[3] + j * ds_geo[5]
+        long, lat = xy2latlong(x, y, ds)
+        # generation of the output time profile
+        n_plants = n_plant_raster[most_suitable > 0].sum()
+        capacity = plant.peak_power * n_plants
+        system_loss = 100 * (1-plant.efficiency)
+        df_profile = pv_profile(lat, long,
+                                capacity,
+                                system_loss)
+        # check with pvgis data
+        diff = ((plant.energy_production * n_plants - df_profile.sum()[0]) /
+                (plant.energy_production * n_plants))
+
+        if abs(diff) > 0.05:
+            warnings.warn("""Difference between Renewable Ninja and PV gis
+                         greater than {}%""".format(int(diff)))
+        # TODO: how to deal with this kind of test
+        # transform unit
+        return df_profile
 
 
 def indicators(PV_target, irradiation_values, building_footprint,
@@ -44,7 +151,7 @@ def indicators(PV_target, irradiation_values, building_footprint,
     # the solar irradiation at standard test condition equal to 1 kWm-2
     pv_plant.energy_production = pv_plant.compute_energy(e_pv_mean)
     area_available = roof_use_factor * footprint_sum
-    energy_available = (area_available / pv_plant.area() *
+    energy_available = (area_available / pv_plant.area *
                         pv_plant.energy_production)
 
     if PV_target == 0:
@@ -77,7 +184,7 @@ def raster_suitable(n_plant_raster, tot_en_gen_per_year,
     most_suitable = np.zeros_like(en_values)
     for i, j in zip(ind[0][0:idx], ind[1][0:idx]):
         most_suitable[i][j] = en_values[i][j]
-    return most_suitable, e_cum_sum
+    return most_suitable
 
 
 def hourly_indicators(df, capacity):

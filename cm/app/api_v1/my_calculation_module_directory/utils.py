@@ -3,7 +3,7 @@
 """
 Created on Wed Feb  6 11:24:52 2019
 
-@author: pietro
+@author: pietro, ggaregnani
 """
 import io
 import numpy as np
@@ -179,7 +179,7 @@ def search(indicator_list, name):
     return None
 
 
-def production_per_plant(json):
+def production_per_plant(json, kind='PV'):
     """
     Return the value of the production of a single plant
 
@@ -188,10 +188,10 @@ def production_per_plant(json):
     :returns: the vale
     """
     value, unit = search(json['result']['indicator'],
-                         'Total energy production')
+                         '{} total energy production'.format(kind))
     energy = ureg.Quantity(value, unit)
     n_plants, unit = search(json['result']['indicator'],
-                            'Number of installed systems')
+                            'Number of installed {} Systems'.format(kind))
     e_plant = energy/n_plants
     e_plant.ito(ureg.kilowatt_hour / ureg.day)
     return e_plant

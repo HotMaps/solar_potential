@@ -115,7 +115,7 @@ class TestAPI(unittest.TestCase):
         self.assertLessEqual(e_plant.magnitude, 15)
         # 2) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
         lcoe, unit = search(json['result']['indicator'],
-                            'Levelized Cost of Energy')
+                            'Levelized Cost of PV Energy')
         self.assertGreaterEqual(lcoe, 0.02)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)

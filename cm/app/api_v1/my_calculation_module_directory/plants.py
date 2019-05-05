@@ -36,7 +36,7 @@ class Planning_rules:
 
         :param plant: plant object
         """
-        n_plants_area = self.area_target / plant.area()
+        n_plants_area = self.area_target / plant.area
         n_plants_energy = self.energy_target / plant.energy_production
         return min(int(n_plants_area), int(n_plants_energy))
 
@@ -136,8 +136,7 @@ class Plant:
 
 class PV_plant(Plant):
     """
-
-        The class describes the financial feasibility of a PV plant providing
+        The class describes a PV plant providing
         methods to compute different indicators. Additional parameters to
         Plant class
 
@@ -157,3 +156,23 @@ class PV_plant(Plant):
     def compute_energy(self, irradiation):
         """Calculate the energy production on the base"""
         return irradiation * self.peak_power * self.efficiency
+
+
+class ST_plant(Plant):
+    """
+        The class describes a ST plant providing
+        methods to compute different indicators. Additional parameters to
+        Plant class
+
+        :param area: Surface area of the module [m^{2}]
+    """
+    def __init__(self, area, **kwargs):
+        """Initialize the base and height attributes."""
+        self.area = area
+        # TODO: acceptable list of attributes
+        for k in kwargs.keys():
+            self.__setattr__(k, kwargs[k])
+
+    def compute_energy(self, irradiation):
+        """Calculate the energy production on the base"""
+        return irradiation * self.area * self.efficiency

@@ -25,12 +25,12 @@ from my_calculation_module_directory.time_profiles import pv_profile
 def get_plants(plant, target, irradiation_values,
                building_footprint, roof_use_factor,
                reduction_factor):
-    n_plants, plant = indicators(target,
-                                 irradiation_values,
-                                 building_footprint,
-                                 roof_use_factor,
-                                 reduction_factor/100,
-                                 plant)
+    n_plants, plant = constraints(target,
+                                  irradiation_values,
+                                  building_footprint,
+                                  roof_use_factor,
+                                  reduction_factor/100,
+                                  plant)
 
     tot_en_gen_per_year = n_plants * plant.energy_production
     # compute the raster with the number of plant per pixel
@@ -41,6 +41,7 @@ def get_plants(plant, target, irradiation_values,
                                     tot_en_gen_per_year,
                                     irradiation_values,
                                     plant)
+    n_plant_raster[most_suitable <= 0] = 0
     return n_plant_raster, most_suitable
 
 
@@ -48,9 +49,8 @@ def get_indicators(kind, plant, most_suitable,
                    n_plant_raster, discount_rate):
         # Compute indicators
         ####################
-    n_plants = n_plant_raster[most_suitable > 0].sum()
-    plant.energy_production = (most_suitable[most_suitable > 0].sum()
-                               / n_plants)
+    n_plants = n_plant_raster.sum()
+    plant.energy_production = (most_suitable.sum() / n_plants)
     tot_en_gen_per_year = plant.energy_production * n_plants
     error = abs(tot_en_gen_per_year -
                 most_suitable.sum())/(tot_en_gen_per_year)
@@ -126,12 +126,12 @@ def get_profile(irradiation_values, ds,
         y = ds_geo[3] + j * ds_geo[5]
         long, lat = xy2latlong(x, y, ds)
         # generation of the output time profile
-        n_plants = n_plant_raster[most_suitable > 0].sum()
+        n_plants = n_plant_raster.sum()
         capacity = plant.peak_power * n_plants
         system_loss = 100 * (1-plant.efficiency)
         df_profile = pv_profile(lat, long,
                                 capacity,
-                                system_loss)
+                                system_loss, plant.raw, plant.mean)
         # check with pvgis data
         diff = ((plant.energy_production * n_plants - df_profile.sum()[0]) /
                 (plant.energy_production * n_plants))
@@ -144,8 +144,12 @@ def get_profile(irradiation_values, ds,
         return df_profile
 
 
-def indicators(PV_target, irradiation_values, building_footprint,
-               roof_use_factor, reduction_factor, pv_plant):
+def constraints(PV_target, irradiation_values, building_footprint,
+                roof_use_factor, reduction_factor, pv_plant):
+    """
+    Define planning rules accounting for area availability and
+    target defined by the user
+    """
     e_pv_mean = irradiation_values[irradiation_values > 0].mean()
     footprint_sum = building_footprint[building_footprint > 0].sum()
     # the solar irradiation at standard test condition equal to 1 kWm-2
@@ -203,3 +207,8 @@ def hourly_indicators(df, capacity):
     working_hours = df[df > 0].count()
     equivalent_hours = tot_energy/capacity
     return (tot_energy, working_hours, equivalent_hours)
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

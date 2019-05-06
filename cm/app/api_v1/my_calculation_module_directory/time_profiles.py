@@ -10,7 +10,7 @@ import requests
 import pandas as pd
 
 
-def pv_profile(lat, lon, capacity, system_loss):
+def pv_profile(lat, lon, capacity, system_loss, raw=False, mean=None):
     """
     Return the dataframe with Pv profile
     >>> df = pv_profile(lat=34.125, lon=39.814, capacity=1.0, system_loss=10)
@@ -38,7 +38,8 @@ def pv_profile(lat, lon, capacity, system_loss):
         'azim': 180,
         'format': 'json',
         'metadata': False,
-        'raw': False
+        'raw': raw,
+        'mean': mean,
     }
     r = s.get(url, params=args)
     # Parse JSON to get a pandas.DataFrame

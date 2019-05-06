@@ -4,6 +4,7 @@ from osgeo import gdal
 import numpy as np
 import pandas as pd
 import warnings
+from collections import defaultdict
 
 # TODO:  change with try and better define the path
 path = os.path.dirname(os.path.dirname
@@ -18,14 +19,22 @@ from my_calculation_module_directory.utils import best_unit
 import my_calculation_module_directory.plants as plant
 
 
+def merge_two_dicts(x, y):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    z = x.copy()
+    z.update(y)
+    return z
+
+
 def run_source(kind, pl, data_in,
+               most_suitable,
+               n_plant_raster,
                irradiation_values,
                building_footprint,
                reduction_factor,
                output_suitable,
                discount_rate,
-               ds,
-               ds_geo):
+               ds):
     """
     Run the simulation and get indicators for the single source
     """
@@ -34,56 +43,47 @@ def run_source(kind, pl, data_in,
                                    yearly_cost=data_in['tot_cost_year'],
                                    plant_life=data_in['financing_years'])
 
-    n_plant_raster, most_suitable = get_plants(pl, data_in['target'],
-                                               irradiation_values,
-                                               building_footprint,
-                                               data_in['roof_use_factor'],
-                                               reduction_factor)
-
     result = dict()
-    result['name'] = 'CM Solar Potential'
     if most_suitable.max() > 0:
         result['raster_layers'] = get_raster(most_suitable, output_suitable,
                                              ds)
         result['indicator'] = get_indicators(kind, pl, most_suitable,
                                              n_plant_raster, discount_rate)
-        pv_profile = get_profile(irradiation_values, ds,
-                                 most_suitable, n_plant_raster, pl)
 
-        # hourl profile
+        # default profile
 
-        hourly_profile, unit, con = best_unit(pv_profile['output'].values,
-                                              'kW', no_data=0,
-                                              fstat=np.median,
-                                              powershift=0)
+        default_profile, unit, con = best_unit(pl.profile['output'].values,
+                                               'kW', no_data=0,
+                                               fstat=np.median,
+                                               powershift=0)
 
-        graph_hours = line(x= reducelabels(pv_profile.index.strftime('%d-%b %H:%M')),
-                           y_labels=['PV hourly profile [{}]'.format(unit)],
-                           y_values=[hourly_profile], unit=unit,
-                           xLabel="Hours",
-                           yLabel='PV hourly profile [{}]'.format(unit))
+        graph = line(x=reducelabels(pl.profile.index.strftime('%d-%b %H:%M')),
+                     y_labels=['{} {} profile [{}]'.format(kind,
+                                                           pl.resolution[1],
+                                                           unit)],
+                     y_values=[default_profile], unit=unit,
+                     xLabel=pl.resolution[0],
+                     yLabel='{} {} profile [{}]'.format(kind,
+                                                        pl.resolution[1],
+                                                        unit))
 
         # monthly profile of energy production
 
-        df_month = pv_profile.groupby(pd.Grouper(freq='M')).sum()
+        df_month = pl.profile.groupby(pd.Grouper(freq='M')).sum()
         monthly_profile, unit, con = best_unit(df_month['output'].values,
                                                'kWh', no_data=0,
                                                fstat=np.median,
                                                powershift=0)
         graph_month = line(x=df_month.index.strftime('%b'),
-                           y_labels=['PV monthly energy production [{}]'.format(unit)],
+                           y_labels=[""""{} monthly energy
+                                      production [{}]""".format(kind, unit)],
                            y_values=[monthly_profile], unit=unit,
                            xLabel="Months",
-                           yLabel='PV monthly profile [{}]'.format(unit))
+                           yLabel='{} monthly profile [{}]'.format(kind, unit))
 
-        graphics = [graph_hours, graph_month]
+        graphics = [graph, graph_month]
 
         result['graphics'] = graphics
-
-    else:
-        # TODO: How to manage message
-        result = dict()
-        warnings.warn("Not suitable pixels have been identified.")
     return result
 
 
@@ -145,22 +145,68 @@ def calculation(output_directory, inputs_raster_selection,
                               )
     pv_plant.k_pv = float(inputs_parameter_selection['k_pv'])
     pv_plant.area = pv_plant.area()
+    # add information to get the time profile
 
-    # define a st plant with input features
-#
-#    st_plant = plant.PV_plant('mean',
-#                              area=st_in['area'],
-#                              efficiency=st_in['efficiency']
-#                              )
-#    st_plant.financial = plant.Financial(investement_cost=int(st_plant.area *
-#                                                              st_in['setup_costs']),
-#                                         yearly_cost=st_in['tot_cost_year'],
-#                                         plant_life=financing_years)
+    pv_plant_raster, most_suitable = get_plants(pv_plant, pv_in['target'],
+                                                irradiation_values,
+                                                building_footprint,
+                                                pv_in['roof_use_factor'],
+                                                reduction_factor)
 
-    result = run_source('PV', pv_plant, pv_in,
-                        irradiation_values, building_footprint,
-                        reduction_factor, output_suitable, discount_rate,
-                        ds, ds_geo)
+    if most_suitable.max() > 0:
+        pv_plant.raw = False
+        pv_plant.mean = None
+        pv_plant.profile = get_profile(irradiation_values, ds,
+                                       most_suitable, pv_plant_raster,
+                                       pv_plant)
+        pv_plant.resolution = ['Hours', 'hourly']
+        res_pv = run_source('PV', pv_plant, pv_in, most_suitable,
+                            pv_plant_raster,
+                            irradiation_values, building_footprint,
+                            reduction_factor, output_suitable, discount_rate,
+                            ds)
+    else:
+        # TODO: How to manage message
+        res_pv = dict()
+        warnings.warn("Not suitable pixels have been identified.")
 
+    building_available = building_footprint - pv_plant_raster * pv_plant.area
+
+    st_plant = plant.PV_plant('mean',
+                              area=st_in['area'],
+                              efficiency=st_in['efficiency']
+                              )
+    # add a default peak power of 1kW in order to get raw data from ninja
+    st_plant.peak_power = 1
+    st_plant_raster, most_suitable = get_plants(st_plant, st_in['target'],
+                                                irradiation_values,
+                                                building_available,
+                                                st_in['roof_use_factor'],
+                                                reduction_factor)
+    if most_suitable.max() > 0:
+        st_plant.raw = True
+        st_plant.mean = 'day'
+        st_plant.profile = get_profile(irradiation_values, ds,
+                                       most_suitable, st_plant_raster,
+                                       st_plant)
+        st_plant.resolution = ['Days', 'dayly']
+        res_st = run_source('ST', st_plant, st_in, most_suitable,
+                            st_plant_raster,
+                            irradiation_values, building_available,
+                            reduction_factor, output_suitable, discount_rate,
+                            ds)
+    else:
+        # TODO: How to manage message
+        res_st = dict()
+        warnings.warn("Not suitable pixels have been identified.")
     # import ipdb; ipdb.set_trace()
-    return result
+    dd = defaultdict(list)
+    dd['name'] = 'CM Solar Potential'
+    # merge of the results
+    dics = [res_pv, res_st]
+    for dic in dics:
+        for d in dic:
+            for u in dic[d]:
+                dd[d].append(u)
+
+    return dd

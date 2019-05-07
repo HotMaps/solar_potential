@@ -119,6 +119,16 @@ class TestAPI(unittest.TestCase):
         self.assertGreaterEqual(lcoe, 0.02)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
+        # 3) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
+        lcoe, unit = search(json['result']['indicator'],
+                            'Levelized Cost of ST Energy')
+        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertLessEqual(lcoe, 0.2)
+        self.assertTrue(rv.status_code == 200)
+        # 4) assert that the production is beetween 5 and 20 kWh/day per plant
+        e_plant = production_per_plant(json)
+        self.assertGreaterEqual(e_plant.magnitude, 5)
+        self.assertLessEqual(e_plant.magnitude, 20)
 
     def test_raster(self):
         """

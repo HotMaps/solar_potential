@@ -25,6 +25,11 @@ from my_calculation_module_directory.time_profiles import pv_profile
 def get_plants(plant, target, irradiation_values,
                building_footprint, roof_use_factor,
                reduction_factor):
+    """
+    Return a raster with most suitable roofs and the number of plants
+    for each pixel
+    """
+    # TODO: split in two functions
     n_plants, plant = constraints(target,
                                   irradiation_values,
                                   building_footprint,
@@ -42,13 +47,14 @@ def get_plants(plant, target, irradiation_values,
                                     irradiation_values,
                                     plant)
     n_plant_raster[most_suitable <= 0] = 0
-    return n_plant_raster, most_suitable
+    return n_plant_raster, most_suitable, plant
 
 
 def get_indicators(kind, plant, most_suitable,
                    n_plant_raster, discount_rate):
-        # Compute indicators
-        ####################
+    """
+    Return a dictionary with main indicator of the specific source
+    """
     n_plants = n_plant_raster.sum()
     plant.energy_production = (most_suitable.sum() / n_plants)
     tot_en_gen_per_year = plant.energy_production * n_plants
@@ -81,6 +87,9 @@ def get_indicators(kind, plant, most_suitable,
 
 
 def get_raster(most_suitable, output_suitable, ds):
+    """
+    Return a dictionary with the output raster and the simbology
+    """
     most_suitable, unit, factor = best_unit(most_suitable,
                                             current_unit="kWh/pixel/year",
                                             no_data=0, fstat=np.min,
@@ -107,41 +116,33 @@ def get_raster(most_suitable, output_suitable, ds):
 
 def get_profile(irradiation_values, ds,
                 most_suitable, n_plant_raster, plant):
-        # Compute graphs
-        ####################
-        bins = 3
-        e_bins = np.histogram(irradiation_values[most_suitable > 0], bins=bins)
-        n_plant_bins = [n_plant_raster[(irradiation_values >= e_bins[1][0]) &
-                                       (irradiation_values
-                                        <= e_bins[1][1])].sum()]
-        for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
-            n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
-                                               (irradiation_values <=
-                                                high)].sum())
+    """
+    Return the time profile of the source energy production
+    """
+    bins = 3
+    e_bins = np.histogram(irradiation_values[most_suitable > 0], bins=bins)
+    n_plant_bins = [n_plant_raster[(irradiation_values >= e_bins[1][0]) &
+                                   (irradiation_values
+                                    <= e_bins[1][1])].sum()]
+    for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
+        n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
+                                           (irradiation_values <=
+                                            high)].sum())
 
-        diff = most_suitable - np.mean(most_suitable[most_suitable > 0])
-        i, j = np.unravel_index(np.abs(diff).argmin(), diff.shape)
-        ds_geo = ds.GetGeoTransform()
-        x = ds_geo[0] + i * ds_geo[1]
-        y = ds_geo[3] + j * ds_geo[5]
-        long, lat = xy2latlong(x, y, ds)
-        # generation of the output time profile
-        n_plants = n_plant_raster.sum()
-        capacity = plant.peak_power * n_plants
-        system_loss = 100 * (1-plant.efficiency)
-        df_profile = pv_profile(lat, long,
-                                capacity,
-                                system_loss, plant.raw, plant.mean)
-        # check with pvgis data
-        diff = ((plant.energy_production * n_plants - df_profile.sum()[0]) /
-                (plant.energy_production * n_plants))
-
-        if abs(diff) > 0.05:
-            warnings.warn("""Difference between Renewable Ninja and PV gis
-                         greater than {}%""".format(int(diff)))
-        # TODO: how to deal with this kind of test
-        # transform unit
-        return df_profile
+    diff = most_suitable - np.mean(most_suitable[most_suitable > 0])
+    i, j = np.unravel_index(np.abs(diff).argmin(), diff.shape)
+    ds_geo = ds.GetGeoTransform()
+    x = ds_geo[0] + i * ds_geo[1]
+    y = ds_geo[3] + j * ds_geo[5]
+    long, lat = xy2latlong(x, y, ds)
+    # generation of the output time profile
+    n_plants = n_plant_raster.sum()
+    capacity = plant.peak_power * n_plants
+    system_loss = 100 * (1-plant.efficiency)
+    df_profile = pv_profile(lat, long,
+                            capacity,
+                            system_loss, plant.raw, plant.mean)
+    return df_profile
 
 
 def constraints(PV_target, irradiation_values, building_footprint,

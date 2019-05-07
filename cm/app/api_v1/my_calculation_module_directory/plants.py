@@ -131,7 +131,7 @@ class Plant:
 
     def working_hours(self):
         """Calculate and return the area of the rectangle."""
-        return self.energy_production / self.working_hours
+        return self.energy_production / self.peak_power
 
 
 class PV_plant(Plant):

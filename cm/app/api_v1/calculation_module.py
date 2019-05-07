@@ -19,11 +19,25 @@ from my_calculation_module_directory.utils import best_unit
 import my_calculation_module_directory.plants as plant
 
 
-def merge_two_dicts(x, y):
-    """Given two dicts, merge them into a new dict as a shallow copy."""
-    z = x.copy()
-    z.update(y)
-    return z
+def get_integral_error(pl, interval):
+    """
+    Compute the integrale of the production profile and compute
+    the error with respect to the total energy production
+    obtained by the raster file
+    :parameter pl: plant
+    :parameter interval: step over computing the integral
+
+    :returns: the relative error
+    """
+    error = abs((pl.energy_production * pl.n_plants -
+                 pl.profile.sum() * interval) /
+                (pl.energy_production * pl.n_plants)) * 100
+    if error[0] > 5:
+        message = """Difference between raster value sum and {}
+                      total energy greater than {}%""".format(pl.id,
+                                                              int(error))
+        warnings.warn(message)
+        return message
 
 
 def run_source(kind, pl, data_in,
@@ -38,8 +52,8 @@ def run_source(kind, pl, data_in,
     """
     Run the simulation and get indicators for the single source
     """
-    pl.financial = plant.Financial(investement_cost=int(pl.peak_power *
-                                                        data_in['setup_costs']),
+    pl.financial = plant.Financial(investement_cost=int(data_in['setup_costs']
+                                                        * pl.peak_power),
                                    yearly_cost=data_in['tot_cost_year'],
                                    plant_life=data_in['financing_years'])
 
@@ -92,6 +106,9 @@ def calculation(output_directory, inputs_raster_selection,
     """
     Main function
     """
+    # list of error messages
+    # TODO: to be fixed according to CREM format
+    messages = []
     # generate the output raster file
     output_suitable = generate_output_file_tif(output_directory)
 
@@ -139,7 +156,7 @@ def calculation(output_directory, inputs_raster_selection,
                       reduced to {}""".format())
 
     # define a pv plant with input features
-    pv_plant = plant.PV_plant('mean',
+    pv_plant = plant.PV_plant('PV',
                               peak_power=pv_in['peak_power'],
                               efficiency=pv_in['efficiency']
                               )
@@ -147,18 +164,20 @@ def calculation(output_directory, inputs_raster_selection,
     pv_plant.area = pv_plant.area()
     # add information to get the time profile
 
-    pv_plant_raster, most_suitable = get_plants(pv_plant, pv_in['target'],
-                                                irradiation_values,
-                                                building_footprint,
-                                                pv_in['roof_use_factor'],
-                                                reduction_factor)
-
-    if most_suitable.max() > 0:
+    pv_plant_raster, most_suitable, pv_plant = get_plants(pv_plant,
+                                                          pv_in['target'],
+                                                          irradiation_values,
+                                                          building_footprint,
+                                                          pv_in['roof_use_factor'],
+                                                          reduction_factor)
+    pv_plant.n_plants = pv_plant_raster.sum()
+    if pv_plant.n_plants > 0:
         pv_plant.raw = False
         pv_plant.mean = None
         pv_plant.profile = get_profile(irradiation_values, ds,
                                        most_suitable, pv_plant_raster,
                                        pv_plant)
+        messages.append(get_integral_error(pv_plant, 1))
         pv_plant.resolution = ['Hours', 'hourly']
         res_pv = run_source('PV', pv_plant, pv_in, most_suitable,
                             pv_plant_raster,
@@ -172,23 +191,28 @@ def calculation(output_directory, inputs_raster_selection,
 
     building_available = building_footprint - pv_plant_raster * pv_plant.area
 
-    st_plant = plant.PV_plant('mean',
+    st_plant = plant.PV_plant('ST',
                               area=st_in['area'],
                               efficiency=st_in['efficiency']
                               )
     # add a default peak power of 1kW in order to get raw data from ninja
     st_plant.peak_power = 1
-    st_plant_raster, most_suitable = get_plants(st_plant, st_in['target'],
-                                                irradiation_values,
-                                                building_available,
-                                                st_in['roof_use_factor'],
-                                                reduction_factor)
-    if most_suitable.max() > 0:
+    st_plant_raster, most_suitable, st_plant = get_plants(st_plant, st_in['target'],
+                                                          irradiation_values,
+                                                          building_available,
+                                                          st_in['roof_use_factor'],
+                                                          reduction_factor)
+    st_plant.n_plants = st_plant_raster.sum()
+    if st_plant.n_plants > 0:
         st_plant.raw = True
         st_plant.mean = 'day'
         st_plant.profile = get_profile(irradiation_values, ds,
                                        most_suitable, st_plant_raster,
                                        st_plant)
+        import ipdb; ipdb.set_trace()
+        st_plant.profile['output'] = ((st_plant.profile['diffuse'] +
+                                       st_plant.profile['direct'])
+                                      * st_plant.area) * st_plant.n_plants
         st_plant.resolution = ['Days', 'dayly']
         res_st = run_source('ST', st_plant, st_in, most_suitable,
                             st_plant_raster,

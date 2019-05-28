@@ -25,7 +25,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
 
 
     #retrieve the inputs all input defined in the signature
-    factor =  int(inputs_parameter_selection["multiplication_factor"])
+    factor =  float(inputs_parameter_selection["multiplication_factor"])
 
 
     # TODO this part bellow must be change by the CM provider

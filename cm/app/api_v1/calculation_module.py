@@ -25,7 +25,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
 
 
     #retrieve the inputs all input defined in the signature
-    factor =  int(inputs_parameter_selection["reduction_factor"])
+    factor =  int(inputs_parameter_selection["multiplication_factor"])
 
 
     # TODO this part bellow must be change by the CM provider
@@ -36,7 +36,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
     pixel_values = ds.ReadAsArray()
     #----------Reduction factor----------------
 
-    pixel_values_modified = pixel_values/ float(factor)
+    pixel_values_modified = pixel_values* float(factor)
     hdm_sum  = pixel_values_modified.sum()
 
     gtiff_driver = gdal.GetDriverByName('GTiff')

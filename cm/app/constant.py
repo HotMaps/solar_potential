@@ -21,13 +21,13 @@ PORT = PORT_DOCKER
 
 TRANFER_PROTOCOLE ='http://'
 INPUTS_CALCULATION_MODULE = [
-    {'input_name': 'Reduction factor',
+    {'input_name': 'Multiplication factor',
      'input_type': 'input',
-     'input_parameter_name': 'reduction_factor',
+     'input_parameter_name': 'multiplication_factor',
      'input_value': 1,
      'input_priority': 0,
      'input_unit': 'none',
-     'input_min': 1,
+     'input_min': 0,
      'input_max': 10, 'cm_id': CM_ID  # Do no change this value
      },
     {'input_name': 'Blablabla',

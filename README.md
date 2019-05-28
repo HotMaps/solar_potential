@@ -203,7 +203,7 @@ see bellow:
     INPUTS_CALCULATION_MODULE=  [
         { 'input_name': 'Reduction factor',
           'input_type': 'input',
-          'input_parameter_name': 'reduction_factor',
+          'input_parameter_name': 'multiplication_factor',
           'input_value': 1,
           'input_unit': 'none',
           'input_min': 1,
@@ -479,7 +479,7 @@ This parameter allows to categorize input in the user inteface. the value needed
 ```python
              {'input_name': 'Reduction factor',
               'input_type': 'input',
-              'input_parameter_name': 'reduction_factor',
+              'input_parameter_name': 'multiplication_factor',
               'input_value': 1,
               'input_priority': 0,
               'input_unit': 'none',

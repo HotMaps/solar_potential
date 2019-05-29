@@ -25,7 +25,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
 
 
     #retrieve the inputs all input defined in the signature
-    factor =  int(inputs_parameter_selection["reduction_factor"])
+    factor =  float(inputs_parameter_selection["multiplication_factor"])
 
 
     # TODO this part bellow must be change by the CM provider
@@ -36,8 +36,9 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
     pixel_values = ds.ReadAsArray()
     #----------Reduction factor----------------
 
-    pixel_values_modified = pixel_values/ float(factor)
-    hdm_sum  = pixel_values_modified.sum()
+    pixel_values_modified = pixel_values* float(factor)
+    hdm_sum  = float(pixel_values_modified.sum())/1000
+
 
     gtiff_driver = gdal.GetDriverByName('GTiff')
     #print ()
@@ -67,10 +68,11 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
     #TODO exemple  output_shpapefile_zipped = create_zip_shapefiles(output_directory, output_shpapefile)
     result = dict()
     result['name'] = 'CM Heat density divider'
-    result['indicator'] = [{"unit": "KWh", "name": "Heat density total divided by  {}".format(factor),"value": str(hdm_sum)}]
+    result['indicator'] = [{"unit": "GWh", "name": "Heat density total multiplied by  {}".format(factor),"value": str(hdm_sum)}]
     result['graphics'] = graphics
     result['vector_layers'] = vector_layers
     result['raster_layers'] = [{"name": "layers of heat_densiy {}".format(factor),"path": output_raster1} ]
+    print ('result',result)
     return result
 
 

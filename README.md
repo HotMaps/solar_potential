@@ -203,7 +203,7 @@ see bellow:
     INPUTS_CALCULATION_MODULE=  [
         { 'input_name': 'Reduction factor',
           'input_type': 'input',
-          'input_parameter_name': 'reduction_factor',
+          'input_parameter_name': 'multiplication_factor',
           'input_value': 1,
           'input_unit': 'none',
           'input_min': 1,
@@ -479,7 +479,7 @@ This parameter allows to categorize input in the user inteface. the value needed
 ```python
              {'input_name': 'Reduction factor',
               'input_type': 'input',
-              'input_parameter_name': 'reduction_factor',
+              'input_parameter_name': 'multiplication_factor',
               'input_value': 1,
               'input_priority': 0,
               'input_unit': 'none',
@@ -606,6 +606,19 @@ this indicators will be displayed on the result panel of the frontend.
                               
               
  ```
+ **Generating a custom symbology**
+ --------------------------------
+ if an unknown type of layer is generated(layer that is not of type heat,gross_floor_area, building_volume,solar_optimal_tota ) a new field must be created,
+ the field **"symbology"** and the raster must be set on type "custom". the field symbology must contains the RGB colors, which are values between 0 - 255, the opacity which are  values between 0 - 1,  the value of range  defined and the label of range  defined
+ 
+  ```python
+              "raster_layers":[
+                               {"name": "district heating coherent areas","path": output_raster1, "type": "custom", "symbology": [{"red":250,"green":159,"blue":181,"opacity":0.8,"value":"1","label":"DH Areas"}]}]
+                             
+                               
+               
+  ```
+ 
   **Structure of vector as output:**
   ----------------------------------
   

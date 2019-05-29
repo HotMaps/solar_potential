@@ -24,7 +24,7 @@ INPUTS_CALCULATION_MODULE = [
     {'input_name': 'Multiplication factor',
      'input_type': 'input',
      'input_parameter_name': 'multiplication_factor',
-     'input_value': 1,
+     'input_value': '1',
      'input_priority': 0,
      'input_unit': 'none',
      'input_min': 0,

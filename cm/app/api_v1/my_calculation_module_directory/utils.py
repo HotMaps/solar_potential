@@ -211,7 +211,7 @@ def diff_raster(raster_in, raster_out):
     0.4
     """
     # count cell of the two rasters
-    diff = np.nansum(raster_in) - np.nansum(raster_in[raster_out > 0])
+    diff = np.nansum(raster_in) - np.nansum(raster_out)
     error = diff/np.nansum(raster_in)
     return error
 

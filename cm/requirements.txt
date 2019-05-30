@@ -22,3 +22,4 @@ matplotlib==3.0.2
 pint
 pandas
 python-igraph==0.7.1.post6
+json

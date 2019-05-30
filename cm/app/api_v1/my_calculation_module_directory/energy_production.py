@@ -86,7 +86,7 @@ def get_indicators(kind, plant, most_suitable,
              "value": str(round(lcoe_plant, 2))}]
 
 
-def get_raster(most_suitable, output_suitable, ds):
+def get_raster(most_suitable, output_suitable, ds, kind):
     """
     Return a dictionary with the output raster and the simbology
     """
@@ -107,7 +107,7 @@ def get_raster(most_suitable, output_suitable, ds):
                                                 'ZLEVEL=9 PREDICTOR=1')
     del out_ds
 
-    return [{"name": "layers of most suitable roofs",
+    return [{"name": "layers of most suitable roofs for {}".format(kind),
              "path": output_suitable,
              "type": "custom",
              "symbology": symbology
@@ -152,7 +152,7 @@ def constraints(PV_target, irradiation_values, building_footprint,
     target defined by the user
     """
     e_pv_mean = irradiation_values[irradiation_values > 0].mean()
-    footprint_sum = building_footprint[building_footprint > 0].sum()
+    footprint_sum = building_footprint.sum()
     # the solar irradiation at standard test condition equal to 1 kWm-2
     pv_plant.energy_production = pv_plant.compute_energy(e_pv_mean)
     area_available = roof_use_factor * footprint_sum

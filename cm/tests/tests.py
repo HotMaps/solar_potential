@@ -8,6 +8,7 @@ from app.constant import INPUTS_CALCULATION_MODULE
 from osgeo import gdal
 import numpy as np
 import matplotlib.pyplot as plt
+import json as js
 
 from app.api_v1.my_calculation_module_directory.utils import production_per_plant, search, diff_raster
 
@@ -31,18 +32,25 @@ def load_input():
     return inputs_parameter
 
 
-def load_raster(raster):
+def load_raster(suitable_area, solar):
     """
     Load the raster file for testing
 
     :return a dictionary with the raster file paths
     """
-    raster_file_path = os.path.join('tests/data', raster)
+    raster_file_path = os.path.join('tests/data', solar)
     # simulate copy from HTAPI to CM
-    save_path = os.path.join(UPLOAD_DIRECTORY, raster)
-    copyfile(raster_file_path, save_path)
+    save_path_solar = os.path.join(UPLOAD_DIRECTORY, solar)
+    copyfile(raster_file_path, save_path_solar)
+
+    raster_file_path = os.path.join('tests/data', suitable_area)
+    # simulate copy from HTAPI to CM
+    save_path_area = os.path.join(UPLOAD_DIRECTORY, suitable_area)
+    copyfile(raster_file_path, save_path_area)
+
     inputs_raster_selection = {}
-    inputs_raster_selection["solar_optimal_total"] = save_path
+    inputs_raster_selection["climate_solar_radiation"] = save_path_solar
+    inputs_raster_selection["gfa_tot_curr_density"] = save_path_area
     return inputs_raster_selection
 
 
@@ -100,7 +108,8 @@ class TestAPI(unittest.TestCase):
         1) asserting the production per platn between 5 and 15 kWh/day
         2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
         """
-        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_raster_selection = load_raster("area_for_test.tif",
+                                              "solar_for_test.tif")
         inputs_parameter_selection = load_input()
         # register the calculation module a
         payload = {"inputs_raster_selection": inputs_raster_selection,
@@ -136,7 +145,8 @@ class TestAPI(unittest.TestCase):
         1) the consistent between input file and output file in the case
         of using the total surface of the buildings
         """
-        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_raster_selection = load_raster("area_for_test.tif",
+                                              "solar_for_test.tif")
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(inputs_parameter_selection,
                                                   reduction_factor=100)
@@ -152,16 +162,21 @@ class TestAPI(unittest.TestCase):
         path_output = json['result']['raster_layers'][0]['path']
         ds = gdal.Open(path_output)
         raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
-        ds = gdal.Open(inputs_raster_selection["solar_optimal_total"])
-        raster_in = np.array(ds.GetRasterBand(1).ReadAsArray())
-        error = diff_raster(raster_in, raster_out)
+        ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
+        irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
+        ds = gdal.Open(inputs_raster_selection["gfa_tot_curr_density"])
+        area = np.array(ds.GetRasterBand(1).ReadAsArray())
+        error = diff_raster(irradiation[area > 0], irradiation[raster_out > 0])
+        with open('data.json', 'w') as outfile:
+            js.dump(json['result'], outfile)
         self.assertLessEqual(error, 0.01)
 
     def test_noresults(self):
         """
         Test the message when no output file are produced
         """
-        inputs_raster_selection = load_raster(raster="raster_for_test.tif")
+        inputs_raster_selection = load_raster("area_for_test.tif",
+                                              "solar_for_test.tif")
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(inputs_parameter_selection,
                                                   roof_use_factor=0.1)

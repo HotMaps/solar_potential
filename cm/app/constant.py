@@ -249,10 +249,10 @@ SIGNATURE = {
     "category": "Solar PV potential",
     "cm_name": CM_NAME,
     "layers_needed": [
-        "solar_optimal_total",  # kWh/m²/year
+        "gfa_tot_curr_density", "climate_solar_radiation"  # kWh/m²/year
     ],
     "type_layer_needed": [
-        "solar",
+        "suitable area", "solar radiation"
     ],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"

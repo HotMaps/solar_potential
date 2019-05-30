@@ -60,7 +60,7 @@ def run_source(kind, pl, data_in,
     result = dict()
     if most_suitable.max() > 0:
         result['raster_layers'] = get_raster(most_suitable, output_suitable,
-                                             ds)
+                                             ds, kind)
         result['indicator'] = get_indicators(kind, pl, most_suitable,
                                              n_plant_raster, discount_rate)
 
@@ -110,14 +110,20 @@ def calculation(output_directory, inputs_raster_selection,
     # TODO: to be fixed according to CREM format
     messages = []
     # generate the output raster file
-    output_suitable = generate_output_file_tif(output_directory)
-
+    output_suitable_pv = generate_output_file_tif(output_directory)
+    output_suitable_st = generate_output_file_tif(output_directory)
     # retrieve the inputs layes
-    ds = gdal.Open(inputs_raster_selection["solar_optimal_total"])
+    ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
     ds_geo = ds.GetGeoTransform()
-    irradiation_pixel_area = ds_geo[1] * (-ds_geo[5])
     irradiation_values = ds.ReadAsArray()
     irradiation_values = np.nan_to_num(irradiation_values)
+
+    ds = gdal.Open(inputs_raster_selection["gfa_tot_curr_density"])
+    ds_geo = ds.GetGeoTransform()
+    pixel_area = ds_geo[1] * (-ds_geo[5])
+    building_footprint = ds.ReadAsArray()
+    building_footprint = np.nan_to_num(building_footprint)
+    building_footprint[building_footprint > 0] = pixel_area
 
     # retrieve the inputs all input defined in the signature
     pv_in = {'roof_use_factor':
@@ -145,9 +151,6 @@ def calculation(output_directory, inputs_raster_selection,
 
     reduction_factor = float(inputs_parameter_selection["reduction_factor"])
     discount_rate = float(inputs_parameter_selection['discount_rate'])
-    # TODO:the building footprint is now equal to the pixel area
-    building_footprint = np.zeros(irradiation_values.shape)
-    building_footprint[irradiation_values > 0] = irradiation_pixel_area
 
     if (pv_in['roof_use_factor'] + st_in['roof_use_factor']) > 1:
         st_in['roof_use_factor'] = 1.0 - pv_in['roof_use_factor']
@@ -182,7 +185,8 @@ def calculation(output_directory, inputs_raster_selection,
         res_pv = run_source('PV', pv_plant, pv_in, most_suitable,
                             pv_plant_raster,
                             irradiation_values, building_footprint,
-                            reduction_factor, output_suitable, discount_rate,
+                            reduction_factor, output_suitable_pv,
+                            discount_rate,
                             ds)
     else:
         # TODO: How to manage message
@@ -209,7 +213,6 @@ def calculation(output_directory, inputs_raster_selection,
         st_plant.profile = get_profile(irradiation_values, ds,
                                        most_suitable, st_plant_raster,
                                        st_plant)
-        import ipdb; ipdb.set_trace()
         st_plant.profile['output'] = ((st_plant.profile['diffuse'] +
                                        st_plant.profile['direct'])
                                       * st_plant.area) * st_plant.n_plants
@@ -217,7 +220,8 @@ def calculation(output_directory, inputs_raster_selection,
         res_st = run_source('ST', st_plant, st_in, most_suitable,
                             st_plant_raster,
                             irradiation_values, building_available,
-                            reduction_factor, output_suitable, discount_rate,
+                            reduction_factor, output_suitable_st,
+                            discount_rate,
                             ds)
     else:
         # TODO: How to manage message

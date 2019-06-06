@@ -236,7 +236,12 @@ def compute():
 ]}}
              """
 
-    print ('CM will Compute ')
+    print ("""CM will Compute  the energy supply potential and related costs
+           for rooftop installed solar thermal and PV systems in a
+           defined area. The inputs to the module are raster files of
+           building footprint and solar irradiation, costs and efficiency of
+           reference solar thermal and PV systems and the fractions of usable
+           rooftop area where solar thermal and PV systems are installed.""")
     #import ipdb; ipdb.set_trace()
     data = request.get_json()
 

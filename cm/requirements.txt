@@ -11,7 +11,7 @@ httpie==0.8.0
 itsdangerous==0.24
 python-dateutil
 gunicorn==19.7.1
-requests>=2.20.0
+requests==2.21.0
 six==1.11.0
 flasgger==0.9.0
 Pika==0.12.0
@@ -23,3 +23,4 @@ pint
 pandas
 python-igraph==0.7.1.post6
 json
+

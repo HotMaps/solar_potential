@@ -19,8 +19,9 @@ amqp==2.2.2
 numpy==1.16.0
 gdal
 matplotlib==3.0.2
-pint
+pint==0.9
 pandas
 python-igraph==0.7.1.post6
 json
+
 

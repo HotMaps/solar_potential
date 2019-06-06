@@ -50,7 +50,7 @@ def load_raster(suitable_area, solar):
 
     inputs_raster_selection = {}
     inputs_raster_selection["climate_solar_radiation"] = save_path_solar
-    inputs_raster_selection["gfa_tot_curr_density"] = save_path_area
+    inputs_raster_selection["gross_floor_area"] = save_path_area
     return inputs_raster_selection
 
 
@@ -164,7 +164,7 @@ class TestAPI(unittest.TestCase):
         raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
         ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
         irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
-        ds = gdal.Open(inputs_raster_selection["gfa_tot_curr_density"])
+        ds = gdal.Open(inputs_raster_selection["gross_floor_area"])
         area = np.array(ds.GetRasterBand(1).ReadAsArray())
         error = diff_raster(irradiation[area > 0], irradiation[raster_out > 0])
         with open('data.json', 'w') as outfile:

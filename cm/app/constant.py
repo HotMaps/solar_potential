@@ -252,7 +252,7 @@ SIGNATURE = {
         "gfa_tot_curr_density", "climate_solar_radiation"  # kWh/m²/year
     ],
     "type_layer_needed": [
-        "suitable area", "solar radiation"
+        "gross_floor_area", "climate_solar_radiation"
     ],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the photovoltaic"

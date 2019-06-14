@@ -132,7 +132,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 5000,
      'cm_id': CM_ID
      },
-    {'input_name': 'Roof area coverd by PV [% of the total roof]',
+    {'input_name': 'Roof area covered by PV [% of the total roof]',
      'input_type': 'input',
      'input_priority': 0,
      'input_parameter_name': 'roof_use_factor_pv',

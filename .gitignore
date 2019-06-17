@@ -43,3 +43,9 @@ venv
 .idea/workspace.xml
 ../.idea/workspace.xml
 ../README.md
+
+# Test file for plot
+*.png
+*.tif.aux.xml
+*.Rhistory
+

@@ -10,13 +10,14 @@ import sys
 import numpy as np
 import warnings
 from osgeo import gdal
+import reslib.planning as plan
 # TODO:  chane with try and better define the path
 path = os.path.dirname(os.path.dirname
                        (os.path.dirname(os.path.abspath(__file__))))
 path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
-import my_calculation_module_directory.plants as plant
+
 from my_calculation_module_directory.visualization import quantile_colors
 from my_calculation_module_directory.utils import best_unit, xy2latlong
 from my_calculation_module_directory.time_profiles import pv_profile
@@ -114,21 +115,10 @@ def get_raster(most_suitable, output_suitable, ds, kind):
              }]
 
 
-def get_profile(irradiation_values, ds,
-                most_suitable, n_plant_raster, plant):
+def get_lat_long(ds, most_suitable):
     """
-    Return the time profile of the source energy production
+    Return the lat_long of the pixel with mean value of the resources
     """
-    bins = 3
-    e_bins = np.histogram(irradiation_values[most_suitable > 0], bins=bins)
-    n_plant_bins = [n_plant_raster[(irradiation_values >= e_bins[1][0]) &
-                                   (irradiation_values
-                                    <= e_bins[1][1])].sum()]
-    for low, high in zip(e_bins[1][1:-1], e_bins[1][2:]):
-        n_plant_bins.append(n_plant_raster[(irradiation_values > low) &
-                                           (irradiation_values <=
-                                            high)].sum())
-
     diff = most_suitable - np.mean(most_suitable[most_suitable > 0])
     i, j = np.unravel_index(np.abs(diff).argmin(), diff.shape)
     ds_geo = ds.GetGeoTransform()
@@ -136,13 +126,7 @@ def get_profile(irradiation_values, ds,
     y = ds_geo[3] + j * ds_geo[5]
     long, lat = xy2latlong(x, y, ds)
     # generation of the output time profile
-    n_plants = n_plant_raster.sum()
-    capacity = plant.peak_power * n_plants
-    system_loss = 100 * (1-plant.efficiency)
-    df_profile = pv_profile(lat, long,
-                            capacity,
-                            system_loss, plant.raw, plant.mean)
-    return df_profile
+    return lat, long
 
 
 def constraints(PV_target, irradiation_values, building_footprint,
@@ -161,8 +145,8 @@ def constraints(PV_target, irradiation_values, building_footprint,
 
     if PV_target == 0:
         PV_target = energy_available
-    rules = plant.Planning_rules(reduction_factor*area_available,
-                                 PV_target, area_available, energy_available)
+    rules = plan.Planning_rules(reduction_factor*area_available,
+                                PV_target, area_available, energy_available)
     n_plants = rules.n_plants(pv_plant)
 
     return n_plants, pv_plant

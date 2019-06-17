@@ -5,6 +5,9 @@ import numpy as np
 import pandas as pd
 import warnings
 from collections import defaultdict
+import reslib.pv as pv
+import reslib.st as st
+import reslib.plant as plant
 
 # TODO:  change with try and better define the path
 path = os.path.dirname(os.path.dirname
@@ -12,11 +15,12 @@ path = os.path.dirname(os.path.dirname
 path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
-from my_calculation_module_directory.energy_production import get_plants, get_profile, get_raster, get_indicators
+from my_calculation_module_directory.energy_production import get_plants, get_lat_long, get_raster, get_indicators
 from my_calculation_module_directory.visualization import line, reducelabels
 from ..helper import generate_output_file_tif
 from my_calculation_module_directory.utils import best_unit
-import my_calculation_module_directory.plants as plant
+
+TOKEN = 'c5d1b5720336748d23f137ed7f8c9a008057f0c7'
 
 
 def get_integral_error(pl, interval):
@@ -29,9 +33,9 @@ def get_integral_error(pl, interval):
 
     :returns: the relative error
     """
-    error = abs((pl.energy_production * pl.n_plants -
-                 pl.profile.sum() * interval) /
-                (pl.energy_production * pl.n_plants)) * 100
+    error = abs((pl.energy_production -
+                 pl.prof.sum() * interval) /
+                pl.energy_production) * 100
     if error[0] > 5:
         message = """Difference between raster value sum and {}
                       total energy greater than {}%""".format(pl.id,
@@ -43,9 +47,6 @@ def get_integral_error(pl, interval):
 def run_source(kind, pl, data_in,
                most_suitable,
                n_plant_raster,
-               irradiation_values,
-               building_footprint,
-               reduction_factor,
                output_suitable,
                discount_rate,
                ds):
@@ -65,13 +66,13 @@ def run_source(kind, pl, data_in,
                                              n_plant_raster, discount_rate)
 
         # default profile
-
-        default_profile, unit, con = best_unit(pl.profile['output'].values,
+        tot_profile = pl.prof['output'].values * pl.n_plants
+        default_profile, unit, con = best_unit(tot_profile,
                                                'kW', no_data=0,
                                                fstat=np.median,
                                                powershift=0)
 
-        graph = line(x=reducelabels(pl.profile.index.strftime('%d-%b %H:%M')),
+        graph = line(x=reducelabels(pl.prof.index.strftime('%d-%b %H:%M')),
                      y_labels=['{} {} profile [{}]'.format(kind,
                                                            pl.resolution[1],
                                                            unit)],
@@ -83,7 +84,8 @@ def run_source(kind, pl, data_in,
 
         # monthly profile of energy production
 
-        df_month = pl.profile.groupby(pd.Grouper(freq='M')).sum()
+        df_month = pl.prof.groupby(pd.Grouper(freq='M')).sum()
+        df_month['output'] = df_month['output'] * pl.n_plants
         monthly_profile, unit, con = best_unit(df_month['output'].values,
                                                'kWh', no_data=0,
                                                fstat=np.median,
@@ -159,10 +161,10 @@ def calculation(output_directory, inputs_raster_selection,
                       reduced to {}""".format())
 
     # define a pv plant with input features
-    pv_plant = plant.PV_plant('PV',
-                              peak_power=pv_in['peak_power'],
-                              efficiency=pv_in['efficiency']
-                              )
+    pv_plant = pv.PV_plant('PV',
+                           peak_power=pv_in['peak_power'],
+                           efficiency=pv_in['efficiency']
+                           )
     pv_plant.k_pv = float(inputs_parameter_selection['k_pv'])
     pv_plant.area = pv_plant.area()
     # add information to get the time profile
@@ -175,17 +177,13 @@ def calculation(output_directory, inputs_raster_selection,
                                                           reduction_factor)
     pv_plant.n_plants = pv_plant_raster.sum()
     if pv_plant.n_plants > 0:
-        pv_plant.raw = False
-        pv_plant.mean = None
-        pv_plant.profile = get_profile(irradiation_values, ds,
-                                       most_suitable, pv_plant_raster,
-                                       pv_plant)
+        pv_plant.lat, pv_plant.long = get_lat_long(ds, most_suitable)
+        pv_plant.prof = pv_plant.profile(token=TOKEN)
         messages.append(get_integral_error(pv_plant, 1))
         pv_plant.resolution = ['Hours', 'hourly']
         res_pv = run_source('PV', pv_plant, pv_in, most_suitable,
                             pv_plant_raster,
-                            irradiation_values, building_footprint,
-                            reduction_factor, output_suitable_pv,
+                            output_suitable_pv,
                             discount_rate,
                             ds)
     else:
@@ -194,11 +192,10 @@ def calculation(output_directory, inputs_raster_selection,
         warnings.warn("Not suitable pixels have been identified.")
 
     building_available = building_footprint - pv_plant_raster * pv_plant.area
-
-    st_plant = plant.PV_plant('ST',
-                              area=st_in['area'],
-                              efficiency=st_in['efficiency']
-                              )
+    st_plant = st.ST_plant(id='ST',
+                           area=st_in['area'],
+                           efficiency=st_in['efficiency']
+                           )
     # add a default peak power of 1kW in order to get raw data from ninja
     st_plant.peak_power = 1
     st_plant_raster, most_suitable, st_plant = get_plants(st_plant, st_in['target'],
@@ -208,19 +205,12 @@ def calculation(output_directory, inputs_raster_selection,
                                                           reduction_factor)
     st_plant.n_plants = st_plant_raster.sum()
     if st_plant.n_plants > 0:
-        st_plant.raw = True
-        st_plant.mean = 'day'
-        st_plant.profile = get_profile(irradiation_values, ds,
-                                       most_suitable, st_plant_raster,
-                                       st_plant)
-        st_plant.profile['output'] = ((st_plant.profile['diffuse'] +
-                                       st_plant.profile['direct'])
-                                      * st_plant.area) * st_plant.n_plants
+        st_plant.lat, st_plant.long = get_lat_long(ds, most_suitable)
+        st_plant.prof = st_plant.profile(mean='day', token=TOKEN)
         st_plant.resolution = ['Days', 'dayly']
         res_st = run_source('ST', st_plant, st_in, most_suitable,
                             st_plant_raster,
-                            irradiation_values, building_available,
-                            reduction_factor, output_suitable_st,
+                            output_suitable_st,
                             discount_rate,
                             ds)
     else:

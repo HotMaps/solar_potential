@@ -15,6 +15,7 @@ if path not in sys.path:
 from my_calculation_module_directory.energy_production import get_plants, get_profile, get_raster, get_indicators
 from my_calculation_module_directory.visualization import line, reducelabels
 from ..helper import generate_output_file_tif
+from  ..constant import CM_NAME
 from my_calculation_module_directory.utils import best_unit
 import my_calculation_module_directory.plants as plant
 
@@ -229,7 +230,7 @@ def calculation(output_directory, inputs_raster_selection,
         warnings.warn("Not suitable pixels have been identified.")
     # import ipdb; ipdb.set_trace()
     dd = defaultdict(list)
-    dd['name'] = 'CM Solar Potential'
+    dd['name'] = CM_NAME
     # merge of the results
     dics = [res_pv, res_st]
     for dic in dics:

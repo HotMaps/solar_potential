@@ -32,10 +32,14 @@ def validateJSON(value):
 
     return response
 
-
-def create_zip_shapefiles(output_directory, shafefile):
+def create_zip_shapefiles(output_directory, shapefile):
+    print ("shafefile",shapefile)
     os.chdir(output_directory)
-    filename = shafefile.replace(output_directory+'/', "")
+    # determine file name
+    import sys
+    #modify the coding in fly for writing
+    sys.getfilesystemencoding = lambda: 'UTF-8'
+    filename = shapefile.replace(output_directory+'/', "")
     zip_file = filename.replace('.shp', '.zip')
     shp_file = filename
     dbf_file = filename.replace('.shp', '.dbf')
@@ -47,27 +51,11 @@ def create_zip_shapefiles(output_directory, shafefile):
         zf.write(prj_file)
         zf.write(shx_file)
         zf.write(shp_file)
-
-
     finally:
         zf.close()
-
     return zip_file
 
-def zipdir(path, ziph):
-    # ziph is zipfile handle
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            ziph.write(os.path.join(root, file))
 
-def zip_directory(path_to_zip):
-    print ('path_to_zip ',path_to_zip)
-    filename = str(uuid.uuid4()) + '.zip'
-
-    zipf = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED)
-    zipdir(path_to_zip, zipf)
-    zipf.close()
-    return path_to_zip
 
 def generate_directory(tile_path):
     access_rights = 0o755

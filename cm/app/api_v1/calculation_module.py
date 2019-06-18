@@ -2,6 +2,7 @@
 from osgeo import gdal
 
 from ..helper import generate_output_file_tif, create_zip_shapefiles
+from ..constant import CM_NAME
 import time
 
 """ Entry point of the calculation module function"""
@@ -67,7 +68,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
     #TODO to create zip from shapefile use create_zip_shapefiles from the helper before sending result
     #TODO exemple  output_shpapefile_zipped = create_zip_shapefiles(output_directory, output_shpapefile)
     result = dict()
-    result['name'] = 'CM Heat density divider'
+    result['name'] = CM_NAME
     result['indicator'] = [{"unit": "GWh", "name": "Heat density total multiplied by  {}".format(factor),"value": str(hdm_sum)}]
     result['graphics'] = graphics
     result['vector_layers'] = vector_layers

@@ -9,9 +9,11 @@ from osgeo import gdal
 import numpy as np
 import matplotlib.pyplot as plt
 import json as js
+import resutils.output as ro
+import resutils.raster as rr
+from pint import UnitRegistry
 
-from app.api_v1.my_calculation_module_directory.utils import production_per_plant, search, diff_raster
-
+ureg = UnitRegistry()
 UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
                                 'hotmaps', 'cm_files_uploaded')
 
@@ -119,23 +121,25 @@ class TestAPI(unittest.TestCase):
         # 0) print graphs
         test_graph(json['result']['graphics'])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant
-        e_plant = production_per_plant(json)
+        e_plant = ro.production_per_plant(json)
+        e_plant.ito(ureg.kilowatt_hour/ureg.day)
         self.assertGreaterEqual(e_plant.magnitude, 5)
         self.assertLessEqual(e_plant.magnitude, 15)
         # 2) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
-        lcoe, unit = search(json['result']['indicator'],
-                            'Levelized Cost of PV Energy')
+        lcoe, unit = ro.search(json['result']['indicator'],
+                               'Levelized Cost of PV Energy')
         self.assertGreaterEqual(lcoe, 0.02)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
         # 3) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
-        lcoe, unit = search(json['result']['indicator'],
-                            'Levelized Cost of ST Energy')
+        lcoe, unit = ro.search(json['result']['indicator'],
+                               'Levelized Cost of ST Energy')
         self.assertGreaterEqual(lcoe, 0.02)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
         # 4) assert that the production is beetween 5 and 20 kWh/day per plant
-        e_plant = production_per_plant(json)
+        e_plant = ro.production_per_plant(json)
+        e_plant.ito(ureg.kilowatt_hour/ureg.day)
         self.assertGreaterEqual(e_plant.magnitude, 5)
         self.assertLessEqual(e_plant.magnitude, 20)
 
@@ -166,7 +170,8 @@ class TestAPI(unittest.TestCase):
         irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
         ds = gdal.Open(inputs_raster_selection["gross_floor_area"])
         area = np.array(ds.GetRasterBand(1).ReadAsArray())
-        error = diff_raster(irradiation[area > 0], irradiation[raster_out > 0])
+        error = rr.diff_raster(irradiation[area > 0],
+                               irradiation[raster_out > 0])
         with open('data.json', 'w') as outfile:
             js.dump(json['result'], outfile)
         self.assertLessEqual(error, 0.01)

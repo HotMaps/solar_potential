@@ -8,6 +8,9 @@ from collections import defaultdict
 import reslib.pv as pv
 import reslib.st as st
 import reslib.plant as plant
+import resutils.output as ro
+import resutils.unit as ru
+import resutils.raster as rr
 
 # TODO:  change with try and better define the path
 path = os.path.dirname(os.path.dirname
@@ -15,10 +18,9 @@ path = os.path.dirname(os.path.dirname
 path = os.path.join(path, 'app', 'api_v1')
 if path not in sys.path:
         sys.path.append(path)
-from my_calculation_module_directory.energy_production import get_plants, get_lat_long, get_raster, get_indicators
-from my_calculation_module_directory.visualization import line, reducelabels
+from my_calculation_module_directory.energy_production import get_plants
 from ..helper import generate_output_file_tif
-from my_calculation_module_directory.utils import best_unit
+
 
 TOKEN = 'c5d1b5720336748d23f137ed7f8c9a008057f0c7'
 
@@ -60,42 +62,43 @@ def run_source(kind, pl, data_in,
 
     result = dict()
     if most_suitable.max() > 0:
-        result['raster_layers'] = get_raster(most_suitable, output_suitable,
-                                             ds, kind)
-        result['indicator'] = get_indicators(kind, pl, most_suitable,
-                                             n_plant_raster, discount_rate)
+        result['raster_layers'] = ro.get_raster(most_suitable, output_suitable,
+                                                ds, kind)
+        result['indicator'] = ro.get_indicators(kind, pl, most_suitable,
+                                                n_plant_raster, discount_rate)
 
         # default profile
         tot_profile = pl.prof['output'].values * pl.n_plants
-        default_profile, unit, con = best_unit(tot_profile,
-                                               'kW', no_data=0,
-                                               fstat=np.median,
-                                               powershift=0)
+        default_profile, unit, con = ru.best_unit(tot_profile,
+                                                  'kW', no_data=0,
+                                                  fstat=np.median,
+                                                  powershift=0)
 
-        graph = line(x=reducelabels(pl.prof.index.strftime('%d-%b %H:%M')),
-                     y_labels=['{} {} profile [{}]'.format(kind,
+        graph = ro.line(x=ro.reducelabels(pl.prof.index.strftime('%d-%b %H:%M')),
+                        y_labels=['{} {} profile [{}]'.format(kind,
+                                                              pl.resolution[1],
+                                                              unit)],
+                        y_values=[default_profile], unit=unit,
+                        xLabel=pl.resolution[0],
+                        yLabel='{} {} profile [{}]'.format(kind,
                                                            pl.resolution[1],
-                                                           unit)],
-                     y_values=[default_profile], unit=unit,
-                     xLabel=pl.resolution[0],
-                     yLabel='{} {} profile [{}]'.format(kind,
-                                                        pl.resolution[1],
-                                                        unit))
+                                                           unit))
 
         # monthly profile of energy production
 
         df_month = pl.prof.groupby(pd.Grouper(freq='M')).sum()
         df_month['output'] = df_month['output'] * pl.n_plants
-        monthly_profile, unit, con = best_unit(df_month['output'].values,
-                                               'kWh', no_data=0,
-                                               fstat=np.median,
-                                               powershift=0)
-        graph_month = line(x=df_month.index.strftime('%b'),
-                           y_labels=[""""{} monthly energy
-                                      production [{}]""".format(kind, unit)],
-                           y_values=[monthly_profile], unit=unit,
-                           xLabel="Months",
-                           yLabel='{} monthly profile [{}]'.format(kind, unit))
+        monthly_profile, unit, con = ru.best_unit(df_month['output'].values,
+                                                  'kWh', no_data=0,
+                                                  fstat=np.median,
+                                                  powershift=0)
+        graph_month = ro.line(x=df_month.index.strftime('%b'),
+                              y_labels=[""""{} monthly energy
+                                        production [{}]""".format(kind, unit)],
+                              y_values=[monthly_profile], unit=unit,
+                              xLabel="Months",
+                              yLabel='{} monthly profile [{}]'.format(kind,
+                                                                      unit))
 
         graphics = [graph, graph_month]
 
@@ -177,7 +180,7 @@ def calculation(output_directory, inputs_raster_selection,
                                                           reduction_factor)
     pv_plant.n_plants = pv_plant_raster.sum()
     if pv_plant.n_plants > 0:
-        pv_plant.lat, pv_plant.long = get_lat_long(ds, most_suitable)
+        pv_plant.lat, pv_plant.long = rr.get_lat_long(ds, most_suitable)
         pv_plant.prof = pv_plant.profile(token=TOKEN)
         messages.append(get_integral_error(pv_plant, 1))
         pv_plant.resolution = ['Hours', 'hourly']
@@ -205,7 +208,7 @@ def calculation(output_directory, inputs_raster_selection,
                                                           reduction_factor)
     st_plant.n_plants = st_plant_raster.sum()
     if st_plant.n_plants > 0:
-        st_plant.lat, st_plant.long = get_lat_long(ds, most_suitable)
+        st_plant.lat, st_plant.long = rr.get_lat_long(ds, most_suitable)
         st_plant.prof = st_plant.profile(mean='day', token=TOKEN)
         st_plant.resolution = ['Days', 'dayly']
         res_st = run_source('ST', st_plant, st_in, most_suitable,

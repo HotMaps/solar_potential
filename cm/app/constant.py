@@ -81,7 +81,7 @@ Tax: Linear depreciation over 20 years is used in order to
 
 """
 INPUTS_CALCULATION_MODULE = [
-    {'input_name': 'Buildings with solar panels (PV and ST) [% of total buildings]',
+    {'input_name': 'Potential buildings with solar panels (PV and ST) [% of total buildings]',
      'input_type': 'input',
      'input_parameter_name': 'reduction_factor',
      'input_value': 30,
@@ -131,7 +131,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 5000,
      'cm_id': CM_ID
      },
-    {'input_name': 'Roof area covered by PV [% of the total roof]',
+    {'input_name': 'Share of roof area covered by PV [% of the total roof]',
      'input_type': 'input',
      'input_priority': 0,
      'input_parameter_name': 'roof_use_factor_pv',
@@ -141,7 +141,7 @@ INPUTS_CALCULATION_MODULE = [
      'input_max': 1,
      'cm_id': CM_ID
      },
-    {'input_name': 'Roof area covered by ST [% of the total roof]',
+    {'input_name': 'Share of roof area covered by ST [% of the total roof]',
      'input_type': 'input',
      'input_priority': 0,
      'input_parameter_name': 'roof_use_factor_st',
@@ -256,7 +256,7 @@ SIGNATURE = {
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the PhotoVoltaic PV"
                       "energy potential, the Solar Thermal ST energy potential"
-                      "and the financial feasibility of massive interventions."
+                      "and the financial feasibility of massive interventions"
                       "The code is on the Hotmaps Github group and has"
                       " been developed by EURAC",
     "cm_id": CM_ID,

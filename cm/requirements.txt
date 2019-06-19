@@ -22,6 +22,5 @@ matplotlib==3.0.2
 pint==0.9
 pandas
 python-igraph==0.7.1.post6
-<<<<<<< HEAD
 json
 git+https://github.com/HotMaps/reslib.git

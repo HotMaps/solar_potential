@@ -20,9 +20,9 @@ if path not in sys.path:
         sys.path.append(path)
 from my_calculation_module_directory.energy_production import get_plants
 from ..helper import generate_output_file_tif
+from  ..constant import CM_NAME
 
-
-TOKEN = 'c5d1b5720336748d23f137ed7f8c9a008057f0c7'
+TOKEN = None
 
 
 def get_integral_error(pl, interval):
@@ -222,7 +222,7 @@ def calculation(output_directory, inputs_raster_selection,
         warnings.warn("Not suitable pixels have been identified.")
     # import ipdb; ipdb.set_trace()
     dd = defaultdict(list)
-    dd['name'] = 'CM Solar Potential'
+    dd['name'] = CM_NAME
     # merge of the results
     dics = [res_pv, res_st]
     for dic in dics:

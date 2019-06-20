@@ -24,3 +24,4 @@ pandas
 python-igraph==0.7.1.post6
 json
 git+https://github.com/HotMaps/reslib.git
+time

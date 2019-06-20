@@ -12,6 +12,7 @@ import json as js
 import resutils.output as ro
 import resutils.raster as rr
 from pint import UnitRegistry
+import time
 
 ureg = UnitRegistry()
 UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
@@ -110,6 +111,8 @@ class TestAPI(unittest.TestCase):
         1) asserting the production per platn between 5 and 15 kWh/day
         2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
         """
+        print("\n"
+              "------------------------------------------------------")
         inputs_raster_selection = load_raster("area_for_test.tif",
                                               "solar_for_test.tif")
         inputs_parameter_selection = load_input()
@@ -149,6 +152,8 @@ class TestAPI(unittest.TestCase):
         1) the consistent between input file and output file in the case
         of using the total surface of the buildings
         """
+        print("\n"
+              "------------------------------------------------------")
         inputs_raster_selection = load_raster("area_for_test.tif",
                                               "solar_for_test.tif")
         inputs_parameter_selection = load_input()
@@ -180,6 +185,8 @@ class TestAPI(unittest.TestCase):
         """
         Test the message when no output file are produced
         """
+        print("\n"
+              "------------------------------------------------------")
         inputs_raster_selection = load_raster("area_for_test.tif",
                                               "solar_for_test.tif")
         inputs_parameter_selection = load_input()
@@ -193,6 +200,50 @@ class TestAPI(unittest.TestCase):
                                     data=payload)
         self.assertTrue(rv.status_code == 200)
 
+    def test_sumPVST(self):
+        print("\n"
+              "------------------------------------------------------")
+        """
+        Test of the default values from app.constat by changing PV and
+        ST share greater than one
+        1) asserting the production per platn between 5 and 15 kWh/day
+        2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
+        """
+        time.sleep(60)
+        inputs_raster_selection = load_raster("area_for_test.tif",
+                                              "solar_for_test.tif")
+        inputs_parameter_selection = load_input()
+        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+                                                  roof_use_factor_pv=0.6,
+                                                  roof_use_factor_st=0.6)
+        # register the calculation module a
+        payload = {"inputs_raster_selection": inputs_raster_selection,
+                   "inputs_parameter_selection": inputs_parameter_selection}
+        rv, json = self.client.post('computation-module/compute/',
+                                    data=payload)
+
+        # 1) assert that the production is beetween 5 and 15 kWh/day per plant
+        e_plant = ro.production_per_plant(json)
+        e_plant.ito(ureg.kilowatt_hour/ureg.day)
+        self.assertGreaterEqual(e_plant.magnitude, 5)
+        self.assertLessEqual(e_plant.magnitude, 15)
+        # 2) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
+        lcoe, unit = ro.search(json['result']['indicator'],
+                               'Levelized Cost of PV Energy')
+        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertLessEqual(lcoe, 0.2)
+        self.assertTrue(rv.status_code == 200)
+        # 3) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
+        lcoe, unit = ro.search(json['result']['indicator'],
+                               'Levelized Cost of ST Energy')
+        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertLessEqual(lcoe, 0.2)
+        self.assertTrue(rv.status_code == 200)
+        # 4) assert that the production is beetween 5 and 20 kWh/day per plant
+        e_plant = ro.production_per_plant(json)
+        e_plant.ito(ureg.kilowatt_hour/ureg.day)
+        self.assertGreaterEqual(e_plant.magnitude, 5)
+        self.assertLessEqual(e_plant.magnitude, 20)
 
 if __name__ == "__main__":
     import doctest

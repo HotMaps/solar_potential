@@ -22,7 +22,14 @@ from my_calculation_module_directory.energy_production import get_plants
 from ..helper import generate_output_file_tif
 from  ..constant import CM_NAME
 
-TOKEN = None
+# TODO the token now is null, only 5 requests in one day,
+# please set the environemnt variable with a TOKEN
+# for renewable ninja
+if 'TOKEN' in os.environ:
+    TOKEN = os.environ['TOKEN']
+else:
+    warnings.warn("TOKEN variable not set.")
+    TOKEN = None
 
 
 def get_integral_error(pl, interval):
@@ -161,7 +168,7 @@ def calculation(output_directory, inputs_raster_selection,
         st_in['roof_use_factor'] = 1.0 - pv_in['roof_use_factor']
         warnings.warn("""Sum of roof use factors greater than 1.
                       The roof use factor of the solar thermal has been
-                      reduced to {}""".format())
+                      reduced to {}""".format(st_in['roof_use_factor']))
 
     # define a pv plant with input features
     pv_plant = pv.PV_plant('PV',

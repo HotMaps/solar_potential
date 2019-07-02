@@ -5,8 +5,6 @@
 
 
 FROM geographica/gdal2:latest
-ENV LC_CTYPE en_US.UTF-8
-ENV LANG en_US.UTF-8
 
 MAINTAINER lesly Houndole <lesly.houndole@crem.ch>
 
@@ -81,8 +79,13 @@ RUN python3 get-pip.py
 
 
 RUN pip3 install -r requirements.txt
-RUN pip3 install git+https://github.com/hotmaps/reslib.git
-RUN pip3 install git+https://github.com/hotmaps/resutils.git
+
+RUN cd /opt && git clone https://github.com/hotmaps/reslib.git \
+    cd reslib && pip3 install .
+RUN cd /opt && git clone git+https://github.com/hotmaps/resutils.git \
+    cd resutils && pip3 install .
+
+
 RUN pip3 install gunicorn
 
 

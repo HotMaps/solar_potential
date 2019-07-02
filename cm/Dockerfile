@@ -5,7 +5,8 @@
 
 
 FROM geographica/gdal2:latest
-
+ENV LC_CTYPE en_US.UTF-8
+ENV LANG en_US.UTF-8
 
 MAINTAINER lesly Houndole <lesly.houndole@crem.ch>
 

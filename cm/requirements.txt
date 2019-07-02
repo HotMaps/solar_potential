@@ -21,7 +21,5 @@ gdal
 matplotlib==3.0.2
 pint==0.9
 pandas
-python-igraph==0.7.1.post6
-json
 git+https://github.com/HotMaps/reslib.git
-time
+git+https://github.com/HotMaps/resutils.git

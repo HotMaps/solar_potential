@@ -80,7 +80,7 @@ RUN python3 get-pip.py
 
 
 RUN pip3 install -r requirements.txt
-RUN pip3 install https://github.com/hotmaps/reslib.git
+RUN pip3 install git+https://github.com/hotmaps/reslib.git
 RUN pip3 install git+https://github.com/hotmaps/resutils.git
 RUN pip3 install gunicorn
 

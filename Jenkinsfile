@@ -5,7 +5,7 @@ node {
     
   stage('Build & Test') {
     try {
-      sh 'docker-compose -f docker-compose-tests.yml up -d --build'
+      sh 'docker-compose -f docker-compose-tests.yml up --build'
     }
     finally {
       // stop services

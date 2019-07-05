@@ -58,6 +58,7 @@ RUN pip3 install -r /cm/requirements.txt
 COPY . /cm
 WORKDIR /cm
 
+RUN chmod u+x /cm/wait-for-it.sh
 
 # Start server
 EXPOSE 80

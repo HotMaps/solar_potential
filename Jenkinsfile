@@ -5,7 +5,7 @@ node {
     
   stage('Build & Test') {
     try {
-      sh 'docker-compose -f docker-compose-tests.yml -p hotmaps up --build'
+      sh 'docker-compose -f docker-compose-tests.yml -p hotmaps up --build --exit-code-from base_calculation_module'
     }
     finally {
       // stop services

@@ -19,7 +19,7 @@ def calculation(output_directory, inputs_raster_selection,inputs_vector_selectio
 
 
     #retrieve the inputs layes
-    input_raster_selection =  inputs_raster_selection["heat"]
+    input_raster_selection =  inputs_raster_selection["heatd"]
 
     #retrieve the inputs layes
     input_vector_selection =  inputs_vector_selection["heating_technologies_eu28"]

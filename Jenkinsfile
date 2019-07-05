@@ -5,11 +5,11 @@ node {
     
   stage('Build & Test') {
     try {
-      sh 'docker-compose -f docker-compose-tests.yml -p hotmaps up --build --exit-code-from base_calculation_module'
+      sh 'docker-compose -f docker-compose.tests.yml -p hotmaps up --build --exit-code-from base_calculation_module'
     }
     finally {
       // stop services
-      sh 'docker-compose -f docker-compose-tests.yml down' 
+      sh 'docker-compose -f docker-compose.tests.yml down' 
     }
   }
   
@@ -22,7 +22,7 @@ node {
       //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
       echo "Deploying commit \$COMMIT_ID"
       //sshagent(['sshhotmapsdev']) {
-      //  sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_backend.sh \$COMMIT_ID"'
+      //  sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_cm.sh \$COMMIT_ID"'
       //}
     } else if (env.BRANCH_NAME == 'master') {
       echo "Deploying to PROD platform"

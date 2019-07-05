@@ -67,5 +67,5 @@ RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Start processes
-CMD ["/cm/wait-for-it.sh","rabbit:5672","-s","-t 360","--","/usr/bin/supervisord"]
+CMD ["/cm/wait-for-it.sh","rabbit:5672","--strict","--timeout=360","--","/usr/bin/supervisord"]
 

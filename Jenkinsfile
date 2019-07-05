@@ -19,7 +19,7 @@ node {
   stage('Deploy') {
     if (env.BRANCH_NAME == 'develop') {
       echo "Deploying to DEV platform"
-      commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
+      //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
       echo "Deploying commit \$COMMIT_ID"
       //sshagent(['sshhotmapsdev']) {
       //  sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_backend.sh \$COMMIT_ID"'

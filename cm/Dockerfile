@@ -80,7 +80,7 @@ RUN python3 get-pip.py
 
 RUN pip3 install -r requirements.txt
 
-RUN cd /opt && git clone https://github.com/hotmaps/reslib.git \
+RUN cd /opt && git clone https://github.com/hotmaps/reslib.git --branch develop\
     && cd reslib && pip3 install .
 RUN cd /opt && git clone git+https://github.com/hotmaps/resutils.git \
     && cd resutils && pip3 install .

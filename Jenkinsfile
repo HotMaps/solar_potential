@@ -19,11 +19,8 @@ node {
 
   stage('Deploy') {
     echo "Deploying commit $COMMIT_ID of repository $REPO_NAME on branch $BRANCH_NAME"
-
-    if (env.BRANCH_NAME == 'develop' ||env.BRANCH_NAME == 'continuous-integration') {
+    if (env.BRANCH_NAME == 'develop') {
       echo "Deploying to DEV platform"
-      //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
-      echo "Deploying commit $COMMIT_ID of repository $REPO_NAME"
       sshagent(['sshhotmapsdev']) {
         sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_cm.sh \$REPO_NAME \$COMMIT_ID"'
       }

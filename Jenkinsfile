@@ -20,7 +20,7 @@ node {
   stage('Deploy') {
     echo "Deploying commit $COMMIT_ID of repository $REPO_NAME on branch $BRANCH_NAME"
 
-    if (env.BRANCH_NAME == 'develop') {
+    if (env.BRANCH_NAME == 'develop' ||env.BRANCH_NAME == 'continuous-integration') {
       echo "Deploying to DEV platform"
       //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
       echo "Deploying commit $COMMIT_ID of repository $REPO_NAME"

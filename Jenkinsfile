@@ -24,9 +24,9 @@ node {
       echo "Deploying to DEV platform"
       //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
       echo "Deploying commit $COMMIT_ID of repository $REPO_NAME"
-      //sshagent(['sshhotmapsdev']) {
-      //  sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_cm.sh \$COMMIT_ID"'
-      //}
+      sshagent(['sshhotmapsdev']) {
+        sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_cm.sh \$REPO_NAME \$COMMIT_ID"'
+      }
     } else if (env.BRANCH_NAME == 'master') {
       echo "Deploying to PROD platform"
       echo "Deployment to PROD is currently disabled"

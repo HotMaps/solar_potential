@@ -18,6 +18,8 @@ node {
   env.REPO_NAME = getRepoName()
 
   stage('Deploy') {
+    echo "Deploying commit $COMMIT_ID of repository $REPO_NAME on branch $BRANCH_NAME"
+
     if (env.BRANCH_NAME == 'develop') {
       echo "Deploying to DEV platform"
       //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')

@@ -13,6 +13,7 @@ RUN pip3 install -r /cm/requirements.txt
 COPY . /cm
 WORKDIR /cm
 
+RUN chmod u+x /cm/wait-for-it.sh
 
 # Start server
 EXPOSE 80
@@ -21,6 +22,5 @@ RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Start processes
-CMD ["/usr/bin/supervisord"]
-
+CMD ["/cm/wait-for-it.sh","rabbit:5672","--strict","--timeout=360","--","/usr/bin/supervisord"]
 

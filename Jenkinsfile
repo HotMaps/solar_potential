@@ -15,12 +15,13 @@ node {
   
   // get commit id
   env.COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse HEAD')
-  
+  env.REPO_NAME = getRepoName()
+
   stage('Deploy') {
     if (env.BRANCH_NAME == 'develop') {
       echo "Deploying to DEV platform"
       //commitId = sh(returnStdout: true, script: 'git rev-parse HEAD')
-      echo "Deploying commit \$COMMIT_ID"
+      echo "Deploying commit $COMMIT_ID of repository $REPO_NAME"
       //sshagent(['sshhotmapsdev']) {
       //  sh 'ssh -o StrictHostKeyChecking=no -l iig hotmapsdev.hevs.ch "/var/hotmaps/deploy_cm.sh \$COMMIT_ID"'
       //}
@@ -31,4 +32,8 @@ node {
       echo "${env.BRANCH_NAME}: not deploying"
     }
   }
+}
+
+String getRepoName() {
+    return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/').last().split("\\.")[0]
 }

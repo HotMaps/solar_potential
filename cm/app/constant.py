@@ -5,7 +5,7 @@ CELERY_BROKER_URL_LOCAL = 'amqp://localhost/'
 
 CM_REGISTER_Q = 'rpc_queue_CM_register' # Do no change this value
 
-CM_NAME = 'CM - Scale heat and cool density maps -3 '
+CM_NAME = 'CM - Scale heat and cool density maps -4'
 RPC_CM_ALIVE= 'rpc_queue_CM_ALIVE' # Do no change this value
 RPC_Q = 'rpc_queue_CM_compute' # Do no change this value
 CM_ID = 1 # CM_ID is defined by the enegy research center of Martigny (CREM)
@@ -14,7 +14,7 @@ PORT_DOCKER = 80
 
 #TODO ********************setup this URL depending on which version you are running***************************
 
-CELERY_BROKER_URL = CELERY_BROKER_URL_LOCAL
+CELERY_BROKER_URL = CELERY_BROKER_URL_DOCKER
 PORT = PORT_DOCKER
 
 #TODO ********************setup this URL depending on which version you are running***************************

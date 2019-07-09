@@ -2,7 +2,7 @@
 import logging
 
 import json
-
+import sys
 import time
 
 from app.api_v1.transactions import register
@@ -10,30 +10,6 @@ from app.api_v1.transactions import register
 LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
               '-35s %(lineno) -5d: %(message)s')
 LOGGER = logging.getLogger(__name__)
-
-import psutil
-
-for proc in psutil.process_iter():
-    print(proc.name())
-
-def kill_by_process_name(name):
-    for proc in psutil.process_iter():
-        if proc.name() == name:
-            print("Killing process: " + name)
-            if(check_process_exist_by_name(name)):
-                print("Killing process: " + name + " sucess")
-            else:
-                print("Killing process: " + name + " failed")
-            return
-
-    print("Not found process: " + name)
-
-def check_process_exist_by_name(name):
-    for proc in psutil.process_iter():
-        if proc.name() == name:
-            return True
-
-    return False
 
 
 
@@ -52,8 +28,7 @@ def start_runner():
                 json.loads(response)
                 LOGGER.info('Server started, quiting start_loop')
                 not_started = False
-                kill_by_process_name("python3 register_cm.py")
-                break
+                sys.exit()
             except :
 
                 LOGGER.info('Server not yet started')

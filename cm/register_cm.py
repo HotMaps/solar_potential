@@ -35,7 +35,7 @@ def start_runner():
                 time.sleep(2)
 
     print('Started runner')
-    start_loop()
+    #start_loop()
 
 
 

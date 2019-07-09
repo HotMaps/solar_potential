@@ -28,6 +28,7 @@ def start_runner():
                 json.loads(response)
                 LOGGER.info('Server started, quiting start_loop')
                 not_started = False
+                break
             except :
 
                 LOGGER.info('Server not yet started')

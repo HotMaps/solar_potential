@@ -14,7 +14,7 @@ PORT_DOCKER = 80
 
 #TODO ********************setup this URL depending on which version you are running***************************
 
-CELERY_BROKER_URL = CELERY_BROKER_URL_DOCKER
+CELERY_BROKER_URL = CELERY_BROKER_URL_LOCAL
 PORT = PORT_DOCKER
 
 #TODO ********************setup this URL depending on which version you are running***************************

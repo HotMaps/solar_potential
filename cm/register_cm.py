@@ -12,6 +12,8 @@ LOG_FORMAT = ('%(levelname) -10s %(asctime)s %(name) -30s %(funcName) '
 LOGGER = logging.getLogger(__name__)
 
 def start_loop():
+    not_started = True
+    i = 0
 
     LOGGER.info('In start loop')
     response = register()
@@ -26,10 +28,21 @@ def start_loop():
     os.system('kill $PPID')
 
 
+    LOGGER.info('Server not yet started')
+    #time.sleep(2)
+
+
+
 def start_runner():
 
     print('Started runner')
     start_loop()
+
+
+
+if __name__ == '__main__':
+    start_runner()
+
 
 
 

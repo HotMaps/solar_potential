@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+cpt = 0
 import logging
 
 import json
@@ -35,7 +36,8 @@ def start_loop():
 
 def start_runner():
 
-    print('Started runner')
+
+    print('Started runner 1')
     start_loop()
 
 

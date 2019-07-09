@@ -12,7 +12,7 @@ itsdangerous==0.24
 python-dateutil
 gunicorn==19.7.1
 requests>=2.20.0
-six==1.10.0
+six==1.11.0
 flasgger==0.9.0
 Pika==0.12.0
 amqp==2.2.2

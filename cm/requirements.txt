@@ -20,4 +20,3 @@ scipy
 pandas
 networkx
 pyomo
-psutil

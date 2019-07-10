@@ -21,6 +21,6 @@ gdal
 matplotlib==3.0.2
 pint==0.9
 pandas
-git+https://github.com/HotMaps/reslib.git
-git+https://github.com/HotMaps/resutils.git develop
+git+https://github.com/HotMaps/reslib.git develop
+git+https://github.com/HotMaps/resutils.git
 

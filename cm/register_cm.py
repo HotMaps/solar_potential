@@ -33,7 +33,7 @@ def start_runner():
                 LOGGER.info('Server not yet started')
                 time.sleep(2)
 
-    print('Started runner')
+    print('Started runner 1')
     start_loop()
 
 

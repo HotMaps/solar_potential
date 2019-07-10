@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 import unittest
-
-#import coverage
+import sys
+import coverage
 
 from tests import suite
 
-#COV = coverage.coverage(branch=True, include='cm/app/*')
-#COV.start()
+COV = coverage.coverage(branch=True, include='cm/app/*')
+COV.start()
 
-unittest.TextTestRunner(verbosity=2).run(suite)
+return_code = not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
 
-#COV.stop()
-#COV.report()
+COV.stop()
+COV.report()
+
+sys.exit(return_code)

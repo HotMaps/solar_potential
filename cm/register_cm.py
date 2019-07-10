@@ -35,7 +35,7 @@ def start_runner():
                 LOGGER.info('Server have not registerd for some reason')
             time.sleep(2)
 
-    print('Started runner')
+    print('Started runner 1')
     start_loop()
 
 

@@ -1,5 +1,7 @@
 FROM hotmaps/base_cm:latest
 
+ENV RES_NINJA_TOKENS="a4a030f47ae97751fb7a36332ec614b3bfc01b8f:672ae47a0f5e8641d58deb8e77d6784e9a3de2f3:113919a0c1ac7d58791d6d86c162b4c121d71bf3:dcfa933f901b54b8f575b5220f0b2eb32229c77e:1fa92f2075efe80ea12e58c4$
+
 
 # Setup app server
 WORKDIR /

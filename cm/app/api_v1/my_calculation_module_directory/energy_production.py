@@ -10,43 +10,55 @@ import sys
 import math
 import numpy as np
 import reslib.planning as plan
+
 # TODO:  chane with try and better define the path
-path = os.path.dirname(os.path.dirname
-                       (os.path.dirname(os.path.abspath(__file__))))
-path = os.path.join(path, 'app', 'api_v1')
+path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+path = os.path.join(path, "app", "api_v1")
 if path not in sys.path:
-        sys.path.append(path)
+    sys.path.append(path)
 
 
-def get_plants(plant, target, irradiation_values,
-               building_footprint, roof_use_factor,
-               reduction_factor):
+def get_plants(
+    plant,
+    target,
+    irradiation_values,
+    building_footprint,
+    roof_use_factor,
+    reduction_factor,
+):
     """
     Return a raster with most suitable roofs and the number of plants
     for each pixel
     """
     # TODO: split in two functions
-    n_plants, plant = constraints(target,
-                                  irradiation_values,
-                                  building_footprint,
-                                  roof_use_factor,
-                                  reduction_factor,
-                                  plant)
+    n_plants, plant = constraints(
+        target,
+        irradiation_values,
+        building_footprint,
+        roof_use_factor,
+        reduction_factor,
+        plant,
+    )
     tot_en_gen_per_year = n_plants * plant.energy_production
     # compute the raster with the number of plant per pixel
-    n_plant_raster = np.floor((building_footprint *
-                               reduction_factor *
-                               roof_use_factor) / plant.area)
-    most_suitable = raster_suitable(n_plant_raster,
-                                    tot_en_gen_per_year,
-                                    irradiation_values,
-                                    plant)
+    n_plant_raster = np.floor(
+        (building_footprint * reduction_factor * roof_use_factor) / plant.area
+    )
+    most_suitable = raster_suitable(
+        n_plant_raster, tot_en_gen_per_year, irradiation_values, plant
+    )
     n_plant_raster[most_suitable <= 0] = 0
     return n_plant_raster, most_suitable, plant
 
 
-def constraints(PV_target, irradiation_values, building_footprint,
-                roof_use_factor, reduction_factor, pv_plant):
+def constraints(
+    PV_target,
+    irradiation_values,
+    building_footprint,
+    roof_use_factor,
+    reduction_factor,
+    pv_plant,
+):
     """
     Define planning rules accounting for area availability and
     target defined by the user
@@ -64,28 +76,29 @@ def constraints(PV_target, irradiation_values, building_footprint,
     if PV_target != 0:
         # constraints:
         # (area_target <= area_available) and (energy_target <= energy_available)
-        rules = plan.PlanningRules(area_usable_by_pv,  # area_target
-                                   PV_target,          # energy_target
-                                   area_available,     # area_available
-                                   energy_available)   # energy available
+        rules = plan.PlanningRules(
+            area_usable_by_pv,  # area_target
+            PV_target,  # energy_target
+            area_available,  # area_available
+            energy_available,
+        )  # energy available
         n_plants = rules.n_plants(pv_plant)
 
     return n_plants, pv_plant
 
 
-def raster_suitable(n_plant_raster, tot_en_gen_per_year,
-                    irradiation_values, pv_plant):
+def raster_suitable(n_plant_raster, tot_en_gen_per_year, irradiation_values, pv_plant):
     """ Define the most suitable roofs,
     by computing the energy for each pixel by considering a number of plants
     for each pixel and selected
     most suitable pixel to cover the enrgy production
     """
     # TODO: do not consider 0 values in the computation
-    en_values = (irradiation_values * pv_plant.peak_power *
-                 pv_plant.efficiency * n_plant_raster)
+    en_values = (
+        irradiation_values * pv_plant.peak_power * pv_plant.efficiency * n_plant_raster
+    )
     # order the matrix
-    ind = np.unravel_index(np.argsort(en_values, axis=None)[::-1],
-                           en_values.shape)
+    ind = np.unravel_index(np.argsort(en_values, axis=None)[::-1], en_values.shape)
     e_cum_sum = np.cumsum(en_values[ind])
     # find the nearest element
     idx = (np.abs(e_cum_sum - tot_en_gen_per_year)).argmin()
@@ -99,4 +112,5 @@ def raster_suitable(n_plant_raster, tot_en_gen_per_year,
 
 if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

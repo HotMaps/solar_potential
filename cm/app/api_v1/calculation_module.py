@@ -17,7 +17,7 @@ path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 path = os.path.join(path, "app", "api_v1")
 if path not in sys.path:
     sys.path.append(path)
-from my_calculation_module_directory.energy_production import get_plants
+from solar_potential.energy_production import get_plants
 from ..helper import generate_output_file_tif
 from ..constant import CM_NAME
 

@@ -77,16 +77,12 @@ def test_graph(graph):
         x = [i for i in range(0, len(g["data"]["labels"]))]
         # TODO loop in datasets to plot more lines
         y = [float(i) for i in g["data"]["datasets"][0]["data"]]
-        plt.plot(x, y, label=g["data"]["datasets"][0]["label"])
-        plt.xlabel(g["xLabel"])
-        plt.ylabel(g["yLabel"])
-        plt.xticks(rotation=90)
-        ax = plt.gca()
-        axes = plt.axes()
-        axes.set_xticks(x)
-        ax.set_xticklabels(g["data"]["labels"])
-        #        locs, labels = plt.xticks()
-        #        plt.xticks(locs, g['data']['labels'])
+        fig, ax = plt.subplots()
+        ax.plot(x, y, label=g["data"]["datasets"][0]["label"])
+        ax.set_xlabel(g["xLabel"])
+        ax.set_ylabel(g["yLabel"])
+        ax.set_xticks(x)
+        ax.set_xticklabels(g["data"]["labels"], rotation=90)
         plt.savefig(graph_file_path)
         plt.clf()
 

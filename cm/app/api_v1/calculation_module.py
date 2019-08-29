@@ -12,12 +12,7 @@ import resutils.output as ro
 import resutils.unit as ru
 import resutils.raster as rr
 
-# TODO:  change with try and better define the path
-path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-path = os.path.join(path, "app", "api_v1")
-if path not in sys.path:
-    sys.path.append(path)
-from solar_potential.energy_production import get_plants
+from .solar_potential.energy_production import get_plants
 from ..helper import generate_output_file_tif
 from ..constant import CM_NAME
 

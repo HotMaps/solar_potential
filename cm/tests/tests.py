@@ -77,7 +77,7 @@ def test_graph(graph):
         # simulate copy from HTAPI to CM
         x = [i for i in range(0, len(g['data']['labels']))]
         # TODO loop in datasets to plot more lines
-        y = [int(i) for i in g['data']['datasets'][0]['data']]
+        y = [float(i) for i in g['data']['datasets'][0]['data']]
         plt.plot(x, y, label=g['data']['datasets'][0]['label'])
         plt.xlabel(g['xLabel'])
         plt.ylabel(g['yLabel'])
@@ -137,7 +137,7 @@ class TestAPI(unittest.TestCase):
         # 3) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
         lcoe, unit = ro.search(json['result']['indicator'],
                                'Levelized Cost of ST Energy')
-        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertGreaterEqual(lcoe, 0.01)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
         # 4) assert that the production is beetween 5 and 20 kWh/day per plant

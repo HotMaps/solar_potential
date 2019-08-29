@@ -2,7 +2,7 @@
 version: '3.2'
 
 services:
-  base_calculation_module:
+  solar_potential:
     build:
       context: ./cm
       dockerfile: Dockerfile
@@ -11,7 +11,7 @@ services:
     stop_signal: SIGKILL
     stdin_open: true
     tty: true
-    volumes: 
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: python3 test.py
 

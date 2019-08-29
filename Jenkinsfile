@@ -2,17 +2,17 @@ node {
   stage('Init') {
     checkout scm
   }
-    
+
   stage('Build & Test') {
     try {
-      sh 'docker-compose -f docker-compose.tests.yml -p hotmaps up --build --exit-code-from base_calculation_module'
+      sh 'docker-compose -f docker-compose.tests.yml -p hotmaps up --build --exit-code-from solar_potential'
     }
     finally {
       // stop services
-      sh 'docker-compose -f docker-compose.tests.yml down' 
+      sh 'docker-compose -f docker-compose.tests.yml down'
     }
   }
-  
+
   // get commit id
   env.COMMIT_ID = sh(returnStdout: true, script: 'git rev-parse HEAD')
   env.REPO_NAME = getRepoName()

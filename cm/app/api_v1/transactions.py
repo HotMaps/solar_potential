@@ -242,7 +242,6 @@ def compute():
            building footprint and solar irradiation, costs and efficiency of
            reference solar thermal and PV systems and the fractions of usable
            rooftop area where solar thermal and PV systems are installed.""")
-    #import ipdb; ipdb.set_trace()
     data = request.get_json()
 
     #TODO CM Developper do not need to change anything here

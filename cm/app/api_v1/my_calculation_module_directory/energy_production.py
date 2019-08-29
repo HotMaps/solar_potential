@@ -7,6 +7,7 @@ Created on Fri Jan 18 07:17:34 2019
 """
 import os
 import sys
+import math
 import numpy as np
 import reslib.planning as plan
 # TODO:  chane with try and better define the path
@@ -29,14 +30,13 @@ def get_plants(plant, target, irradiation_values,
                                   irradiation_values,
                                   building_footprint,
                                   roof_use_factor,
-                                  reduction_factor/100,
+                                  reduction_factor,
                                   plant)
-
     tot_en_gen_per_year = n_plants * plant.energy_production
     # compute the raster with the number of plant per pixel
-    n_plant_raster = (building_footprint / plant.area * roof_use_factor *
-                      reduction_factor / 100)
-    n_plant_raster = n_plant_raster.astype(int)
+    n_plant_raster = np.floor((building_footprint *
+                               reduction_factor *
+                               roof_use_factor) / plant.area)
     most_suitable = raster_suitable(n_plant_raster,
                                     tot_en_gen_per_year,
                                     irradiation_values,
@@ -55,15 +55,20 @@ def constraints(PV_target, irradiation_values, building_footprint,
     footprint_sum = building_footprint.sum()
     # the solar irradiation at standard test condition equal to 1 kWm-2
     pv_plant.energy_production = pv_plant.compute_energy(e_pv_mean)
-    area_available = roof_use_factor * footprint_sum
-    energy_available = (area_available / pv_plant.area *
-                        pv_plant.energy_production)
-
-    if PV_target == 0:
-        PV_target = energy_available
-    rules = plan.Planning_rules(reduction_factor*area_available,
-                                PV_target, area_available, energy_available)
-    n_plants = rules.n_plants(pv_plant)
+    area_available = reduction_factor * footprint_sum
+    area_usable_by_pv = area_available * roof_use_factor
+    n_plants = math.floor(area_usable_by_pv / pv_plant.area)
+    energy_available = n_plants * pv_plant.energy_production
+    print(f"{footprint_sum} -> {area_available} -> {area_usable_by_pv}")
+    print(f"{n_plants} * {pv_plant.energy_production} = {energy_available}")
+    if PV_target != 0:
+        # constraints:
+        # (area_target <= area_available) and (energy_target <= energy_available)
+        rules = plan.PlanningRules(area_usable_by_pv,  # area_target
+                                   PV_target,          # energy_target
+                                   area_available,     # area_available
+                                   energy_available)   # energy available
+        n_plants = rules.n_plants(pv_plant)
 
     return n_plants, pv_plant
 

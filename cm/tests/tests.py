@@ -12,10 +12,11 @@ import json as js
 import resutils.output as ro
 import resutils.raster as rr
 from pint import UnitRegistry
-import time
+
 
 ureg = UnitRegistry()
-UPLOAD_DIRECTORY =  '/var/hotmaps/cm_files_uploaded'
+UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(),
+                                'hotmaps', 'cm_files_uploaded')
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
@@ -101,7 +102,6 @@ class TestAPI(unittest.TestCase):
         self.client = TestClient(self.app,)
 
     def tearDown(self):
-
         self.ctx.pop()
 
     def test_compute(self):
@@ -120,6 +120,7 @@ class TestAPI(unittest.TestCase):
                    "inputs_parameter_selection": inputs_parameter_selection}
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
+
         # 0) print graphs
         test_graph(json['result']['graphics'])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant
@@ -205,41 +206,45 @@ class TestAPI(unittest.TestCase):
         """
         Test of the default values from app.constat by changing PV and
         ST share greater than one
-        1) asserting the production per platn between 5 and 15 kWh/day
-        2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
+        1) asserting the production per plant between 5 and 15 kWh/day
+        2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
         """
-        time.sleep(60)
         inputs_raster_selection = load_raster("area_for_test.tif",
                                               "solar_for_test.tif")
         inputs_parameter_selection = load_input()
-        inputs_parameter_selection = modify_input(inputs_parameter_selection,
-                                                  roof_use_factor_pv=0.6,
-                                                  roof_use_factor_st=0.6)
+#        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+#                                                  roof_use_factor_pv=0.6,
+#                                                  roof_use_factor_st=0.6)
         # register the calculation module a
         payload = {"inputs_raster_selection": inputs_raster_selection,
                    "inputs_parameter_selection": inputs_parameter_selection}
+        from pprint import pprint
+        pprint(payload)
         rv, json = self.client.post('computation-module/compute/',
                                     data=payload)
 
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant
-        e_plant = ro.production_per_plant(json)
+        e_plant = ro.production_per_plant(json, kind="PV")
         e_plant.ito(ureg.kilowatt_hour/ureg.day)
         self.assertGreaterEqual(e_plant.magnitude, 5)
         self.assertLessEqual(e_plant.magnitude, 15)
+
         # 2) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
         lcoe, unit = ro.search(json['result']['indicator'],
                                'Levelized Cost of PV Energy')
         self.assertGreaterEqual(lcoe, 0.02)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
+
         # 3) assert that the value of lcoe is between 0.02 and 0.2 euro/kWh
         lcoe, unit = ro.search(json['result']['indicator'],
                                'Levelized Cost of ST Energy')
-        self.assertGreaterEqual(lcoe, 0.02)
+        self.assertGreaterEqual(lcoe, 0.01)
         self.assertLessEqual(lcoe, 0.2)
         self.assertTrue(rv.status_code == 200)
+
         # 4) assert that the production is beetween 5 and 20 kWh/day per plant
-        e_plant = ro.production_per_plant(json)
+        e_plant = ro.production_per_plant(json, kind="ST")
         e_plant.ito(ureg.kilowatt_hour/ureg.day)
         self.assertGreaterEqual(e_plant.magnitude, 5)
         self.assertLessEqual(e_plant.magnitude, 20)

@@ -233,6 +233,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
             output_suitable_pv,
             discount_rate,
             ds,
+            unit="kW"
         )
     else:
         # TODO: How to manage message
@@ -272,6 +273,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
             output_suitable_st,
             discount_rate,
             ds,
+            unit="kWh"
         )
     else:
         # TODO: How to manage message

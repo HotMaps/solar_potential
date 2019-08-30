@@ -15,7 +15,10 @@ from pint import UnitRegistry
 
 
 ureg = UnitRegistry()
-UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
+if os.environ.get("LOCAL", False):
+    UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(), "hotmaps", "cm_files_uploaded")
+else:
+    UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)

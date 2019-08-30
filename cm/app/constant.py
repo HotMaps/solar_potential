@@ -269,8 +269,8 @@ INPUTS_CALCULATION_MODULE = [
 SIGNATURE = {
     "category": "Solar PV potential",
     "cm_name": CM_NAME,
-    "layers_needed": ["gfa_tot_curr_density", "climate_solar_radiation"],  # kWh/m²/year
-    "type_layer_needed": ["gross_floor_area", "climate_solar_radiation"],
+    "layers_needed": ["building_footprint_tot_curr", "climate_solar_radiation"],  # kWh/m²/year
+    "type_layer_needed": ["building_footprint_tot_curr", "climate_solar_radiation"],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the PhotoVoltaic – PV"
     "energy potential, the Solar Thermal – ST energy potential"

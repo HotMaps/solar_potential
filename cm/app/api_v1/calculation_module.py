@@ -135,7 +135,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     irradiation_values = ds.ReadAsArray()
     irradiation_values = np.nan_to_num(irradiation_values)
 
-    ds = gdal.Open(inputs_raster_selection["gross_floor_area"])
+    ds = gdal.Open(inputs_raster_selection["building_footprint_tot_curr"])
     ds_geo = ds.GetGeoTransform()
     pixel_area = ds_geo[1] * (-ds_geo[5])
     building_footprint = ds.ReadAsArray()

@@ -15,11 +15,12 @@ from pint import UnitRegistry
 
 
 ureg = UnitRegistry()
-UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(), "hotmaps", "cm_files_uploaded")
+UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
     os.chmod(UPLOAD_DIRECTORY, 0o777)
+
 
 
 def load_input():

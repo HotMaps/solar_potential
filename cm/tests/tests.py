@@ -52,7 +52,7 @@ def load_raster(suitable_area, solar):
     copyfile(raster_file_path, save_path_area)
 
     inputs_raster_selection = {}
-    inputs_raster_selection["climate_solar_radiation"] = save_path_solar
+    inputs_raster_selection["solar_radiation"] = save_path_solar
     inputs_raster_selection["building_footprint_tot_curr"] = save_path_area
     return inputs_raster_selection
 
@@ -167,7 +167,7 @@ class TestAPI(unittest.TestCase):
         path_output = json["result"]["raster_layers"][0]["path"]
         ds = gdal.Open(path_output)
         raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
-        ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
+        ds = gdal.Open(inputs_raster_selection["solar_radiation"])
         irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
         ds = gdal.Open(inputs_raster_selection["building_footprint_tot_curr"])
         area = np.array(ds.GetRasterBand(1).ReadAsArray())

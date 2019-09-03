@@ -42,6 +42,7 @@ def on_request(ch, method, props, body):
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 channel.basic_qos(prefetch_count=1)
+print('queue_name',queue_name)
 channel.basic_consume(on_request, queue=queue_name)
 
 print(" [x] Awaiting RPC requests")

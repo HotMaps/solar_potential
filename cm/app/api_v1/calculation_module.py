@@ -25,7 +25,6 @@ else:
     warnings.warn("RES_NINJA_TOKENS variable not set.")
     TOKEN = None
 
-
 def get_integral_error(pl, interval):
     """
     Compute the integrale of the production profile and compute
@@ -130,7 +129,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     output_suitable_pv = generate_output_file_tif(output_directory)
     output_suitable_st = generate_output_file_tif(output_directory)
     # retrieve the inputs layes
-    ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
+    ds = gdal.Open(inputs_raster_selection["solar_radiation"])
     ds_geo = ds.GetGeoTransform()
     irradiation_values = ds.ReadAsArray()
     irradiation_values = np.nan_to_num(irradiation_values)
@@ -145,7 +144,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     # retrieve the inputs all input defined in the signature
     pv_in = {
         "roof_use_factor": float(
-            inputs_parameter_selection["roof_use_factor_pv"] / 100.0
+            float(inputs_parameter_selection["roof_use_factor_pv"]) / 100.0
         ),
         "target": float(inputs_parameter_selection["PV_target"]),
         "setup_costs": int(inputs_parameter_selection["setup_costs_pv"]),
@@ -160,7 +159,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     }
     st_in = {
         "roof_use_factor": float(
-            inputs_parameter_selection["roof_use_factor_st"] / 100.0
+            float(inputs_parameter_selection["roof_use_factor_st"]) / 100.0
         ),
         "target": float(inputs_parameter_selection["ST_target"]),
         "setup_costs": int(inputs_parameter_selection["setup_costs_st"]),

@@ -38,21 +38,24 @@ def load_input():
     return inputs_parameter
 
 
-def load_raster(suitable_area, solar):
+def load_raster():
     """
     Load the raster file for testing
 
     :return a dictionary with the raster file paths
     """
-    raster_file_path = os.path.join("tests/data", solar)
-    # simulate copy from HTAPI to CM
-    save_path_solar = os.path.join(UPLOAD_DIRECTORY, solar)
-    copyfile(raster_file_path, save_path_solar)
 
-    raster_file_path = os.path.join("tests/data", suitable_area)
+    raster_file_path_solar = 'tests/data/solar_for_test.tif'
     # simulate copy from HTAPI to CM
-    save_path_area = os.path.join(UPLOAD_DIRECTORY, suitable_area)
-    copyfile(raster_file_path, save_path_area)
+    save_path_solar = UPLOAD_DIRECTORY+"/solar_for_test.tif"
+    copyfile(raster_file_path_solar, save_path_solar)
+
+
+    raster_file_path_area = 'tests/data/area_for_test.tif'
+    # simulate copy from HTAPI to CM
+    save_path_area = UPLOAD_DIRECTORY+"/area_for_test.tif"
+    copyfile(raster_file_path_area, save_path_area)
+
 
     inputs_raster_selection = {}
     inputs_raster_selection["solar_radiation"] = save_path_solar
@@ -109,7 +112,8 @@ class TestAPI(unittest.TestCase):
         2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        #inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         print("inputs_raster_selection_________________", inputs_raster_selection)
         from osgeo import gdal
         gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )
@@ -210,7 +214,7 @@ class TestAPI(unittest.TestCase):
         1) asserting the production per plant between 5 and 15 kWh/day
         2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
         """
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         #        inputs_parameter_selection = modify_input(inputs_parameter_selection,
         #                                                  roof_use_factor_pv=0.6,

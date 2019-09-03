@@ -110,6 +110,10 @@ class TestAPI(unittest.TestCase):
         """
         print("\n" "------------------------------------------------------")
         inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        print("inputs_raster_selection_________________", inputs_raster_selection)
+        from osgeo import gdal
+        gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )
+        print("gtif_________________", gtif)
         inputs_parameter_selection = load_input()
         # register the calculation module a
         payload = {
@@ -117,7 +121,7 @@ class TestAPI(unittest.TestCase):
             "inputs_parameter_selection": inputs_parameter_selection,
         }
         rv, json = self.client.post("computation-module/compute/", data=payload)
-
+        print("json_________________", json)
         # 0) print graphs
         test_graph(json["result"]["graphics"])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant

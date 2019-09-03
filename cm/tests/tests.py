@@ -116,6 +116,8 @@ class TestAPI(unittest.TestCase):
         inputs_raster_selection = load_raster()
         print("inputs_raster_selection_________________", inputs_raster_selection)
         import os
+        import gdal
+        gdal.AllRegister()
         os.system("gdalinfo --version")
         from osgeo import gdal
         gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )

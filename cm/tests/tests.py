@@ -115,6 +115,8 @@ class TestAPI(unittest.TestCase):
         #inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
         inputs_raster_selection = load_raster()
         print("inputs_raster_selection_________________", inputs_raster_selection)
+        import os
+        os.system("gdalinfo --version")
         from osgeo import gdal
         gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )
         print("gtif_________________", gtif)
@@ -160,7 +162,7 @@ class TestAPI(unittest.TestCase):
         of using the total surface of the buildings
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(
             inputs_parameter_selection, reduction_factor=100
@@ -192,7 +194,7 @@ class TestAPI(unittest.TestCase):
         Test the message when no output file are produced
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(
             inputs_parameter_selection, roof_use_factor=0.1

@@ -38,24 +38,27 @@ def load_input():
     return inputs_parameter
 
 
-def load_raster(suitable_area, solar):
+def load_raster():
     """
     Load the raster file for testing
 
     :return a dictionary with the raster file paths
     """
-    raster_file_path = os.path.join("tests/data", solar)
-    # simulate copy from HTAPI to CM
-    save_path_solar = os.path.join(UPLOAD_DIRECTORY, solar)
-    copyfile(raster_file_path, save_path_solar)
 
-    raster_file_path = os.path.join("tests/data", suitable_area)
+    raster_file_path_solar = 'tests/data/hdd_test_for_test.tif'
     # simulate copy from HTAPI to CM
-    save_path_area = os.path.join(UPLOAD_DIRECTORY, suitable_area)
-    copyfile(raster_file_path, save_path_area)
+    save_path_solar = UPLOAD_DIRECTORY+"/solar_for_test.tif"
+    copyfile(raster_file_path_solar, save_path_solar)
+
+
+    raster_file_path_area = 'tests/data/hdd_test_for_test.tif'
+    # simulate copy from HTAPI to CM
+    save_path_area = UPLOAD_DIRECTORY+"/area_for_test.tif"
+    copyfile(raster_file_path_area, save_path_area)
+
 
     inputs_raster_selection = {}
-    inputs_raster_selection["climate_solar_radiation"] = save_path_solar
+    inputs_raster_selection["solar_radiation"] = save_path_solar
     inputs_raster_selection["building_footprint_tot_curr"] = save_path_area
     return inputs_raster_selection
 
@@ -111,7 +114,18 @@ class TestAPI(unittest.TestCase):
         2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        #inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
+        print("inputs_raster_selection_________________", inputs_raster_selection)
+        import os
+        import gdal
+        gdal.AllRegister()
+
+        os.system("gdalinfo --formats")
+        os.system("gdalinfo --version")
+        from osgeo import gdal
+        gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )
+        print("gtif_________________", gtif)
         inputs_parameter_selection = load_input()
         # register the calculation module a
         payload = {
@@ -119,7 +133,7 @@ class TestAPI(unittest.TestCase):
             "inputs_parameter_selection": inputs_parameter_selection,
         }
         rv, json = self.client.post("computation-module/compute/", data=payload)
-
+        print("json_________________", json)
         # 0) print graphs
         test_graph(json["result"]["graphics"])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant
@@ -154,7 +168,7 @@ class TestAPI(unittest.TestCase):
         of using the total surface of the buildings
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(
             inputs_parameter_selection, reduction_factor=100
@@ -172,7 +186,7 @@ class TestAPI(unittest.TestCase):
         path_output = json["result"]["raster_layers"][0]["path"]
         ds = gdal.Open(path_output)
         raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
-        ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
+        ds = gdal.Open(inputs_raster_selection["solar_radiation"])
         irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
         ds = gdal.Open(inputs_raster_selection["building_footprint_tot_curr"])
         area = np.array(ds.GetRasterBand(1).ReadAsArray())
@@ -186,7 +200,7 @@ class TestAPI(unittest.TestCase):
         Test the message when no output file are produced
         """
         print("\n" "------------------------------------------------------")
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         inputs_parameter_selection = modify_input(
             inputs_parameter_selection, roof_use_factor=0.1
@@ -208,7 +222,7 @@ class TestAPI(unittest.TestCase):
         1) asserting the production per plant between 5 and 15 kWh/day
         2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
         """
-        inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         #        inputs_parameter_selection = modify_input(inputs_parameter_selection,
         #                                                  roof_use_factor_pv=0.6,

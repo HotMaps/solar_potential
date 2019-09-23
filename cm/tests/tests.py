@@ -87,7 +87,9 @@ def test_graph(graph):
         ax.set_ylabel(g["yLabel"])
         ax.set_xticks(x)
         ax.set_xticklabels(g["data"]["labels"], rotation=90)
-        plt.savefig(graph_file_path)
+        ax.grid(True)
+        fig.tight_layout()
+        fig.savefig(graph_file_path)
         plt.clf()
 
 

@@ -45,13 +45,13 @@ def load_raster():
     :return a dictionary with the raster file paths
     """
 
-    raster_file_path_solar = 'tests/data/hdd_test_for_test.tif'
+    raster_file_path_solar = 'tests/data/solar_for_test.tif'
     # simulate copy from HTAPI to CM
     save_path_solar = UPLOAD_DIRECTORY+"/solar_for_test.tif"
     copyfile(raster_file_path_solar, save_path_solar)
 
 
-    raster_file_path_area = 'tests/data/hdd_test_for_test.tif'
+    raster_file_path_area = 'tests/data/area_for_test.tif'
     # simulate copy from HTAPI to CM
     save_path_area = UPLOAD_DIRECTORY+"/area_for_test.tif"
     copyfile(raster_file_path_area, save_path_area)
@@ -116,24 +116,15 @@ class TestAPI(unittest.TestCase):
         print("\n" "------------------------------------------------------")
         #inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
         inputs_raster_selection = load_raster()
-        print("inputs_raster_selection_________________", inputs_raster_selection)
-        import os
-        import gdal
-        gdal.AllRegister()
-
-        os.system("gdalinfo --formats")
-        os.system("gdalinfo --version")
-        from osgeo import gdal
-        gtif = gdal.Open( inputs_raster_selection["solar_radiation"] )
-        print("gtif_________________", gtif)
         inputs_parameter_selection = load_input()
+
         # register the calculation module a
         payload = {
             "inputs_raster_selection": inputs_raster_selection,
             "inputs_parameter_selection": inputs_parameter_selection,
         }
         rv, json = self.client.post("computation-module/compute/", data=payload)
-        print("json_________________", json)
+
         # 0) print graphs
         test_graph(json["result"]["graphics"])
         # 1) assert that the production is beetween 5 and 15 kWh/day per plant

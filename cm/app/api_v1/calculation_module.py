@@ -136,10 +136,10 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
 
     ds = gdal.Open(inputs_raster_selection["building_footprint_tot_curr"])
     ds_geo = ds.GetGeoTransform()
-    pixel_area = ds_geo[1] * (-ds_geo[5])
     building_footprint = ds.ReadAsArray()
     building_footprint = np.nan_to_num(building_footprint)
-    building_footprint[building_footprint > pixel_area] = pixel_area
+    # set negative values: e.g. -3.4028235e+38 to 0
+    building_footprint[building_footprint < 0] = 0
 
     # retrieve the inputs all input defined in the signature
     pv_in = {

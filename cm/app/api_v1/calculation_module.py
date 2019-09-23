@@ -188,7 +188,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         )
 
     # define a pv plant with input features
-    pv_plant = pv.PV_plant(
+    pv_plant = pv.PvPlant(
         id_plant="PV",
         peak_power=pv_in["peak_power"],
         k_pv=float(inputs_parameter_selection["k_pv"]),
@@ -233,7 +233,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
             output_suitable_pv,
             discount_rate,
             ds,
-            unit="kW"
+            unit="kW",
         )
     else:
         # TODO: How to manage message
@@ -241,7 +241,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         warnings.warn("Not suitable pixels have been identified.")
 
     building_available = building_footprint - pv_plant_raster * pv_plant.area
-    st_plant = st.ST_plant(
+    st_plant = st.StPlant(
         id_plant="ST",
         area=st_in["area"],
         efficiency=st_in["efficiency"],
@@ -273,7 +273,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
             output_suitable_st,
             discount_rate,
             ds,
-            unit="kWh"
+            unit="kWh",
         )
     else:
         # TODO: How to manage message

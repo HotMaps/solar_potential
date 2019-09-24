@@ -142,11 +142,11 @@ def compute():
                                           The output of the module are:
                                            - the total cost of covering the
                                              selected area with PV panels
-                                             [currency]
+                                             [Euro]
                                            - the total yearly energy production
                                              [MWh/year]
                                            - the Levelized Cost of Energy
-                                             [currency/kWh]
+                                             [Euro/kWh]
                                            - the most suitable roofs for
                                              PV energy production",
                        "cm_url": "http://127.0.0.1:5002/",
@@ -197,11 +197,11 @@ def compute():
      'input_max': 0.6,
      'cm_id': 313
      },
-    {'input_name': 'Setup costs (all inclusive) price [currency/kWp]',
+    {'input_name': 'Setup costs (all inclusive) price [Euro/kWp]',
      'input_type': 'input',
      'input_parameter_name': 'setup_costs',
      'input_value': 5000,
-     'input_unit': 'currency/kWp',
+     'input_unit': 'Euro/kWp',
      'input_min': 0.0,
      'input_max': 10000,
      'cm_id': 313

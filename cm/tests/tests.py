@@ -1,5 +1,7 @@
 import tempfile
 import unittest
+from pprint import pprint
+
 from app import create_app
 import os.path
 from shutil import copyfile
@@ -206,13 +208,13 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(rv.status_code == 200)
 
     def test_sumPVST(self):
-        print("\n" "------------------------------------------------------")
         """
         Test of the default values from app.constat by changing PV and
         ST share greater than one
         1) asserting the production per plant between 5 and 15 kWh/day
         2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
         """
+        print("\n" "------------------------------------------------------")
         inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
         #        inputs_parameter_selection = modify_input(inputs_parameter_selection,
@@ -223,8 +225,6 @@ class TestAPI(unittest.TestCase):
             "inputs_raster_selection": inputs_raster_selection,
             "inputs_parameter_selection": inputs_parameter_selection,
         }
-        from pprint import pprint
-
         pprint(payload)
         rv, json = self.client.post("computation-module/compute/", data=payload)
 
@@ -255,6 +255,30 @@ class TestAPI(unittest.TestCase):
         e_plant.ito(ureg.kilowatt_hour / ureg.day)
         self.assertGreaterEqual(e_plant.magnitude, 5)
         self.assertLessEqual(e_plant.magnitude, 20)
+
+    def test_warnings(self):
+        """
+        Test of the default values from app.constat by changing PV and
+        ST share greater than one
+        1) asserting the production per plant between 5 and 15 kWh/day
+        2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
+        """
+        print("\n" "------------------------------------------------------")
+        inputs_raster_selection = load_raster()
+        inputs_parameter_selection = load_input()
+        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+                                                  roof_use_factor_pv=80,
+                                                  roof_use_factor_st=80)
+        # register the calculation module a
+        payload = {
+            "inputs_raster_selection": inputs_raster_selection,
+            "inputs_parameter_selection": inputs_parameter_selection,
+        }
+        pprint(payload)
+        rv, json = self.client.post("computation-module/compute/", data=payload)
+
+        w0 = json['result']["indicator"][0]["name"]
+        self.assertTrue(w0.startswith("WARNING: Sum of roof use factors greater than 100."))
 
 
 if __name__ == "__main__":

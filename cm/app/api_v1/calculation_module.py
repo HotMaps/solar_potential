@@ -178,13 +178,14 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
 
     if (pv_in["roof_use_factor"] + st_in["roof_use_factor"]) > 1:
         st_in["roof_use_factor"] = 1.0 - pv_in["roof_use_factor"]
-        warnings.warn(
-            """Sum of roof use factors greater than 100.
-                      The roof use factor of the solar thermal has been
-                      reduced to {}""".format(
+        message = (
+                "Sum of roof use factors greater than 100. "
+                "The roof use factor of the solar thermal has been "
+                "reduced to {:2.1f}".format(
                 st_in["roof_use_factor"] * 100.0
-            )
-        )
+            ))
+        warnings.warn(message)
+        messages.append(message)
 
     # define a pv plant with input features
     pv_plant = pv.PvPlant(
@@ -237,7 +238,9 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     else:
         # TODO: How to manage message
         res_pv = dict()
-        warnings.warn("Not suitable pixels have been identified.")
+        message = "Not suitable pixels have been identified."
+        warnings.warn(message)
+        messages.append(message)
 
     building_available = building_footprint - pv_plant_raster * pv_plant.area
     st_plant = st.StPlant(
@@ -277,9 +280,13 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     else:
         # TODO: How to manage message
         res_st = dict()
-        warnings.warn("Not suitable pixels have been identified.")
+        message = "Not suitable pixels have been identified."
+        warnings.warn(message)
+        messages.append(message)
     dd = defaultdict(list)
     dd["name"] = CM_NAME
+    dd["indicator"] = [{"unit": "-", "name": "WARNING: " + msg, "value": 0.0}
+                       for msg in messages]
     # merge of the results
     for dic in [res_pv, res_st]:
         for d in dic:

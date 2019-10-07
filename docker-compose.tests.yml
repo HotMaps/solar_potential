@@ -3,6 +3,8 @@ version: '3.2'
 
 services:
   solar_potential:
+    env_file:
+      - ./cm/.env
     build:
       context: ./cm
       dockerfile: Dockerfile

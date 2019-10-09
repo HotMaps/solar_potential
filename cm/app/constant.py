@@ -270,7 +270,12 @@ SIGNATURE = {
     "category": "Solar PV potential",
     "cm_name": CM_NAME,
     "layers_needed": ["building_footprint_tot_curr", "solar_radiation"],  # kWh/m²/year
-    "type_layer_needed": ["building_footprint_tot_curr", "solar_radiation"],
+    "type_layer_needed": [
+            {"type": "building_footprint_tot_curr",
+             "description": "Area available to host a PV/ST system"},
+            {"type": "solar_radiation",
+             "description": "Raster map with the annual solar radiation [kWh/m²/year]"}
+            ],
     "cm_url": "Do not add something",
     "cm_description": "This computation aims to compute the PhotoVoltaic – PV"
     "energy potential, the Solar Thermal – ST energy potential"

@@ -1,6 +1,7 @@
 node {
   stage('Init') {
     checkout scm
+    sh 'cp /home/jenkins/hotmaps/cm/.env ./cm/.env'
   }
 
   stage('Build & Test') {

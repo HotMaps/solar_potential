@@ -11,7 +11,8 @@ class TestClient:
     def __init__(self, app):
         self.app = app
 
-    def send(self, url, method="GET", data=None, headers={}):
+    def send(self, url, method="GET", data=None, headers=None):
+        headers = {} if headers is None else headers
         # for testing, URLs just need to have the path and query string
         url_parsed = urlsplit(url)
         url = urlunsplit(

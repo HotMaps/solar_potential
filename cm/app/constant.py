@@ -267,7 +267,7 @@ INPUTS_CALCULATION_MODULE = [
 
 
 SIGNATURE = {
-    "category": "Solar PV potential",
+    "category": "Supply",
     "cm_name": CM_NAME,
     "layers_needed": ["building_footprint_tot_curr", "solar_radiation"],  # kWh/m²/year
     "type_layer_needed": [

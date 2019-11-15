@@ -185,7 +185,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
                 st_in["roof_use_factor"] * 100.0
             ))
         warnings.warn(message)
-        messages.append(message)
+        messages.append((message, "–", "–"))
 
     # define a pv plant with input features
     pv_plant = pv.PvPlant(
@@ -210,12 +210,15 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         # check consistency betwen raster irradiation map and renewable.ninja
         error = get_integral_error(pv_plant, 1)
         if error > 0.05:
-            message = (
-                "Difference between raster value sum and {} "
-                "profile total energy is: {:5.2}%"
-            ).format(pv_plant.id, error * 100.0)
+            msgtxt = (
+                f"Difference between raster value sum and {pv_plant.id} "
+                "profile total energy is:"
+            )
+            msgval = f"{error * 100.0:5.2}"
+            msgunt = "%"
+            message = f"{msgtxt}: {msgval} {msgunt}"
             warnings.warn(message)
-            messages.append(message)
+            messages.append((msgtxt, msgval, msgunt))
 
         # fix profile to force consistency
         pv_plant.prof["electricity"] = pv_plant.prof["electricity"] / (1 - error)
@@ -240,7 +243,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         res_pv = dict()
         message = "Not suitable pixels have been identified."
         warnings.warn(message)
-        messages.append(message)
+        messages.append((message, "–", "–"))
 
     building_available = building_footprint - pv_plant_raster * pv_plant.area
     st_plant = st.StPlant(
@@ -282,11 +285,13 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         res_st = dict()
         message = "Not suitable pixels have been identified."
         warnings.warn(message)
-        messages.append(message)
+        messages.append((message, "–", "–"))
     dd = defaultdict(list)
     dd["name"] = CM_NAME
-    dd["indicator"] = [{"unit": "-", "name": "WARNING: " + msg, "value": 0.0}
-                       for msg in messages]
+    dd["indicator"] = [{"unit": msgunt, 
+                        "name": "WARNING: " + msgtxt, 
+                        "value": msgval}
+                       for msgtxt, msgval, msgunt in messages]
     # merge of the results
     for dic in [res_pv, res_st]:
         for d in dic:

@@ -96,50 +96,9 @@ INPUTS_CALCULATION_MODULE = [
         "input_max": "100",
         "cm_id": CM_ID,
     },
-    {
-        "input_name": "PV energy target of the region if available",
-        "input_type": "input",
-        "input_parameter_name": "PV_target",
-        "input_value": "0",
-        "input_priority": "0",
-        "input_unit": "GWh",
-        "input_min": "0",
-        "input_max": "10000000000000",
-        "cm_id": CM_ID,
-    },
-    {
-        "input_name": "ST energy target of the region if available",
-        "input_type": "input",
-        "input_parameter_name": "ST_target",
-        "input_value": "0",
-        "input_priority": "0",
-        "input_unit": "GWh",
-        "input_min": "0",
-        "input_max": "10000000000000",
-        "cm_id": CM_ID,
-    },
-    {
-        "input_name": "PV Setup costs (all inclusive) price [Euro/kWp]",
-        "input_type": "input",
-        "input_parameter_name": "setup_costs_pv",
-        "input_value": "2000",
-        "input_priority": "1",
-        "input_unit": "Euro/kWp",
-        "input_min": "0.0",
-        "input_max": "10000",
-        "cm_id": CM_ID,
-    },
-    {
-        "input_name": "Solar Thermal Setup costs (all inclusive) price [Euro/m2]",
-        "input_type": "input",
-        "input_parameter_name": "setup_costs_st",
-        "input_value": "1000",
-        "input_priority": "1",
-        "input_unit": "Euro/m2",
-        "input_min": "0.0",
-        "input_max": "5000",
-        "cm_id": CM_ID,
-    },
+    #
+    # PV
+    #
     {
         "input_name": "Percentage of available area covered by "
         "Photovoltaics pannels (PV) [% of the available area]",
@@ -153,15 +112,14 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "Percentage of available area covered by "
-        "Solar thermal (ST) pannels [% of the available roof]",
+        "input_name": "PV energy target of the region if available",
         "input_type": "input",
+        "input_parameter_name": "PV_target",
+        "input_value": "0",
         "input_priority": "0",
-        "input_parameter_name": "roof_use_factor_st",
-        "input_value": "15",
-        "input_unit": "%",
+        "input_unit": "GWh",
         "input_min": "0",
-        "input_max": "100",
+        "input_max": "10000000000000",
         "cm_id": CM_ID,
     },
     {
@@ -176,6 +134,17 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
+        "input_name": "PV module efficiency at Standard Test Conditions [kW m^{-2}]",
+        "input_type": "input",
+        "input_parameter_name": "k_pv",
+        "input_value": "0.15",
+        "input_priority": "1",
+        "input_unit": " ",
+        "input_min": "0",
+        "input_max": "0.6",
+        "cm_id": CM_ID,
+    },
+    {
         "input_name": "Efficiency of the PV system (i.e. inverter)",
         "input_type": "input",
         "input_parameter_name": "efficiency_pv",
@@ -187,14 +156,55 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "PV module efficiency at Standard Test Conditions [kW m^{-2}]",
+        "input_name": "PV Setup costs (all inclusive) price [Euro/kWp]",
         "input_type": "input",
-        "input_parameter_name": "k_pv",
-        "input_value": "0.15",
+        "input_parameter_name": "setup_costs_pv",
+        "input_value": "2000",
         "input_priority": "1",
-        "input_unit": " ",
+        "input_unit": "Euro/kWp",
+        "input_min": "0.0",
+        "input_max": "10000",
+        "cm_id": CM_ID,
+    },
+    {
+        "input_name": "PV maintenance and operation costs [% of the setup cost]",
+        "input_type": "input",
+        "input_parameter_name": "maintenance_percentage_pv",
+        "input_value": "2",
+        "input_priority": "1",
+        "input_unit": "%",
+        "input_min": "0.0",
+        "input_max": "100",
+        "cm_id": CM_ID,
+    },
+    #
+    # ST
+    #
+    {
+        "input_name": "Percentage of available area covered by "
+        "Solar thermal (ST) pannels [% of the available roof]. "
+        "ST and PV cannot share the same surface and are mutually exclusive, "
+        "e.g. if the PV %  is set to 90% and the ST % is set to 20% the ST % "
+        "is reduced to 10%, to guarantee that no more than 100% of "
+        "the surface is used.",
+        "input_type": "input",
+        "input_priority": "0",
+        "input_parameter_name": "roof_use_factor_st",
+        "input_value": "15",
+        "input_unit": "%",
         "input_min": "0",
-        "input_max": "0.6",
+        "input_max": "100",
+        "cm_id": CM_ID,
+    },
+    {
+        "input_name": "ST energy target of the region if available",
+        "input_type": "input",
+        "input_parameter_name": "ST_target",
+        "input_value": "0",
+        "input_priority": "0",
+        "input_unit": "GWh",
+        "input_min": "0",
+        "input_max": "10000000000000",
         "cm_id": CM_ID,
     },
     {
@@ -220,16 +230,17 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "PV maintenance and operation costs [% of the setup cost]",
+        "input_name": "Solar Thermal Setup costs (all inclusive) price [Euro/m2]",
         "input_type": "input",
-        "input_parameter_name": "maintenance_percentage_pv",
-        "input_value": "2",
+        "input_parameter_name": "setup_costs_st",
+        "input_value": "1000",
         "input_priority": "1",
-        "input_unit": "%",
+        "input_unit": "Euro/m2",
         "input_min": "0.0",
-        "input_max": "100",
+        "input_max": "5000",
         "cm_id": CM_ID,
     },
+
     {
         "input_name": "Solar Thermal maintenance and operation costs [% of the setup cost]",
         "input_type": "input",

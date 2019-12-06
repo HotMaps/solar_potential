@@ -7,7 +7,7 @@ import requests
 import logging
 import os
 from flask import send_from_directory
-
+from app import helper
 from app import constant
 
 from app.api_v1 import errors
@@ -102,17 +102,21 @@ def compute():
             in: path
             type: dict
             required: true
-            default:  {'heat_tot_curr_density': '/var/hotmaps/cm_files_uploaded/raster_for_test.tif'}
+            default:  {'solar_optimal_total': '/var/hotmaps/cm_files_uploaded/raster_for_test.tif'}
           - name: inputs_parameter_selection
             in: path
             type: dict
             required: true
-            default: {'reduction_factor': 2}
-          - name: reduction_factor
-            in: path
-            type: integer
-            required: true
-            default: 1
+            default: {'roof_use_factor': 0.15,
+                      'reduction_factor': 0.3,
+                      'peak_power_pv': 3,
+                      'efficiency_pv': 0.75,
+                      'k_pv': 0.15,
+                      'setup_costs': 5000,
+                      'maintenance_percentage': 2,
+                      'financing_years': 20,
+                      'discount_rate': 4
+                      }
 
        definitions:
          Color:
@@ -121,31 +125,148 @@ def compute():
          200:
            description: MWS is aware of the CM
            examples:
-            results: {"response": {"category": "Buildings", "cm_name": "calculation_module_1", "layers_needed": ["heat_density_tot"], "cm_description": "this computation module allows to ....", "cm_url": "http://127.0.0.1:5002/", "cm_id": 1, "inputs_calculation_module": [{"input_min": 1, "input_value": 1, "input_unit": "none", "input_name": "Reduction factor", "cm_id": 1, "input_type": "input", "input_parameter_name": "reduction_factor", "input_max": 10}, {"input_min": 10, "input_value": 50, "input_unit": "", "input_name": "Blablabla", "cm_id": 1, "input_type": "range", "input_parameter_name": "bla", "input_max": 1000}]}}
+            results: {"response":
+                      {"category": "Energy Potential",
+                       "cm_name": "calculation_module_1",
+                       "layers_needed": ["heat_density_tot"],
+                       "cm_description": "this computation module aims to
+                                          compute the photovoltaic energy
+                                          potential and the financial
+                                          feasibility of a selected area
+                                          by considering:
+                                           - the installation of new PV systems
+                                             on a percentage of building
+                                             footprint
+                                           - the financial feasibility of
+                                             new plants
+                                          The output of the module are:
+                                           - the total cost of covering the
+                                             selected area with PV panels
+                                             [Euro]
+                                           - the total yearly energy production
+                                             [MWh/year]
+                                           - the Levelized Cost of Energy
+                                             [Euro/kWh]
+                                           - the most suitable roofs for
+                                             PV energy production",
+                       "cm_url": "http://127.0.0.1:5002/",
+                       "cm_id": 313, "inputs_calculation_module":
+                           [
+    {'input_name': 'Effective building roof utilization factor',
+     'input_type': 'range',
+     'input_parameter_name': 'roof_use_factor',
+     'input_value': 0.15,
+     'input_unit': 'none',
+     'input_min': 0,
+     'input_max': 1,
+     'cm_id': 313
+     },
+    {'input_name': 'Fraction of buildings with solar panels',
+     'input_type': 'input',
+     'input_parameter_name': 'reduction_factor',
+     'input_value': 0.3,
+     'input_unit': 'none',
+     'input_min': 0,
+     'input_max': 1,
+     'cm_id': 313
+     },
+    {'input_name': 'Installed peak power [kW_p]',
+     'input_type': 'input',
+     'input_parameter_name': 'peak_power_pv',
+     'input_value': 3,
+     'input_unit': 'kW',
+     'input_min': 0,
+     'input_max': 20,
+     'cm_id': 313
+     },
+    {'input_name': 'Efficiency of the solar system',
+     'input_type': 'input',
+     'input_parameter_name': 'efficiency_pv',
+     'input_value': 0.75,
+     'input_unit': 'none',
+     'input_min': 0,
+     'input_max': 1,
+     'cm_id': 313
+     },
+    {'input_name': 'Module efficiency at Standard Test Conditions [kW m^{-2}]',
+     'input_type': 'input',
+     'input_parameter_name': 'k_pv',
+     'input_value': 0.15,
+     'input_unit': 'none',
+     'input_min': 0,
+     'input_max': 0.6,
+     'cm_id': 313
+     },
+    {'input_name': 'Setup costs (all inclusive) price [Euro/kWp]',
+     'input_type': 'input',
+     'input_parameter_name': 'setup_costs',
+     'input_value': 5000,
+     'input_unit': 'Euro/kWp',
+     'input_min': 0.0,
+     'input_max': 10000,
+     'cm_id': 313
+     },
+    {'input_name': 'Maintenance and operation costs [%] of the setup cost',
+     'input_type': 'input',
+     'input_parameter_name': 'maintenance_percentage',
+     'input_value': 2,
+     'input_unit': '%',
+     'input_min': 0.0,
+     'input_max': 100,
+     'cm_id': 313
+     },
+    {'input_name': 'Financing years [year]',
+     'input_type': 'input',
+     'input_parameter_name': 'financing_years',
+     'input_value': 20,
+     'input_unit': 'year',
+     'input_min': 0.0,
+     'input_max': 40,
+     'cm_id': 313
+     },
+    {'input_name': 'Discount rate [%]',
+     'input_type': 'input',
+     'input_parameter_name': 'discount_rate',
+     'input_value': 4.0,
+     'input_unit': '%',
+     'input_min': 0,
+     'input_max': 100,
+     'cm_id': 313
+     }
+]}}
              """
 
-    print ('CM will Compute ')
-    #import ipdb; ipdb.set_trace()
+    print ("""CM will Compute  the energy supply potential and related costs
+           for rooftop installed solar thermal and PV systems in a
+           defined area. The inputs to the module are raster files of
+           building footprint and solar irradiation, costs and efficiency of
+           reference solar thermal and PV systems and the fractions of usable
+           rooftop area where solar thermal and PV systems are installed.""")
     data = request.get_json()
 
     #TODO CM Developper do not need to change anything here
     # here is the inputs layers and parameters
-    inputs_raster_selection = data["inputs_raster_selection"]
+    inputs_raster_selection = helper.validateJSON(data["inputs_raster_selection"])
     print ('inputs_raster_selection', inputs_raster_selection)
-    inputs_parameter_selection = data["inputs_parameter_selection"]
+    LOGGER.info('inputs_raster_selection', inputs_raster_selection)
+
+    inputs_parameter_selection = helper.validateJSON(data["inputs_parameter_selection"])
     print ('inputs_parameter_selection', inputs_parameter_selection)
+    LOGGER.info('inputs_parameter_selection', inputs_parameter_selection)
+
     output_directory = UPLOAD_DIRECTORY
     # call the calculation module function
-    result = calculation_module.calculation(output_directory, inputs_raster_selection,inputs_parameter_selection)
+    result = calculation_module.calculation(output_directory,
+                                            inputs_raster_selection,
+                                            inputs_parameter_selection)
 
     response = {
         'result': result
 
 
     }
-    print("response ",response)
 
-    print("type response ",type(response))
+
     # convert response dict to json
     response = json.dumps(response)
     return response

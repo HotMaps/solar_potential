@@ -1,0 +1,20 @@
+
+version: '3.2'
+
+services:
+  solar_potential:
+    env_file:
+      - ./cm/.env
+    build:
+      context: ./cm
+      dockerfile: Dockerfile
+    expose:
+      - 80
+    stop_signal: SIGKILL
+    stdin_open: true
+    tty: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: python3 test.py
+
+

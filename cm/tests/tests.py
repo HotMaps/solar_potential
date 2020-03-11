@@ -60,7 +60,7 @@ def load_raster():
 
 
     inputs_raster_selection = {}
-    inputs_raster_selection["solar_radiation"] = save_path_solar
+    inputs_raster_selection["climate_solar_radiation"] = save_path_solar
     inputs_raster_selection["building_footprint_tot_curr"] = save_path_area
     return inputs_raster_selection
 

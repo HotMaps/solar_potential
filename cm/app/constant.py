@@ -287,7 +287,7 @@ SIGNATURE = {
     "type_layer_needed": [
             {"type": "building_footprint_tot_curr",
              "description": "Area available to host a PV/ST system"},
-            {"type": "solar_optimal_total",
+            {"type": "climate_solar_radiation",
              "description": "Raster map with the annual solar radiation [kWh/m²/year]"}
             ],
     "cm_url": "Do not add something",

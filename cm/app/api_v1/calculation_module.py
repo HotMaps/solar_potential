@@ -129,7 +129,7 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     output_suitable_pv = generate_output_file_tif(output_directory)
     output_suitable_st = generate_output_file_tif(output_directory)
     # retrieve the inputs layes
-    ds = gdal.Open(inputs_raster_selection["solar_radiation"])
+    ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
     ds_geo = ds.GetGeoTransform()
     irradiation_values = ds.ReadAsArray()
     irradiation_values = np.nan_to_num(irradiation_values)

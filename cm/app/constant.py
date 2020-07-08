@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 CELERY_BROKER_URL_DOCKER = "amqp://admin:mypass@rabbit:5672/"
 CELERY_BROKER_URL_LOCAL = "amqp://localhost/"
@@ -279,6 +280,7 @@ INPUTS_CALCULATION_MODULE = [
     },
 ]
 
+WIKIURL = os.environ.get("WIKIURL", "https://wiki.hotmaps.hevs.ch/en/")
 
 SIGNATURE = {
     "category": "Supply",
@@ -297,5 +299,6 @@ SIGNATURE = {
     "The code is on the Hotmaps Github group and has"
     " been developed by EURAC",
     "cm_id": CM_ID,
+     "wiki_url": WIKIURL + "CM-Solar-thermal-and-PV-potential",
     "inputs_calculation_module": INPUTS_CALCULATION_MODULE,
 }

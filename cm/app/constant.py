@@ -280,7 +280,7 @@ INPUTS_CALCULATION_MODULE = [
     },
 ]
 
-WIKIURL = os.environ.get("WIKIURL", "https://wiki.hotmaps.hevs.ch/en/")
+WIKIURL = os.environ.get("WIKIURL", "https://wiki.hotmaps.eu/en/")
 
 SIGNATURE = {
     "category": "Supply",
@@ -293,12 +293,11 @@ SIGNATURE = {
              "description": "Raster map with the annual solar radiation [kWh/m²/year]"}
             ],
     "cm_url": "Do not add something",
-    "cm_description": "This computation aims to compute the PhotoVoltaic – PV"
-    "energy potential, the Solar Thermal – ST energy potential"
-    "and the financial feasibility of massive interventions"
-    "The code is on the Hotmaps Github group and has"
-    " been developed by EURAC",
+    "cm_description": "This calculation module aims to compute the Photovoltaic (PV) "
+    "energy potential, the solar thermal (ST) energy potential "
+    "and the financial feasibility of massive interventions. "
+    "The code has been developed by EURAC.",
     "cm_id": CM_ID,
-     "wiki_url": WIKIURL + "CM-Solar-thermal-and-PV-potential",
+    "wiki_url": WIKIURL + "CM-Solar-thermal-and-PV-potential",
     "inputs_calculation_module": INPUTS_CALCULATION_MODULE,
 }

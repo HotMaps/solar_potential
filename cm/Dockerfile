@@ -6,7 +6,9 @@ RUN mkdir -p /data
 
 # Install required python modules
 COPY ./requirements.txt /cm/
-RUN pip3 install -r /cm/requirements.txt
+RUN pip3 install --upgrade pip && \
+    pip3 install --upgrade numpy scipy && \
+    pip3 install -r /cm/requirements.txt
 
 # Copy app source code
 COPY . /cm

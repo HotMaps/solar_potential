@@ -18,14 +18,15 @@ from pint import UnitRegistry
 
 ureg = UnitRegistry()
 if os.environ.get("LOCAL", False):
-    UPLOAD_DIRECTORY = os.path.join(tempfile.gettempdir(), "hotmaps", "cm_files_uploaded")
+    UPLOAD_DIRECTORY = os.path.join(
+        tempfile.gettempdir(), "hotmaps", "cm_files_uploaded"
+    )
 else:
-    UPLOAD_DIRECTORY = '/var/hotmaps/cm_files_uploaded'
+    UPLOAD_DIRECTORY = "/var/hotmaps/cm_files_uploaded"
 
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
     os.chmod(UPLOAD_DIRECTORY, 0o777)
-
 
 
 def load_input():
@@ -47,17 +48,15 @@ def load_raster():
     :return a dictionary with the raster file paths
     """
 
-    raster_file_path_solar = 'tests/data/solar_for_test.tif'
+    raster_file_path_solar = "tests/data/solar_for_test.tif"
     # simulate copy from HTAPI to CM
-    save_path_solar = UPLOAD_DIRECTORY+"/solar_for_test.tif"
+    save_path_solar = UPLOAD_DIRECTORY + "/solar_for_test.tif"
     copyfile(raster_file_path_solar, save_path_solar)
 
-
-    raster_file_path_area = 'tests/data/area_for_test.tif'
+    raster_file_path_area = "tests/data/area_for_test.tif"
     # simulate copy from HTAPI to CM
-    save_path_area = UPLOAD_DIRECTORY+"/area_for_test.tif"
+    save_path_area = UPLOAD_DIRECTORY + "/area_for_test.tif"
     copyfile(raster_file_path_area, save_path_area)
-
 
     inputs_raster_selection = {}
     inputs_raster_selection["climate_solar_radiation"] = save_path_solar
@@ -116,7 +115,7 @@ class TestAPI(unittest.TestCase):
         2) asserting the value of lcoe between 0.02 and 0.2 euro/kWh
         """
         print("\n" "------------------------------------------------------")
-        #inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
+        # inputs_raster_selection = load_raster("area_for_test.tif", "solar_for_test.tif")
         inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
 
@@ -179,7 +178,7 @@ class TestAPI(unittest.TestCase):
         path_output = json["result"]["raster_layers"][0]["path"]
         ds = gdal.Open(path_output)
         raster_out = np.array(ds.GetRasterBand(1).ReadAsArray())
-        ds = gdal.Open(inputs_raster_selection["solar_radiation"])
+        ds = gdal.Open(inputs_raster_selection["climate_solar_radiation"])
         irradiation = np.array(ds.GetRasterBand(1).ReadAsArray())
         ds = gdal.Open(inputs_raster_selection["building_footprint_tot_curr"])
         area = np.array(ds.GetRasterBand(1).ReadAsArray())
@@ -266,9 +265,9 @@ class TestAPI(unittest.TestCase):
         print("\n" "------------------------------------------------------")
         inputs_raster_selection = load_raster()
         inputs_parameter_selection = load_input()
-        inputs_parameter_selection = modify_input(inputs_parameter_selection,
-                                                  roof_use_factor_pv=80,
-                                                  roof_use_factor_st=80)
+        inputs_parameter_selection = modify_input(
+            inputs_parameter_selection, roof_use_factor_pv=80, roof_use_factor_st=80
+        )
         # register the calculation module a
         payload = {
             "inputs_raster_selection": inputs_raster_selection,
@@ -277,8 +276,10 @@ class TestAPI(unittest.TestCase):
         pprint(payload)
         rv, json = self.client.post("computation-module/compute/", data=payload)
 
-        w0 = json['result']["indicator"][0]["name"]
-        self.assertTrue(w0.startswith("WARNING: Sum of roof use factors greater than 100."))
+        w0 = json["result"]["indicator"][0]["name"]
+        self.assertTrue(
+            w0.startswith("WARNING: Sum of roof use factors greater than 100.")
+        )
 
 
 if __name__ == "__main__":

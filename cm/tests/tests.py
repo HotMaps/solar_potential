@@ -98,7 +98,11 @@ def test_graph(graph):
 
 
 class TestAPI(unittest.TestCase):
+    token = os.environ.get("RES_NINJA_TOKENS")
+
     def setUp(self):
+        # restore token at every test
+        os.environ["RES_NINJA_TOKENS"] = self.token
         self.app = create_app(os.environ.get("FLASK_CONFIG", "development"))
         self.ctx = self.app.app_context()
         self.ctx.push()
@@ -280,6 +284,33 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(
             w0.startswith("WARNING: Sum of roof use factors greater than 100.")
         )
+
+    def test_renewableninja_not_reachable(self):
+        """
+        Test of the default values from app.constat by changing PV and
+        ST share greater than one
+        1) asserting the production per plant between 5 and 15 kWh/day
+        2) asserting the value of LCOE between 0.02 and 0.2 euro/kWh
+        """
+        # TODO: this test do not work because the change of the env variable
+        # effect only the current process, therefore the server that
+        # is listening for requests still have the valid token.
+        # os.environ["RES_NINJA_TOKENS"] = "fail!"
+        # print("\n" "------------------------------------------------------")
+        # inputs_raster_selection = load_raster()
+        # inputs_parameter_selection = load_input()
+        # #        inputs_parameter_selection = modify_input(inputs_parameter_selection,
+        # #                                                  roof_use_factor_pv=0.6,
+        # #                                                  roof_use_factor_st=0.6)
+        # # register the calculation module a
+        # payload = {
+        #     "inputs_raster_selection": inputs_raster_selection,
+        #     "inputs_parameter_selection": inputs_parameter_selection,
+        # }
+        # pprint(payload)
+        # rv, json = self.client.post("computation-module/compute/", data=payload)
+        # print("NO RENEWABLE NINJA")
+        # print(js.dumps(json))
 
 
 if __name__ == "__main__":

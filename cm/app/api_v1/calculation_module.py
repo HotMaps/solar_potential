@@ -25,6 +25,7 @@ else:
     warnings.warn("RES_NINJA_TOKENS variable not set.")
     TOKEN = None
 
+
 def get_integral_error(pl, interval):
     """
     Compute the integrale of the production profile and compute
@@ -35,9 +36,10 @@ def get_integral_error(pl, interval):
 
     :returns: the relative error
     """
-    return (
-        pl.energy_production - pl.prof["electricity"].sum() * interval
-    ) / pl.energy_production
+    if pl.prof is not None:
+        return (
+            pl.energy_production - pl.prof["electricity"].sum() * interval
+        ) / pl.energy_production
 
 
 def run_source(
@@ -59,6 +61,7 @@ def run_source(
         yearly_cost=data_in["tot_cost_year"],
         plant_life=data_in["financing_years"],
     )
+    pl.prof = None
 
     result = dict()
     if most_suitable.max() > 0:
@@ -70,50 +73,52 @@ def run_source(
         )
 
         # default profile
-        if kind == "PV":
-            tot_profile = pl.prof["electricity"].values * pl.n_plants
+        if pl.prof is not None:
+            if kind == "PV":
+                tot_profile = pl.prof["electricity"].values * pl.n_plants
+            else:
+                tot_profile = pl.prof["thermal"].values * pl.n_plants
+            default_profile, unit, con = ru.best_unit(
+                tot_profile, unit, no_data=0, fstat=np.median, powershift=0
+            )
+            pl.prof[f"{kind} [{unit}]"] = default_profile
+
+            graph = ro.line(
+                x=ro.reducelabels(pl.prof.index.strftime("%d-%b %H:%M")),
+                y_labels=["{} {} profile [{}]".format(kind, pl.resolution[1], unit)],
+                y_values=[default_profile],
+                unit=unit,
+                xLabel=pl.resolution[0],
+                yLabel="{} {} profile [{}]".format(kind, pl.resolution[1], unit),
+            )
+
+            # monthly profile of energy production
+            df_month = pl.prof.groupby(pd.Grouper(freq="M")).sum()
+            if kind == "PV":
+                month_data = df_month["electricity"] * pl.n_plants
+            else:
+                month_data = df_month["thermal"] * pl.n_plants
+
+            monthly_profile, unit, con = ru.best_unit(
+                month_data.values, "kWh", no_data=0, fstat=np.median, powershift=0
+            )
+            graph_month = ro.line(
+                x=df_month.index.strftime("%b"),
+                y_labels=[
+                    """"{} monthly energy
+                                            production [{}]""".format(
+                        kind, unit
+                    )
+                ],
+                y_values=[monthly_profile],
+                unit=unit,
+                xLabel="Months",
+                yLabel="{} monthly profile [{}]".format(kind, unit),
+            )
+
+            graphics = [graph, graph_month]
         else:
-            tot_profile = pl.prof["thermal"].values * pl.n_plants
-        default_profile, unit, con = ru.best_unit(
-            tot_profile, unit, no_data=0, fstat=np.median, powershift=0
-        )
-        pl.prof[f"{kind} [{unit}]"] = default_profile
-
-        graph = ro.line(
-            x=ro.reducelabels(pl.prof.index.strftime("%d-%b %H:%M")),
-            y_labels=["{} {} profile [{}]".format(kind, pl.resolution[1], unit)],
-            y_values=[default_profile],
-            unit=unit,
-            xLabel=pl.resolution[0],
-            yLabel="{} {} profile [{}]".format(kind, pl.resolution[1], unit),
-        )
-
-        # monthly profile of energy production
-        df_month = pl.prof.groupby(pd.Grouper(freq="M")).sum()
-        if kind == "PV":
-            month_data = df_month["electricity"] * pl.n_plants
-        else:
-            month_data = df_month["thermal"] * pl.n_plants
-
-        monthly_profile, unit, con = ru.best_unit(
-            month_data.values, "kWh", no_data=0, fstat=np.median, powershift=0
-        )
-        graph_month = ro.line(
-            x=df_month.index.strftime("%b"),
-            y_labels=[
-                """"{} monthly energy
-                                        production [{}]""".format(
-                    kind, unit
-                )
-            ],
-            y_values=[monthly_profile],
-            unit=unit,
-            xLabel="Months",
-            yLabel="{} monthly profile [{}]".format(kind, unit),
-        )
-
-        graphics = [graph, graph_month]
-
+            graphics = []
         result["graphics"] = graphics
     return result
 
@@ -179,11 +184,10 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     if (pv_in["roof_use_factor"] + st_in["roof_use_factor"]) > 1:
         st_in["roof_use_factor"] = 1.0 - pv_in["roof_use_factor"]
         message = (
-                "Sum of roof use factors greater than 100. "
-                "The roof use factor of the solar thermal has been "
-                "reduced to {:2.1f}".format(
-                st_in["roof_use_factor"] * 100.0
-            ))
+            "Sum of roof use factors greater than 100. "
+            "The roof use factor of the solar thermal has been "
+            "reduced to {:2.1f}".format(st_in["roof_use_factor"] * 100.0)
+        )
         warnings.warn(message)
         messages.append((message, "–", "–"))
 
@@ -206,27 +210,38 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     pv_plant.n_plants = pv_plant_raster.sum()
     if pv_plant.n_plants > 0:
         pv_plant.lat, pv_plant.lon = rr.get_lat_long(ds, most_suitable)
-        pv_plant.prof = pv_plant.profile()
-        # check consistency betwen raster irradiation map and renewable.ninja
-        error = get_integral_error(pv_plant, 1)
-        if error > 0.05:
-            msgtxt = (
-                f"Difference between raster value sum and {pv_plant.id} "
-                "profile total energy is:"
+        try:
+            pv_plant.prof = pv_plant.profile()
+            # check consistency betwen raster irradiation map and renewable.ninja
+            error = get_integral_error(pv_plant, 1)
+            if error > 0.05:
+                msgtxt = (
+                    f"Difference between raster value sum and {pv_plant.id} "
+                    "profile total energy is:"
+                )
+                msgval = f"{error * 100.0:5.2}"
+                msgunt = "%"
+                message = f"{msgtxt}: {msgval} {msgunt}"
+                warnings.warn(message)
+                messages.append((msgtxt, msgval, msgunt))
+
+            # fix profile to force consistency
+            pv_plant.prof["electricity"] = pv_plant.prof["electricity"] / (1 - error)
+            assert round(pv_plant.prof["electricity"].sum()) == round(
+                pv_plant.energy_production
             )
-            msgval = f"{error * 100.0:5.2}"
-            msgunt = "%"
-            message = f"{msgtxt}: {msgval} {msgunt}"
-            warnings.warn(message)
-            messages.append((msgtxt, msgval, msgunt))
 
-        # fix profile to force consistency
-        pv_plant.prof["electricity"] = pv_plant.prof["electricity"] / (1 - error)
-        assert round(pv_plant.prof["electricity"].sum()) == round(
-            pv_plant.energy_production
-        )
+            pv_plant.resolution = ["Hours", "hourly"]
+        except Exception:
+            messages.append(
+                (
+                    "Not able to reach the RenewableNinja website to retrieve the hourly values",
+                    "-",
+                    "-",
+                )
+            )
+            pv_plant.prof = None
 
-        pv_plant.resolution = ["Hours", "hourly"]
         res_pv = run_source(
             "PV",
             pv_plant,
@@ -265,10 +280,21 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
     st_plant.n_plants = st_plant_raster.sum()
     if st_plant.n_plants > 0:
         st_plant.lat, st_plant.lon = rr.get_lat_long(ds, most_suitable)
-        hprof = st_plant.profile()
-        # hourly profile to dayly profile
-        st_plant.prof = hprof.groupby(pd.Grouper(freq="D")).sum()
-        st_plant.resolution = ["Days", "dayly"]
+        try:
+            hprof = st_plant.profile()
+            # hourly profile to dayly profile
+            st_plant.prof = hprof.groupby(pd.Grouper(freq="D")).sum()
+            st_plant.resolution = ["Days", "dayly"]
+        except Exception:
+            messages.append(
+                (
+                    "Not able to reach the RenewableNinja website to retrieve the hourly values",
+                    "-",
+                    "-",
+                )
+            )
+            pv_plant.prof = None
+
         res_st = run_source(
             "ST",
             st_plant,
@@ -285,13 +311,13 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         res_st = dict()
         message = "Not suitable pixels have been identified."
         warnings.warn(message)
-        messages.append((message, "–", "–"))
+        messages.append((message, "-", "-"))
     dd = defaultdict(list)
     dd["name"] = CM_NAME
-    dd["indicator"] = [{"unit": msgunt, 
-                        "name": "WARNING: " + msgtxt, 
-                        "value": msgval}
-                       for msgtxt, msgval, msgunt in messages]
+    dd["indicator"] = [
+        {"unit": msgunt, "name": "WARNING: " + msgtxt, "value": msgval}
+        for msgtxt, msgval, msgunt in messages
+    ]
     # merge of the results
     for dic in [res_pv, res_st]:
         for d in dic:

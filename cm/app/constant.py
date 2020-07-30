@@ -130,12 +130,12 @@ INPUTS_CALCULATION_MODULE = [
         "input_value": "3",
         "input_priority": "1",
         "input_unit": "kW",
-        "input_min":"0",
+        "input_min": "0",
         "input_max": "20",
         "cm_id": CM_ID,
     },
     {
-        "input_name": "PV module efficiency at Standard Test Conditions [kW m^{-2}]",
+        "input_name": "PV module efficiency at standard test conditions [kW m^{-2}]",
         "input_type": "input",
         "input_parameter_name": "k_pv",
         "input_value": "0.15",
@@ -149,7 +149,7 @@ INPUTS_CALCULATION_MODULE = [
         "input_name": "Efficiency of the PV system (i.e. inverter)",
         "input_type": "input",
         "input_parameter_name": "efficiency_pv",
-        "input_value":"0.85",
+        "input_value": "0.85",
         "input_priority": "1",
         "input_unit": " ",
         "input_min": "0",
@@ -157,7 +157,7 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "PV Setup costs (all inclusive) price [Euro/kWp]",
+        "input_name": "PV Setup costs (all inclusive) price [euro/kWp]",
         "input_type": "input",
         "input_parameter_name": "setup_costs_pv",
         "input_value": "2000",
@@ -220,7 +220,7 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "Efficiency of the Solar Thermal system",
+        "input_name": "Efficiency of the solar thermal system",
         "input_type": "input",
         "input_parameter_name": "efficiency_st",
         "input_value": "0.85",
@@ -231,7 +231,7 @@ INPUTS_CALCULATION_MODULE = [
         "cm_id": CM_ID,
     },
     {
-        "input_name": "Solar Thermal Setup costs (all inclusive) price [Euro/m2]",
+        "input_name": "Solar thermal setup costs (all inclusive) price [euro/m2]",
         "input_type": "input",
         "input_parameter_name": "setup_costs_st",
         "input_value": "1000",
@@ -241,7 +241,6 @@ INPUTS_CALCULATION_MODULE = [
         "input_max": "5000",
         "cm_id": CM_ID,
     },
-
     {
         "input_name": "Solar Thermal maintenance and operation costs [% of the setup cost]",
         "input_type": "input",
@@ -287,11 +286,15 @@ SIGNATURE = {
     "cm_name": CM_NAME,
     "layers_needed": ["building_footprint_tot_curr", "solar_radiation"],  # kWh/m²/year
     "type_layer_needed": [
-            {"type": "building_footprint_tot_curr",
-             "description": "Area available to host a PV/ST system"},
-            {"type": "climate_solar_radiation",
-             "description": "Raster map with the annual solar radiation [kWh/m²/year]"}
-            ],
+        {
+            "type": "building_footprint_tot_curr",
+            "description": "Area available to host a PV/ST system",
+        },
+        {
+            "type": "climate_solar_radiation",
+            "description": "Raster map with the annual solar radiation [kWh/m²/year]",
+        },
+    ],
     "cm_url": "Do not add something",
     "cm_description": "This calculation module aims to compute the Photovoltaic (PV) "
     "energy potential, the solar thermal (ST) energy potential "

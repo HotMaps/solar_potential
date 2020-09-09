@@ -61,7 +61,7 @@ def run_source(
         yearly_cost=data_in["tot_cost_year"],
         plant_life=data_in["financing_years"],
     )
-    pl.prof = None
+    # pl.prof = None
 
     result = dict()
     if most_suitable.max() > 0:
@@ -207,6 +207,8 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         pv_in["roof_use_factor"],
         reduction_factor,
     )
+    
+    pv_plant.prof = None
     pv_plant.n_plants = pv_plant_raster.sum()
     if pv_plant.n_plants > 0:
         pv_plant.lat, pv_plant.lon = rr.get_lat_long(ds, most_suitable)
@@ -240,7 +242,6 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
                     "-",
                 )
             )
-            pv_plant.prof = None
 
         res_pv = run_source(
             "PV",
@@ -277,14 +278,16 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
         st_in["roof_use_factor"],
         reduction_factor,
     )
+    
+    st_plant.prof = None
     st_plant.n_plants = st_plant_raster.sum()
     if st_plant.n_plants > 0:
         st_plant.lat, st_plant.lon = rr.get_lat_long(ds, most_suitable)
         try:
             hprof = st_plant.profile()
-            # hourly profile to dayly profile
+            # hourly profile to daily profile
             st_plant.prof = hprof.groupby(pd.Grouper(freq="D")).sum()
-            st_plant.resolution = ["Days", "dayly"]
+            st_plant.resolution = ["Days", "daily"]
         except Exception:
             messages.append(
                 (
@@ -293,7 +296,6 @@ def calculation(output_directory, inputs_raster_selection, inputs_parameter_sele
                     "-",
                 )
             )
-            pv_plant.prof = None
 
         res_st = run_source(
             "ST",
